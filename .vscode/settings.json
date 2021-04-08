@@ -1,0 +1,23 @@
+{
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
+  },
+  "eslint.format.enable": true,
+  "eslint.probe": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "markdown"
+  ],
+  "search.exclude": {
+    "**/.next": true
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "css.validate": true,
+  "eslint.alwaysShowStatus": true,
+}
