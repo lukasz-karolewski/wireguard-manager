@@ -37,8 +37,7 @@ export default function Home() {
     };
 
     function clientConfigTemplate(config) {
-      return `
-          [Interface]
+      return `[Interface]
           Address = ${config.interface_address}
           PrivateKey = ${config.client_private_key}
           DNS = ${config.dns}
@@ -163,26 +162,33 @@ export default function Home() {
         className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
         onClick={getKeys}
       >
-        get private key
+        New
+      </button>
+
+      <button
+        className="px-4 py-2 mx-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+        onClick={() => setShowConfig(!showConfig)}
+      >
+        {showConfig ? "Show QR" : "Show config"}
       </button>
 
       <br />
       <div className="flex flex-row flex-wrap pt-10 bg-gray-100 justify-evenly">
         <div className="p-10 mb-10 bg-blue-100">
           {showConfig && <pre>{config_sjc}</pre>}
-          <QRCode value={config_sjc} size={256} className="mx-auto" />
+          {!showConfig && <QRCode value={config_sjc} size={256} className="mx-auto" />}
         </div>
         <div className=" p-10 mb-10 bg-blue-200">
           {showConfig && <pre>{config_sjc_all_traffic}</pre>}
-          <QRCode value={config_sjc_all_traffic} size={256} className="mx-auto" />
+          {!showConfig && <QRCode value={config_sjc_all_traffic} size={256} className="mx-auto" />}
         </div>
         <div className=" p-10 mb-10 bg-green-100">
           {showConfig && <pre>{config_waw}</pre>}
-          <QRCode value={config_waw} size={256} className="mx-auto" />
+          {!showConfig && <QRCode value={config_waw} size={256} className="mx-auto" />}
         </div>
         <div className=" p-10 mb-10 bg-green-200">
           {showConfig && <pre>{config_waw_all_traffic}</pre>}
-          <QRCode value={config_waw_all_traffic} size={256} className="mx-auto" />
+          {!showConfig && <QRCode value={config_waw_all_traffic} size={256} className="mx-auto" />}
         </div>
       </div>
 
