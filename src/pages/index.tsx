@@ -1,6 +1,21 @@
 import QRCode from "qrcode.react";
 import React, { useEffect, useState } from "react";
 
+type ClientConfig = {
+  interface_address: string;
+  client_private_key: string;
+  dns: string;
+  server_public_key: string;
+  allowed_ips: string;
+  server_endpoint: string;
+};
+
+type ServerConfig = {
+  server_public_key: string;
+  server_endpoint: string;
+  dns: string;
+};
+
 export default function Home() {
   const [clientId, setClientId] = useState(1);
   const [privateKey, setPrivateKey] = useState("");
@@ -17,26 +32,26 @@ export default function Home() {
   const [config_sjc_server, setConfig_sjc_server] = useState("");
   const [config_waw_server, setConfig_waw_server] = useState("");
 
-  const sjc_subnet = (id) => `172.16.1.${id}`;
+  const sjc_subnet = (id: number) => `172.16.1.${id}`;
   const sjc_allowed_ips = "192.168.2.0/24";
 
-  const waw_subnet = (id) => `172.16.2.${id}`;
+  const waw_subnet = (id: number) => `172.16.2.${id}`;
   const waw_allowed_ips = "192.168.20.0/24, 192.168.21.0/24";
 
   useEffect(() => {
-    const sjc = {
+    const sjc: ServerConfig = {
       server_public_key: "BEGg/cVw0trQmwZvbaf+0JZ1KJkQxnZYlQQSNrx9kGM=",
       server_endpoint: "edgerouter-sjc.duckdns.org:51820",
       dns: "192.168.2.1",
     };
 
-    const waw = {
+    const waw: ServerConfig = {
       server_public_key: "JS9jXHlQjx/Vl0nYM6qnPIUI/B/EFNq7DzNKb78ctz8=",
       server_endpoint: "edgerouter-waw.duckdns.org:51820",
       dns: "192.168.21.1",
     };
 
-    function clientConfigTemplate(config) {
+    function clientConfigTemplate(config: ClientConfig) {
       return `[Interface]
           Address = ${config.interface_address}
           PrivateKey = ${config.client_private_key}
@@ -53,11 +68,11 @@ export default function Home() {
     }
 
     function makeClientConfig(
-      cfg_base,
-      client_private_key,
-      interface_address,
+      cfg_base: ServerConfig,
+      client_private_key: string,
+      interface_address: string,
       allowed_ips = "0.0.0.0/0, ::/0"
-    ) {
+    ): ClientConfig {
       return {
         ...cfg_base,
         client_private_key,
@@ -66,7 +81,7 @@ export default function Home() {
       };
     }
 
-    function serverConfigTemplate(public_key, address, description) {
+    function serverConfigTemplate(public_key: string, address: string, description: string) {
       return `configure
         set interfaces wireguard wg0 peer ${public_key} allowed-ips ${address}
         set interfaces wireguard wg0 peer ${public_key} description ${description}
@@ -79,11 +94,11 @@ export default function Home() {
         .join("\n");
     }
 
-    function escape_description(text) {
+    function escape_description(text: string) {
       return text.replaceAll(" ", "-");
     }
 
-    function updateConfigs(clientId) {
+    function updateConfigs(clientId: number) {
       setConfig_sjc(
         clientConfigTemplate(
           makeClientConfig(sjc, privateKey, sjc_subnet(clientId) + "/16", sjc_allowed_ips)
@@ -173,7 +188,7 @@ export default function Home() {
       </button>
 
       <br />
-      <div className="flex flex-row flex-wrap pt-10 bg-gray-100 justify-evenly">
+      <div className="grid grid-cols-2 pt-10 bg-gray-100 justify-evenly">
         <div className="p-10 mb-10 bg-blue-100">
           {showConfig && <pre>{config_sjc}</pre>}
           {!showConfig && <QRCode value={config_sjc} size={256} className="mx-auto" />}

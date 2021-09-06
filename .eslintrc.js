@@ -1,10 +1,5 @@
 module.exports = {
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    sourceType: "module",
-  },
+  root: true,
   env: {
     browser: true,
     es2021: true,
@@ -12,26 +7,18 @@ module.exports = {
   },
   extends: [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
-    "plugin:prettier/recommended",
     "plugin:react-hooks/recommended",
     "plugin:tailwind/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
+    "plugin:prettier/recommended",
+    "next",
   ],
   rules: {
     "import/prefer-default-export": 0,
+    "react/prop-types": 0,
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
   },
-  settings: {
-    react: {
-      version: "detect",
-    },
-    "import/resolver": {
-      alias: [["~", "./"]],
-      node: {
-        extensions: [".js", ".jsx"],
-      },
-    },
-  },
-  ignorePatterns: ["node_modules/", ".next/"],
+  ignorePatterns: ["node_modules/", ".next/", "*.d.ts"],
 };
