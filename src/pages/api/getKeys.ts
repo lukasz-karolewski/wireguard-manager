@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { execShellCommand } from "~/utils/execShellCommand";
 
-type GetKeysResponse = {
+export type GetKeysResponse = {
   private_key: string;
   public_key: string;
 };
