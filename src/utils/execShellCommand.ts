@@ -9,7 +9,7 @@ export function execShellCommand(cmd: string) {
         reject(error);
         return;
       }
-      resolve(stdout ? stdout : stderr);
+      resolve((stdout ? stdout : stderr).trim());
     });
   });
 }
