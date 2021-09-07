@@ -2,7 +2,6 @@
   "files.autoSave": "onFocusChange",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": true,
     "source.fixAll.eslint": true
   },
   "eslint.format.enable": true,
@@ -20,4 +19,10 @@
   "css.lint.unknownAtRules": "ignore",
   "css.validate": true,
   "eslint.alwaysShowStatus": true,
+  "editor.gotoLocation.multipleDefinitions": "goto",
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.bracketPairColorization.enabled": true,
 }
