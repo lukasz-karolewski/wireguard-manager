@@ -3,7 +3,6 @@ module.exports = {
     purgeLayersByDefault: true,
     applyComplexClasses: true,
   },
-  purge: ["./src/**/*.{js,ts,jsx,tsx}"],
-  mode: "jit",
-  darkMode: false, // or 'media' or 'class'
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  mode: "jit"
 };

@@ -1,149 +1,138 @@
-import QRCode from "qrcode.react";
-import React, { useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import React, { FC, useEffect, useState } from "react";
+import { Button, Layout } from "~/components/ui";
+import { ServerConfig } from "~/model/server";
+import { ClientConfig } from "~/model/client";
+import { server_subnet_to_address } from "~/utils/common";
+import { getNewKeyPair, getServers } from "~/utils/client";
 
-type ClientConfig = {
-  interface_address: string;
-  client_private_key: string;
-  dns: string;
-  server_public_key: string;
-  allowed_ips: string;
-  server_endpoint: string;
+function makeClientConfig(
+  nickname: string,
+  server_config: ServerConfig,
+  clientId: number,
+  client_private_key: string,
+  client_public_key: string
+): ClientConfig {
+  return {
+    nickname,
+    interface_address: server_subnet_to_address(server_config.subnet, clientId),
+    client_private_key,
+    client_public_key,
+    dns: server_config.dns,
+    server_public_key: server_config.server_public_key,
+    allowed_ips: server_config.allowed_ips,
+    server_endpoint: server_config.server_endpoint,
+  };
+}
+
+type ClientConfigProps = {
+  config: ClientConfig;
+  show: "config" | "qr";
 };
 
-type ServerConfig = {
-  server_public_key: string;
-  server_endpoint: string;
-  dns: string;
+const ClientConfig: FC<React.PropsWithChildren<ClientConfigProps>> = ({ config, show }) => {
+  function clientConfigTemplate(config: ClientConfig) {
+    return `[Interface]
+        Address = ${config.interface_address}
+        PrivateKey = ${config.client_private_key}
+        DNS = ${config.dns}
+
+        [Peer]
+        PublicKey = ${config.server_public_key}
+        AllowedIPs = ${config.allowed_ips}
+        Endpoint = ${config.server_endpoint}
+        `
+      .split("\n")
+      .map((line) => line.trim())
+      .join("\n");
+  }
+
+  return (
+    <div className="bg-gray-100 justify-evenly mb-2 last:mb-0  overflow-auto">
+      <div className="p-2  bg-blue-100  overflow-auto">
+        {show == "config" && <pre>{clientConfigTemplate(config)}</pre>}
+        {show == "qr" && (
+          <div className="grid grid-cols-2">
+            <div className="mx-auto">
+              <QRCodeSVG value={clientConfigTemplate(config)} size={256} />
+            </div>
+            <ul>
+              <li>Name {config.nickname}</li>
+              <li>IP Allocation {config.interface_address}</li>
+              <li>Allowed ips {config.allowed_ips}</li>
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-export default function Home() {
+type ServerConfigProps = {
+  config: ServerConfig;
+  clients: ClientConfig[];
+};
+
+const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ config, clients }) => {
+  function serverConfigToEdgerouterCommandLine(config: ServerConfig) {
+    return `configure
+      set interfaces wireguard wg0 peer ${config.server_public_key} allowed-ips ${config.server_address}
+      set interfaces wireguard wg0 peer ${config.server_public_key} description ${config.name}
+      commit
+      save
+      exit
+    `
+      .split("\n")
+      .map((l) => l.trim())
+      .join("\n");
+  }
+
+  function serverConfigToNativeWireguard(config: ServerConfig) {
+    const header = `[Interface]
+    Address = ${config.server_address}
+    ListenPort = ${config.server_port}
+    PrivateKey = ${config.server_private_key}
+    MTU = ${config.server_mtu}
+    `;
+
+    const clientSection = clients?.map((c) => {
+      return `\n [Peer] \n PublicKey = ${c.client_public_key}
+                AllowedIPs = ${c.allowed_ips}
+                Endpoint = ${c.server_endpoint}\n`;
+    });
+
+    return (header + clientSection)
+      .split("\n")
+      .map((l) => l.trim())
+      .join("\n");
+  }
+
+  async function copyToClipboard() {
+    await navigator.clipboard.writeText(printConfig(config));
+  }
+
+  function printConfig(config: ServerConfig) {
+    switch (config.mode) {
+      case "native":
+        return serverConfigToNativeWireguard(config);
+      case "edgerouter":
+        return serverConfigToEdgerouterCommandLine(config);
+    }
+  }
+
+  return (
+    <div className="p-8 ">
+      <h3>{config.name} server</h3> <button onClick={copyToClipboard}>copy</button>
+      <pre className="text-white bg-gray-600 p-2 overflow-auto">{printConfig(config)}</pre>
+    </div>
+  );
+};
+
+function NewClient() {
   const [clientId, setClientId] = useState(1);
   const [privateKey, setPrivateKey] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [description, setDescription] = useState("");
-
-  const [showConfig, setShowConfig] = useState(false);
-
-  const [config_sjc, setConfig_sjc] = useState("");
-  const [config_sjc_all_traffic, setConfig_sjc_all_traffic] = useState("");
-  const [config_waw, setConfig_waw] = useState("");
-  const [config_waw_all_traffic, setConfig_waw_all_traffic] = useState("");
-
-  const [config_sjc_server, setConfig_sjc_server] = useState("");
-  const [config_waw_server, setConfig_waw_server] = useState("");
-
-  const sjc_subnet = (id: number) => `172.16.1.${id}`;
-  const sjc_allowed_ips = "192.168.2.0/24";
-
-  const waw_subnet = (id: number) => `172.16.2.${id}`;
-  const waw_allowed_ips = "192.168.20.0/24, 192.168.21.0/24";
-
-  useEffect(() => {
-    const sjc: ServerConfig = {
-      server_public_key: "BEGg/cVw0trQmwZvbaf+0JZ1KJkQxnZYlQQSNrx9kGM=",
-      server_endpoint: "edgerouter-sjc.duckdns.org:51820",
-      dns: "192.168.2.1",
-    };
-
-    const waw: ServerConfig = {
-      server_public_key: "JS9jXHlQjx/Vl0nYM6qnPIUI/B/EFNq7DzNKb78ctz8=",
-      server_endpoint: "edgerouter-waw.duckdns.org:51820",
-      dns: "192.168.21.1",
-    };
-
-    function clientConfigTemplate(config: ClientConfig) {
-      return `[Interface]
-          Address = ${config.interface_address}
-          PrivateKey = ${config.client_private_key}
-          DNS = ${config.dns}
-
-          [Peer]
-          PublicKey = ${config.server_public_key}
-          AllowedIPs = ${config.allowed_ips}
-          Endpoint = ${config.server_endpoint}
-          `
-        .split("\n")
-        .map((line) => line.trim())
-        .join("\n");
-    }
-
-    function makeClientConfig(
-      cfg_base: ServerConfig,
-      client_private_key: string,
-      interface_address: string,
-      allowed_ips = "0.0.0.0/0, ::/0"
-    ): ClientConfig {
-      return {
-        ...cfg_base,
-        client_private_key,
-        interface_address,
-        allowed_ips,
-      };
-    }
-
-    function serverConfigTemplate(public_key: string, address: string, description: string) {
-      return `configure
-        set interfaces wireguard wg0 peer ${public_key} allowed-ips ${address}
-        set interfaces wireguard wg0 peer ${public_key} description ${description}
-        commit
-        save
-        exit
-      `
-        .split("\n")
-        .map((line) => line.trim())
-        .join("\n");
-    }
-
-    function escape_description(text: string) {
-      return text.replaceAll(" ", "-");
-    }
-
-    function updateConfigs(clientId: number) {
-      setConfig_sjc(
-        clientConfigTemplate(
-          makeClientConfig(sjc, privateKey, sjc_subnet(clientId) + "/16", sjc_allowed_ips)
-        )
-      );
-
-      setConfig_sjc_all_traffic(
-        clientConfigTemplate(makeClientConfig(sjc, privateKey, sjc_subnet(clientId) + "/16"))
-      );
-
-      setConfig_waw(
-        clientConfigTemplate(
-          makeClientConfig(waw, privateKey, waw_subnet(clientId) + "/16", waw_allowed_ips)
-        )
-      );
-
-      setConfig_waw_all_traffic(
-        clientConfigTemplate(makeClientConfig(waw, privateKey, waw_subnet(clientId) + "/16"))
-      );
-
-      setConfig_sjc_server(
-        serverConfigTemplate(
-          publicKey,
-          sjc_subnet(clientId) + "/32",
-          escape_description(description)
-        )
-      );
-      setConfig_waw_server(
-        serverConfigTemplate(
-          publicKey,
-          waw_subnet(clientId) + "/32",
-          escape_description(description)
-        )
-      );
-    }
-
-    updateConfigs(clientId);
-  }, [clientId, privateKey, publicKey, description]);
-
-  async function getKeys() {
-    const res = await fetch("/api/getKeys");
-    const data = await res.json();
-    setPrivateKey(data.private_key);
-    setPublicKey(data.public_key);
-  }
 
   return (
     <>
@@ -172,50 +161,59 @@ export default function Home() {
         value={description}
         onChange={(event) => setDescription(event.target.value)}
       />
-
-      <button
-        className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-        onClick={getKeys}
-      >
-        New
-      </button>
-
-      <button
-        className="px-4 py-2 mx-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-        onClick={() => setShowConfig(!showConfig)}
-      >
-        {showConfig ? "Show QR" : "Show config"}
-      </button>
-
-      <br />
-      <div className="grid grid-cols-2 pt-10 bg-gray-100 justify-evenly">
-        <div className="p-10 mb-10 bg-blue-100">
-          {showConfig && <pre>{config_sjc}</pre>}
-          {!showConfig && <QRCode value={config_sjc} size={256} className="mx-auto" />}
-        </div>
-        <div className=" p-10 mb-10 bg-blue-200">
-          {showConfig && <pre>{config_sjc_all_traffic}</pre>}
-          {!showConfig && <QRCode value={config_sjc_all_traffic} size={256} className="mx-auto" />}
-        </div>
-        <div className=" p-10 mb-10 bg-green-100">
-          {showConfig && <pre>{config_waw}</pre>}
-          {!showConfig && <QRCode value={config_waw} size={256} className="mx-auto" />}
-        </div>
-        <div className=" p-10 mb-10 bg-green-200">
-          {showConfig && <pre>{config_waw_all_traffic}</pre>}
-          {!showConfig && <QRCode value={config_waw_all_traffic} size={256} className="mx-auto" />}
-        </div>
-      </div>
-
-      <div className="p-8 mb-2 ">
-        sjc server
-        <pre className="text-white bg-gray-600">{config_sjc_server}</pre>
-      </div>
-
-      <div className="p-8 ">
-        waw server
-        <pre className="text-white bg-gray-600">{config_waw_server}</pre>
-      </div>
     </>
+  );
+}
+
+function NewServer() {
+  return <></>;
+}
+
+export default async function Home() {
+  const [showConfig, setShowConfig] = useState(true);
+  console.log(1);
+
+  let i = 1;
+  const [servers, setServers] = useState<ServerConfig[]>([]);
+  const [clients, setClients] = useState<ClientConfig[]>([]);
+
+  useEffect(() => {
+    getServers().then((d) => {
+      console.log(d);
+      setServers(d);
+    });
+  });
+
+  async function newClient() {
+    const clientId = i++;
+    const nickname = "test";
+    const keyPair = await getNewKeyPair();
+
+    let newClients: ClientConfig[] = [];
+
+    servers.forEach((server) =>
+      newClients.push(
+        makeClientConfig(nickname, server, clientId, keyPair.private_key, keyPair.public_key)
+      )
+    );
+    setClients((c) => [...c, ...newClients]);
+  }
+
+  return (
+    <Layout>
+      <Button onClick={newClient}>New Client</Button>
+
+      <Button onClick={() => setShowConfig(!showConfig)}>
+        {showConfig ? "Show QR" : "Show config"}
+      </Button>
+
+      {clients.map((c) => (
+        <ClientConfig key={c.client_public_key} config={c} show={showConfig ? "config" : "qr"} />
+      ))}
+
+      {servers.map((s) => (
+        <ServerConfigView config={s} clients={clients}></ServerConfigView>
+      ))}
+    </Layout>
   );
 }
