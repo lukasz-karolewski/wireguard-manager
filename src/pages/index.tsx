@@ -2,28 +2,10 @@ import { QRCodeSVG } from "qrcode.react";
 import React, { FC, useEffect, useState } from "react";
 import { Button, Layout } from "~/components/ui";
 import { ServerConfig } from "~/model/server";
-import { ClientConfig } from "~/model/client";
-import { server_subnet_to_address } from "~/utils/common";
+import { ClientConfig, makeClientConfig } from "~/model/client";
 import { getNewKeyPair, getServers } from "~/utils/client";
 
-function makeClientConfig(
-  nickname: string,
-  server_config: ServerConfig,
-  clientId: number,
-  client_private_key: string,
-  client_public_key: string
-): ClientConfig {
-  return {
-    nickname,
-    interface_address: server_subnet_to_address(server_config.subnet, clientId),
-    client_private_key,
-    client_public_key,
-    dns: server_config.dns,
-    server_public_key: server_config.server_public_key,
-    allowed_ips: server_config.allowed_ips,
-    server_endpoint: server_config.server_endpoint,
-  };
-}
+
 
 type ClientConfigProps = {
   config: ClientConfig;
@@ -128,50 +110,49 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
   );
 };
 
-function NewClient() {
-  const [clientId, setClientId] = useState(1);
-  const [privateKey, setPrivateKey] = useState("");
-  const [publicKey, setPublicKey] = useState("");
-  const [description, setDescription] = useState("");
+// function NewClient() {
+//   const [clientId, setClientId] = useState(1);
+//   const [privateKey, setPrivateKey] = useState("");
+//   const [publicKey, setPublicKey] = useState("");
+//   const [description, setDescription] = useState("");
 
-  return (
-    <>
-      <input
-        className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-        type="number"
-        min={1}
-        max={254}
-        step={1}
-        value={clientId}
-        onChange={(event) => {
-          setClientId(+event.target.value);
-        }}
-      />
+//   return (
+//     <>
+//       <input
+//         className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+//         type="number"
+//         min={1}
+//         max={254}
+//         step={1}
+//         value={clientId}
+//         onChange={(event) => {
+//           setClientId(+event.target.value);
+//         }}
+//       />
 
-      <input
-        className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-        type="text"
-        value={privateKey}
-        readOnly
-      />
+//       <input
+//         className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+//         type="text"
+//         value={privateKey}
+//         readOnly
+//       />
 
-      <input
-        className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-        type="text"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-      />
-    </>
-  );
-}
+//       <input
+//         className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
+//         type="text"
+//         value={description}
+//         onChange={(event) => setDescription(event.target.value)}
+//       />
+//     </>
+//   );
+// }
 
-function NewServer() {
-  return <></>;
-}
+// function NewServer() {
+//   return <></>;
+// }
 
-export default async function Home() {
+export default function Home() {
   const [showConfig, setShowConfig] = useState(true);
-  console.log(1);
 
   let i = 1;
   const [servers, setServers] = useState<ServerConfig[]>([]);
