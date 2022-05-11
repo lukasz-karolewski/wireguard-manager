@@ -191,10 +191,6 @@ export default function Home() {
       {clients.map((c) => (
         <ClientConfig key={c.client_public_key} config={c} show={showConfig ? "config" : "qr"} />
       ))}
-
-      {servers.map((s) => (
-        <ServerConfigView config={s} clients={clients}></ServerConfigView>
-      ))}
     </Layout>
   );
 }

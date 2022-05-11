@@ -1,4 +1,3 @@
-import { QRCodeSVG } from "qrcode.react";
 import React, { FC, useEffect, useState } from "react";
 import { Button, Layout } from "~/components/ui";
 import { ServerConfig } from "~/model/server";
@@ -7,9 +6,10 @@ import { getNewKeyPair, getServers } from "~/utils/client";
 
 type ServerConfigProps = {
   config: ServerConfig;
+  clients: ClientConfig[];
 };
 
-const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ config }) => {
+const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ config, clients }) => {
   function serverConfigToEdgerouterCommandLine(config: ServerConfig) {
     return `configure
       set interfaces wireguard wg0 peer ${config.server_public_key} allowed-ips ${config.server_address}
@@ -30,6 +30,17 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
     PrivateKey = ${config.server_private_key}
     MTU = ${config.server_mtu}
     `;
+
+    const clientSection = clients?.map((c) => {
+      return `\n [Peer] \n PublicKey = ${c.client_public_key}
+                AllowedIPs = ${c.allowed_ips}
+                Endpoint = ${c.server_endpoint}\n`;
+    });
+
+    return (header + clientSection)
+      .split("\n")
+      .map((l) => l.trim())
+      .join("\n");
   }
 
   async function copyToClipboard() {
@@ -59,9 +70,6 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
 // }
 
 export default function Home() {
-  const [showConfig, setShowConfig] = useState(true);
-
-  let i = 1;
   const [servers, setServers] = useState<ServerConfig[]>([]);
 
   useEffect(() => {
@@ -70,30 +78,16 @@ export default function Home() {
     });
   });
 
-  async function newServer() {
-    const clientId = i++;
-    const nickname = "test";
-    const keyPair = await getNewKeyPair();
+  function addServer() {
 
-    let newClients: ClientConfig[] = [];
-
-    servers.forEach((server) =>
-      newClients.push(
-        makeClientConfig(nickname, server, clientId, keyPair.private_key, keyPair.public_key)
-      )
-    );
   }
 
   return (
     <Layout>
-      <Button onClick={newServer}>Add Server</Button>
-
-      <Button onClick={() => setShowConfig(!showConfig)}>
-        {showConfig ? "Show QR" : "Show config"}
-      </Button>
+      <Button onClick={addServer}>Add Server</Button>
 
       {servers.map((s) => (
-        <ServerConfigView config={s}></ServerConfigView>
+        <ServerConfigView config={s} clients={[]}></ServerConfigView>
       ))}
     </Layout>
   );

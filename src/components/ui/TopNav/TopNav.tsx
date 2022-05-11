@@ -16,8 +16,7 @@ const TopNav: React.FC = () => {
 
   const links = [
     { name: "Clients", url: "/" },
-    { name: "Server", url: "/servers" },
-    { name: "Settings", url: "/settings" },
+    { name: "Servers", url: "/servers" },
   ];
 
   return (
