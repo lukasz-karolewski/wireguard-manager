@@ -152,7 +152,7 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
 // }
 
 export default function Home() {
-  const [showConfig, setShowConfig] = useState(true);
+  const [showConfig, setShowConfig] = useState(false);
 
   let i = 1;
   const [servers, setServers] = useState<ServerConfig[]>([]);
@@ -191,6 +191,7 @@ export default function Home() {
       {clients.map((c) => (
         <ClientConfig key={c.client_public_key} config={c} show={showConfig ? "config" : "qr"} />
       ))}
+
     </Layout>
   );
 }

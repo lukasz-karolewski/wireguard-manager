@@ -1,4 +1,4 @@
-import { sjc, waw } from "~/model/server";
+import { sjc, waw, waw_wola } from "~/model/server";
 import { GetKeysResponse } from "~/pages/api/getKeys";
 
 async function getNewKeyPair(): Promise<GetKeysResponse> {
@@ -7,7 +7,7 @@ async function getNewKeyPair(): Promise<GetKeysResponse> {
 }
 
 function getServers() {
-  return Promise.resolve([sjc, waw]);
+  return Promise.resolve([sjc, waw, waw_wola]);
 }
 
 export { getNewKeyPair, getServers };

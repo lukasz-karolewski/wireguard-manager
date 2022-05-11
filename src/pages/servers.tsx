@@ -1,8 +1,9 @@
 import React, { FC, useEffect, useState } from "react";
 import { Button, Layout } from "~/components/ui";
 import { ServerConfig } from "~/model/server";
-import { ClientConfig, makeClientConfig } from "~/model/client";
-import { getNewKeyPair, getServers } from "~/utils/client";
+import { ClientConfig } from "~/model/client";
+import { getServers } from "~/utils/client";
+import { ClipboardCopyIcon, PencilAltIcon } from '@heroicons/react/solid'
 
 type ServerConfigProps = {
   config: ServerConfig;
@@ -57,8 +58,17 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
   }
 
   return (
-    <div className="p-8 ">
-      <h3>{config.name} server</h3> <button onClick={copyToClipboard}>copy</button>
+    <div className="p-4 bg-gray-50">
+      <div className="flex justify-between items-center">
+
+        <h3 className="text-lg">{config.name}</h3>
+
+        <div className="flex">
+          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><PencilAltIcon className="w-4" /></button>
+          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><ClipboardCopyIcon className="w-4" /></button>
+        </div>
+      </div>
+
       <pre className="text-white bg-gray-600 p-2 overflow-auto">{printConfig(config)}</pre>
     </div>
   );
