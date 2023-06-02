@@ -3,7 +3,7 @@ import { Button, Layout } from "~/components/ui";
 import { ServerConfig } from "~/model/server";
 import { ClientConfig } from "~/model/client";
 import { getServers } from "~/utils/client";
-import { ClipboardCopyIcon, PencilAltIcon } from '@heroicons/react/solid'
+import { ClipboardIcon, PencilIcon } from "@heroicons/react/20/solid"
 
 type ServerConfigProps = {
   config: ServerConfig;
@@ -64,8 +64,8 @@ const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({ conf
         <h3 className="text-lg">{config.name}</h3>
 
         <div className="flex">
-          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><PencilAltIcon className="w-4" /></button>
-          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><ClipboardCopyIcon className="w-4" /></button>
+          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><PencilIcon className="w-4" /></button>
+          <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><ClipboardIcon className="w-4" /></button>
         </div>
       </div>
 

@@ -112,11 +112,15 @@ type Peer = {
 }
 
 export default function Home() {
-
-
   let i = 1;
   const [servers, setServers] = useState<ServerConfig[]>([]);
   const [peers, setPeers] = useState<Peer[]>([]);
+  const [peerName, setPeerName] = useState('');
+
+
+  const handlePeerNameChange = (event) => {
+    setPeerName(event.target.value);
+  };
 
   useEffect(() => {
     getServers().then((d) => {
@@ -125,10 +129,17 @@ export default function Home() {
     });
   });
 
-  async function newPeer() {
+  const handleAddPeer = () => {
+    if (peerName.trim() !== '') {
+      newPeer(peerName);
+      setPeerName('');
+    }
+  };
+
+  async function newPeer(name) {
     const peerId = i++;
     const nickname = "test";
-    const keyPair = await getNewKeyPair();
+    const keyPair = await getNewKeyPair(name);
 
     let configs: ClientConfig[] = [];
 
@@ -142,11 +153,8 @@ export default function Home() {
 
   return (
     <Layout>
-      <Button onClick={newPeer}>Add Peer</Button>
-
-
-
-
+      <input type="text" className="border" value={peerName} onChange={handlePeerNameChange} />
+      <Button onClick={handleAddPeer} disabled={!peerName.trim()}>Add Peer</Button>
 
       {peers.map((p) => (
         <>
