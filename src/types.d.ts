@@ -1,43 +1,50 @@
-export type GetKeysResponse = {
-    private_key: string;
-    public_key: string;
-};
-
-export type ClientObject = {
-    name: string;
-    privateKey: string;
-    publicKey: string;
-    allowedIPs: string;
-    endpoint: string;
-    persistentKeepalive: string;
+export type GlobalConfig = {
+    local_site: ServerConfig,
+    remote_sites: ServerConfig[],
+    clients: ClientConfig[],
 };
 
 export type ServerConfig = {
-    name?: string;
-
-    server_address: string;
-    server_port: number;
-    server_private_key: string;
-    server_public_key: string;
-    server_mtu: number;
-
+    name: string;
     mode: "native" | "edgerouter";
 
-    dns: string;
-    subnet: string;
-    allowed_ips: string;
-    server_endpoint: string;
+    for_server: WireGuard.Interface;
+    for_client: WireGuard.Peer;
 };
 
 export type ClientConfig = {
     name: string;
 
-    interface_address: string;
-    client_private_key: string;
-    client_public_key: string;
-    dns: string;
-
-    server_public_key: string;
-    allowed_ips: string;
-    server_endpoint: string;
+    for_server: WireGuard.Peer;
+    for_client: WireGuard.Interface;
 };
+
+
+namespace WireGuard {
+    interface Interface {
+        Address: string;
+        ListenPort: number;
+        MTU?: number;
+        Table?: number;
+
+        PrivateKey: string;
+
+        PreUp?: string[];
+        PreDown?: string[];
+        PostUp?: string[];
+        PostDown?: string[];
+    }
+
+    export type Peer = {
+        PublicKey: string;
+        AllowedIPs: string;
+        Endpoint: string;
+        PersistentKeepalive: string;
+    };
+}
+
+export type GetKeysResponse = {
+    private_key: string;
+    public_key: string;
+};
+

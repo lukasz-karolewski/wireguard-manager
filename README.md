@@ -158,10 +158,10 @@ This command will find all files in the specified directory and its subdirectori
 
 ## Persistance/backup
 
-Configuration, and all keys is stored on disk in following format:
+Configuration, and all keys is stored on disk, /configuration.json in following format:
 
-    /config
-           /servers
-           /keys
-                /client_name-private.key
-                /client_name-public.key
+    {
+        local-site: ServerConfig,
+        remote-sites: ServerConfig[],
+        clients: ClientConfig[]
+    }
