@@ -1,5 +1,5 @@
 import { execShellCommand } from "~/utils/execShellCommand";
-import { ClientObject } from "./types";
+import { ClientObject } from "~/types";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ClientObject[]>) {
@@ -15,17 +15,23 @@ export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promi
         .split(/\n(?=\[Peer\])/)
         .map((clientConfig) => {
             const client = clientConfig.split("\n");
-            const comment = client.find((line) => line.match(/^#\s*[^#\n]+$/));
             const clientObject: ClientObject = {
-                name: comment?.replace("#", "").trim() ?? "",
-                privateKey: client.find((line) => line.match(/^PrivateKey/))?.split("=")[1] ?? "",
-                publicKey: client.find((line) => line.match(/^PublicKey/))?.split("=")[1] ?? "",
-                allowedIPs: client.find((line) => line.match(/^AllowedIPs/))?.split("=")[1] ?? "",
-                endpoint: client.find((line) => line.match(/^Endpoint/))?.split("=")[1] ?? "",
-                persistentKeepalive: client.find((line) => line.match(/^PersistentKeepalive/))?.split("=")[1] ?? "",
+                name: getComment(client),
+                privateKey: getAttr(client, "PrivateKey"),
+                publicKey: getAttr(client, "PublicKey"),
+                allowedIPs: getAttr(client, "AllowedIPs"),
+                endpoint: getAttr(client, "Endpoint"),
+                persistentKeepalive: getAttr(client, "PersistentKeepalive"),
             };
             return clientObject;
         });
     return clients;
 }
 
+function getComment(client: string[]): string {
+    return client.find((line) => line.match(/^#\s*[^#\n]+$/))?.replace("#", "").trim() ?? "";
+}
+
+function getAttr(client: string[], attrName: string): string {
+    return client.find((line) => line.match(new RegExp(`^${attrName}`)))?.split("=")[1] ?? "";
+}

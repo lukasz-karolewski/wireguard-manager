@@ -1,19 +1,12 @@
-export type ServerConfig = {
-  name?: string;
+import { NextApiRequest, NextApiResponse } from "next";
+import { ServerConfig } from "~/types";
 
-  server_address: string;
-  server_port: number;
-  server_private_key: string;
-  server_public_key: string;
-  server_mtu: number;
 
-  mode: "native" | "edgerouter";
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ServerConfig[]>) {
 
-  dns: string;
-  subnet: string;
-  allowed_ips: string;
-  server_endpoint: string;
-};
+  res.status(200).json([sjc, waw, waw_wola]);
+}
+
 
 export const sjc: ServerConfig = {
   name: "sjc",

@@ -18,11 +18,10 @@
   },
   "css.lint.unknownAtRules": "ignore",
   "css.validate": true,
-  "eslint.alwaysShowStatus": true,
   "editor.gotoLocation.multipleDefinitions": "goto",
   "editor.gotoLocation.multipleTypeDefinitions": "goto",
   "editor.quickSuggestions": {
     "strings": true
   },
-  "editor.bracketPairColorization.enabled": true,
+  "prettier.prettierPath": "./node_modules/prettier"
 }

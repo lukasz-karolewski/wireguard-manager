@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { execShellCommand } from "~/utils/execShellCommand";
-import { GetKeysResponse } from "./types";
+import { GetKeysResponse } from "~/types";
 import fs from "fs";
 import path from "path";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<GetKeysResponse>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<GetKeysResponse | { error: string }>) {
   const { name } = req.query;
 
   const keysDir = path.join(process.cwd(), "keys");
