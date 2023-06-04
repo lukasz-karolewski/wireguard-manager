@@ -1,7 +1,8 @@
 import { Switch } from "@headlessui/react";
 import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
-import { ClientConfig } from "~/pages/api/model/types";
+import { ClientConfig } from "~/types";
+
 import { clientConfigTemplate } from "~/utils/common";
 
 type ClientConfigProps = {
@@ -30,16 +31,16 @@ export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = 
         />
       </Switch>
       <div className="p-2  bg-blue-100  overflow-auto">
-        {show == "config" && <pre>{clientConfigTemplate(config)}</pre>}
+        {/* {show == "config" && <pre>{clientConfigTemplate(config)}</pre>} */}
         {show == "qr" && (
           <div className="grid grid-cols-2">
-            <div className="mx-auto">
+            {/* <div className="mx-auto">
               <QRCodeSVG value={clientConfigTemplate(config)} size={256} />
-            </div>
+            </div> */}
             <ul>
               <li className="font-bold">{config.name}</li>
-              <li>Interface address {config.interface_address}</li>
-              <li>Allowed IP's {config.allowed_ips}</li>
+              <li>Interface address {config.for_client.Address}</li>
+              <li>Allowed IP's {config.for_server.AllowedIPs}</li>
             </ul>
           </div>
         )}

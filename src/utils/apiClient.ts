@@ -1,4 +1,4 @@
-import { GetKeysResponse } from "~/types";
+import { GetKeysResponse, GlobalConfig } from "~/types";
 
 async function getNewKeyPair(name: string): Promise<GetKeysResponse> {
   const res = await fetch(`/api/genKeys?name=${name}`);
@@ -10,4 +10,12 @@ async function getServers() {
   return await res.json();
 }
 
-export { getNewKeyPair, getServers };
+async function saveConfig(config: GlobalConfig) {
+  const res = await fetch(`/api/saveConfig`, {
+    method: "POST",
+    body: JSON.stringify(config),
+  });
+  return await res.json();
+}
+
+export default { getNewKeyPair, getServers, saveConfig };

@@ -1,4 +1,4 @@
-import { ClientConfig, ServerConfig } from "~/types";
+import { ClientConfig, ServerConfig, GlobalConfig } from "~/types";
 
 export function escape_description(text: string) {
   return text.replaceAll(" ", "-");
@@ -7,84 +7,95 @@ export function escape_description(text: string) {
 export const server_subnet_to_address = (subnet: string, id: number) =>
   subnet.replace("*", "" + id);
 
-export function makeClientConfig(
-  nickname: string,
-  server_config: ServerConfig,
-  clientId: number,
-  client_private_key: string,
-  client_public_key: string
-): ClientConfig {
-  return {
-    name: nickname,
-    interface_address: server_subnet_to_address(server_config.subnet, clientId),
-    client_private_key,
-    client_public_key,
-    dns: server_config.dns,
-    server_public_key: server_config.server_public_key,
-    allowed_ips: server_config.allowed_ips,
-    server_endpoint: server_config.server_endpoint,
-  };
+
+export function serverConfigToNativeWireguard(config: GlobalConfig, serverName: string) {
+  const serverConfig = config.servers.find((s) => s.name === serverName);
+  if (!serverConfig) {
+    throw new Error(`Server ${serverName} not found`);
+  }
+
+  const interfaceSection = `[Interface]
+      Address = ${serverConfig.for_server.Address}
+      ListenPort = ${serverConfig.for_server.ListenPort}
+      PrivateKey = ${serverConfig.for_server.PrivateKey}
+      MTU = ${serverConfig.for_server.MTU}
+      `;
+
+  const siteToSiteSection = config.servers?.filter((s) => s.name != serverName).map((s) => {
+    return `\n 
+              [Peer] 
+              # ${s.name}
+              PublicKey = ${s.for_client.PublicKey}
+              AllowedIPs = ${s.for_client.AllowedIPs}
+              Endpoint = ${s.for_client.Endpoint}
+              \n`;
+  });
+
+  const clientsSection = config.clients?.map((c) => {
+    return `\n 
+              [Peer] 
+              # ${c.name}
+              PublicKey = ${c.for_server.PublicKey}
+              AllowedIPs = ${c.for_server.AllowedIPs}
+              Endpoint = ${c.for_server.Endpoint}
+              \n`;
+  });
+
+  return (interfaceSection + siteToSiteSection + clientsSection)
+    .split("\n")
+    .map((l) => l.trim())
+    .join("\n");
 }
 
-export function clientConfigTemplate(config: ClientConfig) {
+export function clientConfigTemplate(server: ServerConfig, client: ClientConfig, configType: "localOnly" | "allTraffic") {
   return `[Interface]
-        Address = ${config.interface_address}
-        PrivateKey = ${config.client_private_key}
-        DNS = ${config.dns}
+        Address = ${client.for_client.Address}
+        PrivateKey = ${client.for_client.PrivateKey}
+        DNS = ${client.for_client.DNS}
 
         [Peer]
-        PublicKey = ${config.server_public_key}
-        AllowedIPs = ${config.allowed_ips}
-        Endpoint = ${config.server_endpoint}
-        `
+        PublicKey = ${server.for_client.PublicKey}
+        AllowedIPs = ${configType == "localOnly" ? server.for_client.AllowedIPs : "0.0.0.0/0 , ::/0"}
+        Endpoint = ${server.for_client.Endpoint}
+      `
     .split("\n")
     .map((line) => line.trim())
     .join("\n");
 }
 
-export function serverConfigToNativeWireguard(config: ServerConfig, clients: ClientConfig[]) {
-  const header = `[Interface]
-    Address = ${config.server_address}
-    ListenPort = ${config.server_port}
-    PrivateKey = ${config.server_private_key}
-    MTU = ${config.server_mtu}
-    `;
-
-  const clientSection = clients?.map((c) => {
-    return `\n 
-            [Peer] 
-            # ${c.name}
-            PublicKey = ${c.client_public_key}
-            AllowedIPs = ${c.allowed_ips}
-            Endpoint = ${c.server_endpoint}
-            \n`;
-  });
-
-  return (header + clientSection)
-    .split("\n")
-    .map((l) => l.trim())
-    .join("\n");
-}
 
 
-export function serverConfigToEdgerouterCommandLine(config: ServerConfig, clients: ClientConfig[]) {
-  return `configure
-    set interfaces wireguard wg0 peer ${config.server_public_key} allowed-ips ${config.server_address}
-    set interfaces wireguard wg0 peer ${config.server_public_key} description ${config.name}
-    commit
-    save
-    exit
-  `
-    .split("\n")
-    .map((l) => l.trim())
-    .join("\n");
-}
 
-export function printConfig(config: ServerConfig, clients: ClientConfig[]) {
-  switch (config.mode) {
+// export function serverConfigToEdgerouterCommandLine(config: GlobalConfig, serverName: string) {
+
+//   const serverConfig = config.servers.find((s) => s.name === serverName);
+//   if (!serverConfig) {
+//     throw new Error(`Server ${serverName} not found`);
+//   }
+
+//   return `configure
+//     set interfaces wireguard wg0 peer ${serverConfig.for_server.} allowed - ips ${config.server_address}
+//     set interfaces wireguard wg0 peer ${config.server_public_key} description ${config.name}
+//   commit
+//   save
+//   exit
+//     `
+//     .split("\n")
+//     .map((l) => l.trim())
+//     .join("\n");
+// }
+
+export function printConfig(config: GlobalConfig, serverName: string) {
+
+  const serverConfig = config.servers.find((s) => s.name === serverName);
+  if (!serverConfig) {
+    throw new Error(`Server ${serverName} not found`);
+  }
+
+  switch (serverConfig.mode) {
     case "native":
-      return serverConfigToNativeWireguard(config, clients);
+      return serverConfigToNativeWireguard(config, serverName);
     case "edgerouter":
-      return serverConfigToEdgerouterCommandLine(config, clients);
+      return "" //serverConfigToEdgerouterCommandLine(config, clients);
   }
 }

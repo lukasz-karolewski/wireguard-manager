@@ -1,12 +1,13 @@
 export type GlobalConfig = {
-    local_site: ServerConfig,
-    remote_sites: ServerConfig[],
+    servers: ServerConfig[],
     clients: ClientConfig[],
 };
 
 export type ServerConfig = {
     name: string;
     mode: "native" | "edgerouter";
+    deployment: "file" | "scp" | "ssh";
+    deployment_target: string;
 
     for_server: WireGuard.Interface;
     for_client: WireGuard.Peer;
@@ -14,6 +15,7 @@ export type ServerConfig = {
 
 export type ClientConfig = {
     name: string;
+    mode: "localOnly" | "allTraffic";
 
     for_server: WireGuard.Peer;
     for_client: WireGuard.Interface;
@@ -25,7 +27,7 @@ namespace WireGuard {
         Address: string;
         ListenPort: number;
         MTU?: number;
-        Table?: number;
+        DNS?: string;
 
         PrivateKey: string;
 
@@ -39,7 +41,6 @@ namespace WireGuard {
         PublicKey: string;
         AllowedIPs: string;
         Endpoint: string;
-        PersistentKeepalive: string;
     };
 }
 

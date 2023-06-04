@@ -1,10 +1,10 @@
-import useSwr from "swr";
-import { ServerConfigView } from "~/components/ServerConfigView";
-import { Button, Layout } from "~/components/ui";
-import { GlobalConfig, ServerConfig } from "~/types";
-
 import { useState } from "react";
+import useSwr from "swr";
+import { ClientConfigView } from "~/components/ClientConfigView";
+import EditClientForm from "~/components/ClientForm";
 import EditServerForm from "~/components/ServerForm";
+import { Button, Layout } from "~/components/ui";
+import { ClientConfig, GlobalConfig, ServerConfig } from "~/types";
 import apiClient from "~/utils/apiClient";
 
 export default function Home() {
@@ -12,12 +12,9 @@ export default function Home() {
 
   const [showForm, setShowForm] = useState(false);
 
-  const onSubmit = async (data: ServerConfig) => {
-    const newServer: ServerConfig = {
+  const onSubmit = async (data: ClientConfig) => {
+    const newClient: ClientConfig = {
       name: data.name,
-      mode: data.mode,
-      deployment: "file",
-      deployment_target: "wg0.conf",
 
       for_server: {
         ...data.for_server,
@@ -29,8 +26,8 @@ export default function Home() {
 
     const newConfig: GlobalConfig = {
       ...config,
-      servers: [...config.servers, newServer],
-      clients: [...config.clients],
+      servers: [...config.servers],
+      clients: [...config.clients, newClient],
     };
 
     apiClient.saveConfig(newConfig).then(() => {
@@ -42,14 +39,14 @@ export default function Home() {
     <Layout>
       <div className="flex justify-end mb-4">
         <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "Add Server"}
+          {showForm ? "Cancel" : "Add Client"}
         </Button>
       </div>
 
-      {showForm && <EditServerForm onSubmit={onSubmit} />}
+      {showForm && <EditClientForm onSubmit={onSubmit} />}
 
-      {config?.servers?.map((server) => {
-        return <ServerConfigView key={server.name} config={config} server_name={server.name} />;
+      {config?.clients?.map((server) => {
+        return <ClientConfigView key={server.name} config={config} server_name={server.name} />;
       })}
     </Layout>
   );

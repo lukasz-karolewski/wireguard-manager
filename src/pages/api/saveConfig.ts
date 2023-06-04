@@ -7,9 +7,8 @@ import { GlobalConfig } from "~/types";
 export default async function handler(req: NextApiRequest, res: NextApiResponse<{} | { error: string }>) {
   try {
     const configPath = path.join(process.cwd(), "configuration.json");
-    const config: GlobalConfig = req.body;
 
-    await fs.promises.writeFile(configPath, JSON.stringify(config));
+    await fs.promises.writeFile(configPath, req.body);
     res.status(200).json({});
   } catch (error) {
     console.error(error);
