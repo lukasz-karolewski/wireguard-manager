@@ -4,19 +4,22 @@ Helps to setup multi-way site-to-site and manage client configs. Works well for 
 
 ## Network architecture
 
-- VPN uses 172.16.0.0/16 network
-- each site gets a /24 segment assigned,
-- each site has to have unique private address space ideally from 192.168.0.0/24, additional globally unique private networks can be added
+- prereq: each site has to have unique private address space ideally from 192.168.0.0/16 range
 
-- clients get VPN network address and 2 configs for each site:
+- VPN uses 172.16.0.0/16 network
+- each site gets a /24 segment assigned, from 172.16.0.0/16 range
+
+- clients get an address at each site, and couple of useful predefined configs:
   - local only
-  - redirect-all
+  - local only, pihole dns
+  - redirect-all, vpn dns
+  - redirect-all, pihole dns
 
 ## Deployment
 
 Setup has 2 main steps:
 
-1. deploy and configure wireguard-manager on local server using docker
+1. deploy and configure wireguard-manager on local server using docker compose
 2. configure routing (enable packet forwarding, adjust firewall, add static routes on router)
 3. (optional) Configure remote sites (create user, setup sshd, configure routing, deploy config)
 
@@ -33,6 +36,7 @@ Setup has 2 main steps:
             ports:
             - "80:80"
             - "443:443"
+        # pihole:
 
 #### Auto reload wireguard
 
@@ -158,10 +162,4 @@ This command will find all files in the specified directory and its subdirectori
 
 ## Persistance/backup
 
-Configuration, and all keys is stored on disk, /configuration.json in following format:
-
-    {
-        local-site: ServerConfig,
-        remote-sites: ServerConfig[],
-        clients: ClientConfig[]
-    }
+Configuration and all keys, is stored on disk in /configuration.json file.
