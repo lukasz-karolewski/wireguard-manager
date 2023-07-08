@@ -1,4 +1,1 @@
-{
-  "servers": [],
-  "clients": []
-}
+{"servers":[{"name":"aasdf","mode":"native","deployment":"file","deployment_target":"wg0.conf","for_server":{"MTU":1420,"ListenPort":51820,"Address":"asdf","PrivateKey":"asdf"},"for_client":{"Endpoint":"asdf","AllowedIPs":"asdf","PublicKey":"fdsa"}}],"clients":[{"name":"fdsa","for_server":{"Address":"172.16.1.1/16","DNS":"1","PrivateKey":"23"},"for_client":{}}]}

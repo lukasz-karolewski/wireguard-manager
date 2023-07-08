@@ -1,4 +1,6 @@
 export type GlobalConfig = {
+    wg_network: string;
+
     servers: ServerConfig[],
     clients: ClientConfig[],
 };

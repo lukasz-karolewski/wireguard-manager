@@ -4,8 +4,9 @@ export function escape_description(text: string) {
   return text.replaceAll(" ", "-");
 }
 
-export const server_subnet_to_address = (subnet: string, id: number) =>
-  subnet.replace("*", "" + id);
+
+export const get_server_address = (subnet: string, network_number: number) =>
+  subnet.split(".").slice(0, 2).join(".") + `${network_number}.1/16`;
 
 
 export function serverConfigToNativeWireguard(config: GlobalConfig, serverName: string) {

@@ -1,7 +1,7 @@
 import { GetKeysResponse, GlobalConfig } from "~/types";
 
-async function getNewKeyPair(name: string): Promise<GetKeysResponse> {
-  const res = await fetch(`/api/genKeys?name=${name}`);
+async function getNewKeyPair(): Promise<GetKeysResponse> {
+  const res = await fetch(`/api/genKeys`);
   return await res.json();
 }
 
