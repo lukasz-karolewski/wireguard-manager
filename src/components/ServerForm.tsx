@@ -1,6 +1,12 @@
 import { Button, FormField, FormRadioButton, Input } from "~/components/ui";
 import { ServerConfig } from "~/types";
 import { useForm } from "react-hook-form";
+import apiClient from "~/utils/apiClient";
+import { useConfig } from "~/providers/configProvider";
+import { get_new_site_address } from "~/utils/common";
+
+import useSwr from "swr";
+import { GlobalConfig } from "~/types";
 
 type Props = {
   server?: ServerConfig;
@@ -10,12 +16,21 @@ type Props = {
 type FormValues = ServerConfig;
 
 export default function EditServerForm({ server, onSubmit }: Props) {
-  const { register, handleSubmit, reset } = useForm<FormValues>({
+  const { data: config, isLoading } = useSwr<GlobalConfig>("/api/loadConfig");
+  if (!config) return <></>
+
+  apiClient.getNewKeyPair().then((keys) => {
+    setValue("for_server.PrivateKey", keys.private_key);
+    setValue("for_client.PublicKey", keys.public_key);
+  });
+
+  const { register, handleSubmit, reset, setValue } = useForm<FormValues>({
     defaultValues: server || {
       mode: "native",
+
       deployment: "file",
       deployment_target: "wg0.conf",
-      for_server: { MTU: 1420, ListenPort: 51820 },
+      for_server: { Address: get_new_site_address(config), MTU: 1420, ListenPort: 51820 },
     },
   });
 
@@ -68,12 +83,12 @@ export default function EditServerForm({ server, onSubmit }: Props) {
       <div className="border p-4  mb-4 bg-white">
         <h2 className="text-xl font-bold mb-4">Peer</h2>
         <p className="-mt-4 mb-4 text-sm text-gray-500 italic">
-          For other server to configure site-to-site
+          For other servers to configure site-to-site
         </p>
-        <FormField label="Endpoint">
+        <FormField label="Endpoint" help="DNS entry pointing to this site">
           <Input name="for_client.Endpoint" register={register} />
         </FormField>
-        <FormField label="AllowedIPs">
+        <FormField label="AllowedIPs" help="Comma separated local networks at this site that should be accessible from other sites. Typically 192.168.10.0/24, 192.168.11.0/24">
           <Input name="for_client.AllowedIPs" register={register} />
         </FormField>
         <FormField label="PublicKey">

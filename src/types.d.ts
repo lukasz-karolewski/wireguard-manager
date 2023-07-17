@@ -17,10 +17,9 @@ export type ServerConfig = {
 
 export type ClientConfig = {
     name: string;
-    mode: "localOnly" | "allTraffic";
-
-    for_server: WireGuard.Peer;
-    for_client: WireGuard.Interface;
+    id: number;
+    PublicKey: string;
+    PrivateKey: string;
 };
 
 

@@ -2,14 +2,17 @@ import { Switch } from "@headlessui/react";
 import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
 import { ClientConfig } from "~/types";
-
+import { useConfig } from "~/providers/configProvider";
 import { clientConfigTemplate } from "~/utils/common";
 
 type ClientConfigProps = {
-  config: ClientConfig;
+  client: ClientConfig;
 };
 
-export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({ config }) => {
+export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client }) => {
+  const { config } = useConfig();
+  if (!config) return <></>
+
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
 
   return (
@@ -30,20 +33,27 @@ export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = 
           } inline-block h-4 w-4 transform rounded-full bg-white`}
         />
       </Switch>
+
       <div className="p-2  bg-blue-100  overflow-auto">
-        {/* {show == "config" && <pre>{clientConfigTemplate(config)}</pre>} */}
-        {show == "qr" && (
           <div className="grid grid-cols-2">
-            {/* <div className="mx-auto">
-              <QRCodeSVG value={clientConfigTemplate(config)} size={256} />
-            </div> */}
             <ul>
-              <li className="font-bold">{config.name}</li>
-              <li>Interface address {config.for_client.Address}</li>
-              <li>Allowed IP's {config.for_server.AllowedIPs}</li>
+              <li className="font-bold">{client.name}</li>
+              {config.servers.map((server) => {
+                return <div >
+                  <p>{server.name}</p>
+                  <pre className="m-2 p-4 bg-red-400">
+                    {clientConfigTemplate(server, client, "allTraffic")}
+                    {show == "qr" && <QRCodeSVG value={clientConfigTemplate(server, client, "allTraffic")} size={256} />}
+                   </pre>
+
+                   <pre className="m-2 p-4 bg-red-400">
+                    {clientConfigTemplate(server, client, "localOnly")}
+                    {show == "qr" && <QRCodeSVG value={clientConfigTemplate(server, client, "localOnly")} size={256} />}
+                   </pre>
+                </div>
+              })}
             </ul>
           </div>
-        )}
       </div>
     </div>
   );

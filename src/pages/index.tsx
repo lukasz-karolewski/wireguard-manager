@@ -1,4 +1,3 @@
-import useSwr from "swr";
 import { ServerConfigView } from "~/components/ServerConfigView";
 import { Button, Layout } from "~/components/ui";
 import { GlobalConfig, ServerConfig } from "~/types";
@@ -6,9 +5,10 @@ import { GlobalConfig, ServerConfig } from "~/types";
 import { useState } from "react";
 import EditServerForm from "~/components/ServerForm";
 import apiClient from "~/utils/apiClient";
+import { useConfig } from "~/providers/configProvider";
 
 export default function Home() {
-  const { data: config, isLoading } = useSwr<GlobalConfig>("/api/loadConfig");
+  const { config } = useConfig();
 
   const [showForm, setShowForm] = useState(false);
 
