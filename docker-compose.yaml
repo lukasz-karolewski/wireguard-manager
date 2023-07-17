@@ -1,0 +1,9 @@
+version: '3'
+services:
+    wireguard:
+        build: .
+        volumes:
+        - /etc/wireguard:/config
+        ports:
+        - "80:80"
+        - "443:443"
