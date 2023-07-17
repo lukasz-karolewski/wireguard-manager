@@ -1,18 +1,46 @@
-import NextLink, { LinkProps as NextLinkProps } from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
+import Link, { LinkProps } from "next/link";
+import React, { PropsWithChildren, useState, useEffect } from "react";
 
-const Link: React.FC<React.PropsWithChildren<NextLinkProps>> = ({ href, children }) => {
-  const router = useRouter();
-
-  if (!React.isValidElement(children)) return null;
-
-  let className = children.props.className || "";
-  if (router.pathname === href) {
-    className = `${className} active`;
-  }
-
-  return <NextLink href={href}>{React.cloneElement(children, { className })}</NextLink>;
+type ActiveLinkProps = LinkProps & {
+  className?: string;
+  activeClassName?: string;
 };
 
-export default Link;
+//https://github.com/vercel/next.js/blob/canary/examples/active-class-name/components/ActiveLink.tsx
+const ActiveLink = ({
+  children,
+  className,
+  activeClassName = "border-b-2 border-b-orange-300",
+  ...props
+}: PropsWithChildren<ActiveLinkProps>) => {
+  const { asPath, isReady } = useRouter();
+  const [computedClassName, setComputedClassName] = useState(className);
+
+  useEffect(() => {
+    // Check if the router fields are updated client-side
+    if (isReady) {
+      // Dynamic route will be matched via props.as
+      // Static route will be matched via props.href
+      const linkPathname = new URL((props.as || props.href) as string, location.href).pathname;
+
+      // Using URL().pathname to get rid of query and hash
+      const activePathname = new URL(asPath, location.href).pathname;
+
+      const newClassName =
+        linkPathname === activePathname ? `${className} ${activeClassName}`.trim() : className;
+
+      if (newClassName !== computedClassName) {
+        setComputedClassName(newClassName);
+      }
+    }
+  }, [asPath, isReady, props.as, props.href, activeClassName, className, computedClassName]);
+
+  return (
+    <Link className={computedClassName} {...props}>
+      {children}
+    </Link>
+  );
+};
+
+export default ActiveLink;
