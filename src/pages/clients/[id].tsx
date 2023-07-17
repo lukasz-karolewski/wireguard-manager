@@ -1,21 +1,25 @@
 import { Switch } from "@headlessui/react";
 import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
-import { ClientConfig } from "~/types";
 import { useConfig } from "~/providers/configProvider";
-import { clientConfigTemplate } from "~/utils/common";
+import { clientConfigTemplate, configTypes } from "~/utils/common";
 
-type ClientConfigProps = {
-  client: ClientConfig;
-};
+import { useRouter } from "next/router";
+import { Layout } from "~/components/ui";
 
-export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client }) => {
+const ClientConfigView: FC = () => {
   const { config } = useConfig();
+  const router = useRouter()
   if (!config) return <></>
+
+  const id = Number(router.query['id'])
+  const client = config.clients.find((val) => val.id == id)
+  if (!client) return <></>
 
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
 
   return (
+    <Layout>
     <div className="bg-gray-100 justify-evenly mb-2 last:mb-0 overflow-auto">
       <Switch
         checked={show === "qr"}
@@ -41,20 +45,23 @@ export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = 
               {config.servers.map((server) => {
                 return <div >
                   <p>{server.name}</p>
-                  <pre className="m-2 p-4 bg-red-400">
-                    {clientConfigTemplate(server, client, "allTraffic")}
-                    {show == "qr" && <QRCodeSVG value={clientConfigTemplate(server, client, "allTraffic")} size={256} />}
-                   </pre>
+                    {configTypes.map((variant) => {
+                      const config = clientConfigTemplate(server, client, variant)
 
-                   <pre className="m-2 p-4 bg-red-400">
-                    {clientConfigTemplate(server, client, "localOnly")}
-                    {show == "qr" && <QRCodeSVG value={clientConfigTemplate(server, client, "localOnly")} size={256} />}
-                   </pre>
+                      return <div>
+                        {variant}
+                        {show == "config" && <pre className="m-2 p-4 bg-red-400">{config}</pre>}
+                        {show == "qr" && <QRCodeSVG value={config} size={256} />}
+                      </div>
+                    })}
                 </div>
               })}
             </ul>
           </div>
       </div>
     </div>
+    </Layout>
   );
 };
+
+export default ClientConfigView;

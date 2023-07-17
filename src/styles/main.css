@@ -5,3 +5,7 @@
 /* @import "./components.css"; */
 
 @tailwind utilities;
+
+h2 {
+    @apply text-2xl font-bold mb-2;
+}

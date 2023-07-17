@@ -1,21 +1,14 @@
-import { ClientConfig, ServerConfig, GlobalConfig } from "~/types";
+import { ClientConfig, ServerConfig, GlobalConfig, ClientConfigType } from "~/types";
 
-export function escape_description(text: string) {
-  return text.replaceAll(" ", "-");
-}
+export const configTypes: ClientConfigType[] = ["allTraffic", "localOnlyDNS", "localOnly"]
 
 export const get_new_site_address = (config: GlobalConfig) => {
   const id = config.servers.length + 1;
-
   return get_server_address(config.wg_network, id);
 };
 
 export const get_server_address = (subnet: string, network_number: number) =>
   subnet.split(".").slice(0, 2).concat([`${network_number}`, `1/16`]).join(".");
-
-export const get_new_client_address = (config: GlobalConfig) => {
-  const id = config.clients.length + 1;
-};
 
 export const client_address_for_server = (server: ServerConfig, id: number) => 
   server.for_server.Address.split(".").slice(0, 3).concat([`${id}/16`]).join(".");  
@@ -24,12 +17,12 @@ export const client_address_for_server = (server: ServerConfig, id: number) =>
 export function clientConfigTemplate(
   server: ServerConfig,
   client: ClientConfig,
-  configType: "localOnly" | "allTraffic"
+  configType: ClientConfigType
 ) {
   return [`[Interface]`,
         `Address = ${client_address_for_server(server, client.id)}`,
         `PrivateKey = ${client.PrivateKey}`,
-        server.for_server.DNS ? `DNS = ${server.for_server.DNS}` : '',
+        configType == "allTraffic" || configType == "localOnlyDNS" ? `DNS = ${server.for_server.DNS}` : '',
 
         `[Peer]`,
         `PublicKey = ${server.for_client.PublicKey}`,
@@ -41,8 +34,6 @@ export function clientConfigTemplate(
     .map((line) => line.trim())
     .join("\n");
 }
-
-
 
 export function printServerConfig(config: GlobalConfig, serverName: string) {
   const serverConfig = config.servers.find((s) => s.name === serverName);
@@ -57,7 +48,6 @@ export function printServerConfig(config: GlobalConfig, serverName: string) {
       return serverConfigToEdgerouterCommandLine(config, serverConfig);
   }
 }
-
 
 export function serverConfigToNativeWireguard(config: GlobalConfig, serverConfig: ServerConfig) {
 

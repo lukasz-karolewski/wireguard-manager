@@ -1,6 +1,5 @@
 import { useState } from "react";
-import useSwr from "swr";
-import { ClientConfigView } from "~/components/ClientConfigView";
+import { ClientItem } from "~/components/ClientItem";
 import EditClientForm from "~/components/ClientForm";
 import { Button, Layout } from "~/components/ui";
 import { useConfig } from "~/providers/configProvider";
@@ -15,8 +14,8 @@ export default function Home() {
   const onSubmit = async (data: ClientConfig) => {
     const newConfig: GlobalConfig = {
       ...config,
-      servers: [...config.servers],
-      clients: [...config.clients, data],
+      servers: config?.servers ? [...config.servers] : [],
+      clients: config?.clients ? [...config.clients, data] : [data],
     };
 
     apiClient.saveConfig(newConfig).then(() => {
@@ -35,7 +34,7 @@ export default function Home() {
       {showForm && <EditClientForm onSubmit={onSubmit} />}
 
       {config?.clients?.map((client) => {
-        return <ClientConfigView key={client.name} client={client} />;
+        return <ClientItem key={client.name} client={client} />;
       })}
     </Layout>
   );

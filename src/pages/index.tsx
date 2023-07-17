@@ -6,6 +6,7 @@ import { useState } from "react";
 import EditServerForm from "~/components/ServerForm";
 import apiClient from "~/utils/apiClient";
 import { useConfig } from "~/providers/configProvider";
+import { ServerItem } from "~/components/ServerItem";
 
 export default function Home() {
   const { config } = useConfig();
@@ -49,7 +50,7 @@ export default function Home() {
       {showForm && <EditServerForm onSubmit={onSubmit} />}
 
       {config?.servers?.map((server) => {
-        return <ServerConfigView key={server.name} config={config} server_name={server.name} />;
+        return <ServerItem key={server.name} config={config} server_name={server.name} />;
       })}
     </Layout>
   );

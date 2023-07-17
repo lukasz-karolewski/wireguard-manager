@@ -22,6 +22,7 @@ export type ClientConfig = {
     PrivateKey: string;
 };
 
+export type ClientConfigType = "localOnly" | "localOnlyDNS" | "allTraffic"
 
 namespace WireGuard {
     interface Interface {
