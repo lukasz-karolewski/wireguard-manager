@@ -20,45 +20,6 @@ export const get_new_client_address = (config: GlobalConfig) => {
 export const client_address_for_server = (server: ServerConfig, id: number) => 
   server.for_server.Address.split(".").slice(0, 3).concat([`${id}/16`]).join(".");  
 
-export function serverConfigToNativeWireguard(config: GlobalConfig, serverName: string) {
-  const serverConfig = config.servers.find((s) => s.name === serverName);
-  if (!serverConfig) {
-    throw new Error(`Server ${serverName} not found`);
-  }
-
-  const interfaceSection = `[Interface]
-      Address = ${serverConfig.for_server.Address}
-      ListenPort = ${serverConfig.for_server.ListenPort}
-      PrivateKey = ${serverConfig.for_server.PrivateKey}
-      MTU = ${serverConfig.for_server.MTU}
-      `;
-
-  const siteToSiteSection = config.servers
-    ?.filter((s) => s.name != serverName)
-    .map((s) => {
-      return `\n 
-              [Peer] 
-              # ${s.name}
-              PublicKey = ${s.for_client.PublicKey}
-              AllowedIPs = ${s.for_client.AllowedIPs}
-              Endpoint = ${s.for_client.Endpoint}
-              \n`;
-    });
-
-  const clientsSection = config.clients?.map((c) => {
-    return `\n 
-              [Peer] 
-              # ${c.name}
-              PublicKey = ${c.PublicKey}
-              AllowedIPs = ${serverConfig.for_server.Address} ${c.id}
-              \n`;
-  });
-
-  return (interfaceSection + siteToSiteSection + clientsSection)
-    .split("\n")
-    .map((l) => l.trim())
-    .join("\n");
-}
 
 export function clientConfigTemplate(
   server: ServerConfig,
@@ -81,26 +42,9 @@ export function clientConfigTemplate(
     .join("\n");
 }
 
-// export function serverConfigToEdgerouterCommandLine(config: GlobalConfig, serverName: string) {
 
-//   const serverConfig = config.servers.find((s) => s.name === serverName);
-//   if (!serverConfig) {
-//     throw new Error(`Server ${serverName} not found`);
-//   }
 
-//   return `configure
-//     set interfaces wireguard wg0 peer ${serverConfig.for_server.} allowed - ips ${config.server_address}
-//     set interfaces wireguard wg0 peer ${config.server_public_key} description ${config.name}
-//   commit
-//   save
-//   exit
-//     `
-//     .split("\n")
-//     .map((l) => l.trim())
-//     .join("\n");
-// }
-
-export function printConfig(config: GlobalConfig, serverName: string) {
+export function printServerConfig(config: GlobalConfig, serverName: string) {
   const serverConfig = config.servers.find((s) => s.name === serverName);
   if (!serverConfig) {
     throw new Error(`Server ${serverName} not found`);
@@ -108,8 +52,67 @@ export function printConfig(config: GlobalConfig, serverName: string) {
 
   switch (serverConfig.mode) {
     case "native":
-      return serverConfigToNativeWireguard(config, serverName);
+      return serverConfigToNativeWireguard(config, serverConfig);
     case "edgerouter":
-      return ""; //serverConfigToEdgerouterCommandLine(config, clients);
+      return serverConfigToEdgerouterCommandLine(config, serverConfig);
   }
+}
+
+
+export function serverConfigToNativeWireguard(config: GlobalConfig, serverConfig: ServerConfig) {
+
+  const interfaceSection = `[Interface]
+      Address = ${serverConfig.for_server.Address}
+      ListenPort = ${serverConfig.for_server.ListenPort}
+      PrivateKey = ${serverConfig.for_server.PrivateKey}
+      MTU = ${serverConfig.for_server.MTU}
+      `;
+
+  const siteToSiteSection = config.servers
+    ?.filter((s) => s.name != serverConfig.name)
+    .map((s) => {
+      return `[Peer] 
+              # ${s.name}
+              PublicKey = ${s.for_client.PublicKey}
+              AllowedIPs = ${s.for_client.AllowedIPs}
+              Endpoint = ${s.for_client.Endpoint}
+              \n`;
+    }).join("\n");
+
+  const clientsSection = config.clients?.map((c) => {
+    return `[Peer] 
+            # ${c.name}
+            PublicKey = ${c.PublicKey}
+            AllowedIPs = ${client_address_for_server(serverConfig, c.id)}
+            \n`;
+  }).join("\n");
+
+  return (interfaceSection +  "\n### site to site Peers \n" + siteToSiteSection + "### Clients \n" + clientsSection)
+    .split("\n")
+    .map((l, i, arr) => {
+      // compact multiple empty lines into one, and trims each line
+      if (l.trim() === "" && arr[i - 1]?.trim() === "") {
+        return null;
+      }
+      return l.trim();
+    })
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+export function serverConfigToEdgerouterCommandLine(config: GlobalConfig, serverConfig: ServerConfig) {
+  return `configure
+          commit
+          save
+          exit`
+    .split("\n")
+    .map((l, i, arr) => {
+      // compact multiple empty lines into one, and trims each line
+      if (l.trim() === "" && arr[i - 1]?.trim() === "") {
+        return null;
+      }
+      return l.trim();
+    })
+    .filter((l) => l !== null)
+    .join("\n");
 }

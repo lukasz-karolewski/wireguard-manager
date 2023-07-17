@@ -1,7 +1,7 @@
 import { ClipboardIcon } from "@heroicons/react/24/outline";
 import { FC } from "react";
 import { ServerConfig, ClientConfig, GlobalConfig } from "~/types";
-import { printConfig } from "~/utils/common";
+import { printServerConfig } from "~/utils/common";
 
 type ServerConfigProps = {
   config: GlobalConfig;
@@ -12,7 +12,7 @@ export const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = 
   config,
   server_name,
 }) => {
-  const configText = printConfig(config, server_name);
+  const configText = printServerConfig(config, server_name);
   const server = config.servers.find((s) => s.name === server_name);
 
   async function copyToClipboard() {
