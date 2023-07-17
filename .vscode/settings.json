@@ -18,6 +18,7 @@
   },
   "css.lint.unknownAtRules": "ignore",
   "css.validate": true,
+  "editor.linkedEditing": true,
   "editor.gotoLocation.multipleDefinitions": "goto",
   "editor.gotoLocation.multipleTypeDefinitions": "goto",
   "editor.quickSuggestions": {
