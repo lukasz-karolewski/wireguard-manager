@@ -1,67 +1,54 @@
 import { Switch } from "@headlessui/react";
-import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
 import { useConfig } from "~/providers/configProvider";
-import { clientConfigTemplate, configTypes } from "~/utils/common";
 
 import { useRouter } from "next/router";
 import { Layout } from "~/components/ui";
+import { ClientConfigView } from "~/components/ClientConfigView";
 
-const ClientConfigView: FC = () => {
+const ClientDetailPage: FC = () => {
   const { config } = useConfig();
-  const router = useRouter()
-  if (!config) return <></>
+  const router = useRouter();
+  if (!config) return <></>;
 
-  const id = Number(router.query['id'])
-  const client = config.clients.find((val) => val.id == id)
-  if (!client) return <></>
+  const id = Number(router.query["id"]);
+  const client = config.clients.find((val) => val.id == id);
+  if (!client) return <></>;
 
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
 
   return (
     <Layout>
-    <div className="bg-gray-100 justify-evenly mb-2 last:mb-0 overflow-auto">
+      <h2>{client.name}</h2>
+
       <Switch
         checked={show === "qr"}
         onChange={(v: boolean) => {
           setShowConfig(v ? "qr" : "config");
         }}
-        className={`${
-          show ? "bg-blue-600" : "bg-gray-200"
-        } relative inline-flex h-6 w-11 items-center rounded-full`}
+        className={`${show === "qr" ? "bg-teal-900" : "bg-teal-700"}
+          relative inline-flex h-[28px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
       >
-        <span className="sr-only">{show === "config" ? "Show QR" : "Raw config"}</span>
+        <span className="sr-only">Use setting</span>
         <span
-          className={`${
-            show ? "translate-x-6" : "translate-x-1"
-          } inline-block h-4 w-4 transform rounded-full bg-white`}
+          aria-hidden="true"
+          className={`${show === "qr" ? "translate-x-4" : "translate-x-0"}
+            pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
         />
       </Switch>
 
-      <div className="p-2  bg-blue-100  overflow-auto">
-          <div className="grid grid-cols-2">
-            <ul>
-              <li className="font-bold">{client.name}</li>
-              {config.servers.map((server) => {
-                return <div >
-                  <p>{server.name}</p>
-                    {configTypes.map((variant) => {
-                      const config = clientConfigTemplate(server, client, variant)
-
-                      return <div>
-                        {variant}
-                        {show == "config" && <pre className="m-2 p-4 bg-red-400">{config}</pre>}
-                        {show == "qr" && <QRCodeSVG value={config} size={256} />}
-                      </div>
-                    })}
-                </div>
-              })}
-            </ul>
-          </div>
+      <div className="flex flex-col gap-4">
+        {config.servers.map((server) => {
+          return (
+            <div className="bg-blue-100 p-4">
+              <h3>{server.name}</h3>
+              <ClientConfigView server={server} client={client} show={show} />
+            </div>
+          );
+        })}
       </div>
-    </div>
     </Layout>
   );
 };
 
-export default ClientConfigView;
+export default ClientDetailPage;

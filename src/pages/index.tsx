@@ -1,37 +1,19 @@
-import { useState } from "react";
+import NiceModal from "@ebay/nice-modal-react";
+import AddClientModal from "~/components/AddClientModal";
 import { ClientItem } from "~/components/ClientItem";
-import EditClientForm from "~/components/ClientForm";
 import { Button, Layout } from "~/components/ui";
 import { useConfig } from "~/providers/configProvider";
-import { ClientConfig, GlobalConfig } from "~/types";
-import apiClient from "~/utils/apiClient";
 
 export default function Home() {
   const { config } = useConfig();
 
-  const [showForm, setShowForm] = useState(false);
-
-  const onSubmit = async (data: ClientConfig) => {
-    const newConfig: GlobalConfig = {
-      ...config,
-      servers: config?.servers ? [...config.servers] : [],
-      clients: config?.clients ? [...config.clients, data] : [data],
-    };
-
-    apiClient.saveConfig(newConfig).then(() => {
-      setShowForm(false);
-    });
-  };
-
   return (
     <Layout>
       <div className="flex justify-end mb-4">
-        <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "Add Client"}
-        </Button>
+        <Button onClick={() => NiceModal.show(AddClientModal)}>Add Client</Button>
       </div>
 
-      {showForm && <EditClientForm onSubmit={onSubmit} />}
+      <input className="border" />
 
       {config?.clients?.map((client) => {
         return <ClientItem key={client.name} client={client} />;

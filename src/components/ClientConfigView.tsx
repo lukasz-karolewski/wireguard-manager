@@ -1,31 +1,34 @@
-import { Switch } from "@headlessui/react";
 import { QRCodeSVG } from "qrcode.react";
-import { FC, useState } from "react";
-import { ClientConfig,  } from "~/types";
-import { useConfig } from "~/providers/configProvider";
+import { FC } from "react";
+import { ClientConfig, ServerConfig } from "~/types";
 
-import {ClientConfigType} from "~/types"
-import { Link } from "./ui";
+import { clientConfigTemplate, configTypes } from "~/utils/common";
 
 type ClientConfigProps = {
+  server: ServerConfig;
   client: ClientConfig;
+  show: "qr" | "config";
 };
 
-export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client }) => {
-  const { config } = useConfig();
-  if (!config) return <></>
-
-  const [show, setShowConfig] = useState<"qr" | "config">("qr");
-
+export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({
+  server,
+  client,
+  show,
+}) => {
   return (
-    <div className="bg-gray-100 justify-evenly mb-2 last:mb-0 overflow-auto">
-      <div className="p-2  bg-blue-100  overflow-auto">
-          <div className="grid grid-cols-2">
-            <ul>
-              <Link className="font-bold" href={`clients/${client.id}`} >{client.name}</Link>
-            </ul>
+    <div className="flex gap-4 overflow-auto">
+      {configTypes.map((variant) => {
+        const config = clientConfigTemplate(server, client, variant);
+
+        return (
+          <div>
+            {variant}
+
+            {show == "config" && <pre className="m-2 p-4 bg-red-400">{config}</pre>}
+            {show == "qr" && <QRCodeSVG value={config} size={256} />}
           </div>
-      </div>
+        );
+      })}
     </div>
   );
 };

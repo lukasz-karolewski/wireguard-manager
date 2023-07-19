@@ -1,3 +1,4 @@
+import NiceModal from "@ebay/nice-modal-react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import React from "react";
@@ -16,9 +17,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
         }}
       >
-        <ConfigProvider>
-          <Component {...pageProps} />
-        </ConfigProvider>
+        <NiceModal.Provider>
+          <ConfigProvider>
+            <Component {...pageProps} />
+          </ConfigProvider>
+        </NiceModal.Provider>
       </SWRConfig>
     </>
   );

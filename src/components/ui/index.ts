@@ -8,3 +8,4 @@ export { default as Layout } from "./Layout";
 export { default as Link } from "./Link";
 export { default as Toggle } from "./Toggle";
 export { default as TopNav } from "./TopNav";
+export { default as Modal } from "./Modal";

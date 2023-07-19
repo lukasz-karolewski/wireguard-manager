@@ -7,5 +7,9 @@
 @tailwind utilities;
 
 h2 {
-    @apply text-2xl font-bold mb-2;
+  @apply text-2xl font-bold mb-2;
+}
+
+h3 {
+  @apply text-xl font-bold mb-2;
 }
