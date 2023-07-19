@@ -1,7 +1,7 @@
 version: '3'
 services:
     wireguard:
-        build: .
+        image: lkarolewski/wg-manager:latest
         volumes:
         - /etc/wireguard:/config
         ports:
