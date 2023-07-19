@@ -11,11 +11,10 @@ const ConfigContext = React.createContext<ConfigContext>({
     wg_network: "172.15.0.0/16",
     clients: [],
     servers: [],
-  }
+  },
 });
 
-type ConfigProviderProps = {
-};
+type ConfigProviderProps = {};
 /**
  * The initial value of `user` comes from the `initialUser`
  * prop which gets set by _app. We store that value in state and ignore
@@ -30,9 +29,9 @@ export const ConfigProvider: React.FC<React.PropsWithChildren<ConfigProviderProp
 
   const value = React.useMemo(
     () => ({
-      config
+      config,
     }),
-    [config]
+    [config],
   );
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>;

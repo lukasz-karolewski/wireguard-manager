@@ -17,12 +17,10 @@ const ServerDetailPage: FC = () => {
 
   return (
     <Layout>
-      <Link href="/servers">Back</Link>
-      <div className="bg-gray-100 justify-evenly mb-2 last:mb-0 overflow-auto">
-        <div className="p-2  bg-blue-100  overflow-auto">
-          <ServerConfigView config={config} server_name={server.name} />
-        </div>
-      </div>
+      <h3 className="text-lg">
+        <Link href="/servers">Servers</Link> &gt; {server_name}
+      </h3>
+      <ServerConfigView config={config} server_name={server.name} />
     </Layout>
   );
 };

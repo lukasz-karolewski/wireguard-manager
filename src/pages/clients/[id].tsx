@@ -3,7 +3,7 @@ import { FC, useState } from "react";
 import { useConfig } from "~/providers/configProvider";
 
 import { useRouter } from "next/router";
-import { Layout } from "~/components/ui";
+import { Layout, Link } from "~/components/ui";
 import { ClientConfigView } from "~/components/ClientConfigView";
 
 const ClientDetailPage: FC = () => {
@@ -19,7 +19,9 @@ const ClientDetailPage: FC = () => {
 
   return (
     <Layout>
-      <h2>{client.name}</h2>
+      <h3 className="text-lg">
+        <Link href="/">Clients</Link> &gt; {client.name}
+      </h3>
 
       <Switch
         checked={show === "qr"}

@@ -1,8 +1,7 @@
+import { useForm } from "react-hook-form";
 import { Button, FormField, FormRadioButton, Input } from "~/components/ui";
 import { ServerConfig } from "~/types";
-import { useForm } from "react-hook-form";
 import apiClient from "~/utils/apiClient";
-import { useConfig } from "~/providers/configProvider";
 import { get_new_site_address } from "~/utils/common";
 
 import useSwr from "swr";
@@ -17,7 +16,7 @@ type FormValues = ServerConfig;
 
 export default function EditServerForm({ server, onSubmit }: Props) {
   const { data: config, isLoading } = useSwr<GlobalConfig>("/api/loadConfig");
-  if (!config) return <></>
+  if (!config) return <></>;
 
   apiClient.getNewKeyPair().then((keys) => {
     setValue("for_server.PrivateKey", keys.private_key);
@@ -88,7 +87,10 @@ export default function EditServerForm({ server, onSubmit }: Props) {
         <FormField label="Endpoint" help="DNS entry pointing to this site">
           <Input name="for_client.Endpoint" register={register} />
         </FormField>
-        <FormField label="AllowedIPs" help="Comma separated local networks at this site that should be accessible from other sites. Typically 192.168.10.0/24, 192.168.11.0/24">
+        <FormField
+          label="AllowedIPs"
+          help="Comma separated local networks at this site that should be accessible from other sites. Typically 192.168.10.0/24, 192.168.11.0/24"
+        >
           <Input name="for_client.AllowedIPs" register={register} />
         </FormField>
         <FormField label="PublicKey">
