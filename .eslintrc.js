@@ -13,6 +13,7 @@ module.exports = {
     "plugin:tailwindcss/recommended",
     "plugin:prettier/recommended",
     "next",
+    "testing-library",
   ],
   rules: {
     "import/prefer-default-export": 0,

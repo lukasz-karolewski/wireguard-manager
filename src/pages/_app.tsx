@@ -6,8 +6,6 @@ import { ConfigProvider } from "~/providers/configProvider";
 import "~/styles/main.css";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  
-
   return (
     <>
       <Head>
@@ -18,9 +16,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
         }}
       >
-          <ConfigProvider>
-            <Component {...pageProps} />
-          </ConfigProvider>
+        <ConfigProvider>
+          <Component {...pageProps} />
+        </ConfigProvider>
       </SWRConfig>
     </>
   );

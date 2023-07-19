@@ -1,37 +1,21 @@
-import { ServerConfigView } from "~/components/ServerConfigView";
-import { Button, Layout } from "~/components/ui";
-import { GlobalConfig, ServerConfig } from "~/types";
-
 import { useState } from "react";
-import EditServerForm from "~/components/ServerForm";
-import apiClient from "~/utils/apiClient";
+import { ClientItem } from "~/components/ClientItem";
+import EditClientForm from "~/components/ClientForm";
+import { Button, Layout } from "~/components/ui";
 import { useConfig } from "~/providers/configProvider";
-import { ServerItem } from "~/components/ServerItem";
+import { ClientConfig, GlobalConfig } from "~/types";
+import apiClient from "~/utils/apiClient";
 
 export default function Home() {
   const { config } = useConfig();
 
   const [showForm, setShowForm] = useState(false);
 
-  const onSubmit = async (data: ServerConfig) => {
-    const newServer: ServerConfig = {
-      name: data.name,
-      mode: data.mode,
-      deployment: "file",
-      deployment_target: "wg0.conf",
-
-      for_server: {
-        ...data.for_server,
-      },
-      for_client: {
-        ...data.for_client,
-      },
-    };
-
+  const onSubmit = async (data: ClientConfig) => {
     const newConfig: GlobalConfig = {
       ...config,
-      servers: [...config.servers, newServer],
-      clients: [...config.clients],
+      servers: config?.servers ? [...config.servers] : [],
+      clients: config?.clients ? [...config.clients, data] : [data],
     };
 
     apiClient.saveConfig(newConfig).then(() => {
@@ -43,14 +27,14 @@ export default function Home() {
     <Layout>
       <div className="flex justify-end mb-4">
         <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "Add Server"}
+          {showForm ? "Cancel" : "Add Client"}
         </Button>
       </div>
 
-      {showForm && <EditServerForm onSubmit={onSubmit} />}
+      {showForm && <EditClientForm onSubmit={onSubmit} />}
 
-      {config?.servers?.map((server) => {
-        return <ServerItem key={server.name} config={config} server_name={server.name} />;
+      {config?.clients?.map((client) => {
+        return <ClientItem key={client.name} client={client} />;
       })}
     </Layout>
   );

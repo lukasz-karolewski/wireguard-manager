@@ -1,9 +1,5 @@
 {
   "files.autoSave": "onFocusChange",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
   "eslint.format.enable": true,
   "eslint.probe": [
     "javascript",
@@ -19,10 +15,14 @@
   "css.lint.unknownAtRules": "ignore",
   "css.validate": true,
   "editor.linkedEditing": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   "editor.gotoLocation.multipleDefinitions": "goto",
   "editor.gotoLocation.multipleTypeDefinitions": "goto",
   "editor.quickSuggestions": {
     "strings": true
   },
-  "prettier.prettierPath": "./node_modules/prettier"
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

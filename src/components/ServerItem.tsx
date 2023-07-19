@@ -1,23 +1,15 @@
-import { ClipboardIcon } from "@heroicons/react/24/outline";
 import { FC } from "react";
-import { ServerConfig, ClientConfig, GlobalConfig } from "~/types";
-import { printServerConfig } from "~/utils/common";
+import { ServerConfig } from "~/types";
 import { Link } from "./ui";
 
 type ServerConfigProps = {
-  config: GlobalConfig;
-  server_name: string;
+  server: ServerConfig;
 };
 
-export const ServerItem: FC<React.PropsWithChildren<ServerConfigProps>> = ({
-  config,
-  server_name,
-}) => {
-
-  const server = config.servers.find((s) => s.name === server_name);
+export const ServerItem: FC<React.PropsWithChildren<ServerConfigProps>> = ({ server }) => {
   return (
     <div className="p-4 bg-gray-50">
-        <Link href={`servers\${server.server_name}`} >{server_name}</Link>
+      <Link href={`/servers/${server.name}`}>{server.name}</Link>
     </div>
   );
 };

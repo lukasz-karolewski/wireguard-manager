@@ -11,12 +11,12 @@ const TopNav: React.FC = () => {
     "border-2 border-solid border-white md:border-0",
     {
       ["hidden"]: !showMenu,
-    }
+    },
   );
 
   const links = [
-    { name: "Servers", url: "/" },
-    { name: "Clients", url: "/clients" },
+    { name: "Clients", url: "/" },
+    { name: "Servers", url: "/servers" },
   ];
 
   return (

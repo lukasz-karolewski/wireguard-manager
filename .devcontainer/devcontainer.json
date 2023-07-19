@@ -15,7 +15,7 @@
     "vscode": {
       "extensions": [
         "bradlc.vscode-tailwindcss",
-        "GitHub.copilot-nightly",
+        "GitHub.copilot",
         "GitHub.copilot-chat",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
