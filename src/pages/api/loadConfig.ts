@@ -4,7 +4,10 @@ import path from "path";
 import { GlobalConfig } from "~/types";
 
 // read configuration.json file and retrun it
-export default async function handler(req: NextApiRequest, res: NextApiResponse<GlobalConfig | { error: string }>) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<GlobalConfig | { error: string }>,
+) {
   const configPath = path.join(process.cwd(), "configuration.json");
   if (!fs.existsSync(configPath)) {
     res.status(400).json({ error: "Configuration file not found" });

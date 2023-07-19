@@ -1,37 +1,45 @@
-import { execShellCommand } from "~/utils/execShellCommand";
-import { ClientObject } from "~/types";
 import { NextApiRequest, NextApiResponse } from "next";
+import { WireGuard } from "~/types";
+import { execShellCommand } from "~/utils/execShellCommand";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ClientObject[]>) {
-    const clients = await getAllClients("wg0.conf")
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<WireGuard.Peer[]>,
+) {
+  const clients = await getAllClients("wg0.conf");
 
-    res.status(200).json(clients);
+  res.status(200).json(clients);
 }
 
-export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promise<ClientObject[]> {
-    const wgConfig = await execShellCommand(`cat ${filename}`);
+export async function getAllClients(
+  filename = "/etc/wireguard/wg0.conf",
+): Promise<WireGuard.Peer[]> {
+  const wgConfig = await execShellCommand(`cat ${filename}`);
 
-    const clients = wgConfig
-        .split(/\n(?=\[Peer\])/)
-        .map((clientConfig) => {
-            const client = clientConfig.split("\n");
-            const clientObject: ClientObject = {
-                name: getComment(client),
-                privateKey: getAttr(client, "PrivateKey"),
-                publicKey: getAttr(client, "PublicKey"),
-                allowedIPs: getAttr(client, "AllowedIPs"),
-                endpoint: getAttr(client, "Endpoint"),
-                persistentKeepalive: getAttr(client, "PersistentKeepalive"),
-            };
-            return clientObject;
-        });
-    return clients;
+  const clients = wgConfig.split(/\n(?=\[Peer\])/).map((clientConfig) => {
+    const client = clientConfig.split("\n");
+    const clientObject: WireGuard.Peer = {
+      //   name: getComment(client),
+      //   PrivateKey: getAttr(client, "PrivateKey"),
+      PublicKey: getAttr(client, "PublicKey"),
+      AllowedIPs: getAttr(client, "AllowedIPs"),
+      Endpoint: getAttr(client, "Endpoint"),
+      //   PersistentKeepalive: getAttr(client, "PersistentKeepalive"),
+    };
+    return clientObject;
+  });
+  return clients;
 }
 
 function getComment(client: string[]): string {
-    return client.find((line) => line.match(/^#\s*[^#\n]+$/))?.replace("#", "").trim() ?? "";
+  return (
+    client
+      .find((line) => line.match(/^#\s*[^#\n]+$/))
+      ?.replace("#", "")
+      .trim() ?? ""
+  );
 }
 
 function getAttr(client: string[], attrName: string): string {
-    return client.find((line) => line.match(new RegExp(`^${attrName}`)))?.split("=")[1] ?? "";
+  return client.find((line) => line.match(new RegExp(`^${attrName}`)))?.split("=")[1] ?? "";
 }
