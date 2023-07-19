@@ -31,8 +31,8 @@ export default function Home() {
       <div className="grid grid-cols-4 gap-4">
         {filteredClients?.map((client) => {
           return (
-            <Link href={`clients/${client.id}`}>
-              <ClientItem key={client.name} client={client} />
+            <Link key={client.name} href={`clients/${client.id}`}>
+              <ClientItem client={client} />
             </Link>
           );
         })}

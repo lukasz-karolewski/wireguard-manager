@@ -36,7 +36,9 @@ export function clientConfigTemplate(
     `[Peer]`,
     `PublicKey = ${server.for_client.PublicKey}`,
     `AllowedIPs = ${
-      configType == "localOnly" ? server.for_client.AllowedIPs : "0.0.0.0/0 , ::/0"
+      configType == "localOnly" || configType == "localOnlyDNS"
+        ? server.for_client.AllowedIPs
+        : "0.0.0.0/0 , ::/0"
     }`,
     `Endpoint = ${server.for_client.Endpoint}`,
   ]
