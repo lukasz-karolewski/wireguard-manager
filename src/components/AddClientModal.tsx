@@ -1,7 +1,7 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useForm } from "react-hook-form";
+import useSwr from "swr";
 import { Button, FormField, Input, Modal } from "~/components/ui";
-import { useConfig } from "~/providers/configProvider";
 import { ClientConfig, GlobalConfig } from "~/types";
 import apiClient from "~/utils/apiClient";
 
@@ -13,7 +13,7 @@ type FormValues = ClientConfig;
 
 const AddClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
-  const { config } = useConfig();
+  const { data: config, isLoading, mutate } = useSwr<GlobalConfig>("/api/loadConfig");
   if (!config) return <></>;
 
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>({
@@ -35,6 +35,7 @@ const AddClientModal = NiceModal.create<Props>(({ client }) => {
     };
 
     apiClient.saveConfig(newConfig).then(() => {
+      mutate();
       modal.remove();
     });
   };
@@ -47,23 +48,30 @@ const AddClientModal = NiceModal.create<Props>(({ client }) => {
       }}
       title="Add Client"
     >
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="bg-slate-100 p-4 ">
-        <FormField label="Name">
-          <Input name="name" register={register} />
-        </FormField>
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="min-w-[600px]">
+        <div className="p-4">
+          <FormField label="Name">
+            <Input name="name" register={register} />
+          </FormField>
 
-        <FormField label="Id">
-          <Input name="id" register={register} />
-        </FormField>
+          <FormField label="Id">
+            <Input name="id" register={register} />
+          </FormField>
 
-        <FormField label="PrivateKey">
-          <Input name="PrivateKey" register={register} />
-        </FormField>
+          <FormField label="PrivateKey">
+            <Input name="PrivateKey" register={register} />
+          </FormField>
 
-        <FormField label="PublicKey">
-          <Input name="PublicKey" register={register} />
-        </FormField>
-        <Button type="submit">{client ? "Update" : "Add"}</Button>
+          <FormField label="PublicKey">
+            <Input name="PublicKey" register={register} />
+          </FormField>
+        </div>
+        <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
+          <Button type="submit">{client ? "Update" : "Add"}</Button>
+          <Button type="button" onClick={modal.remove}>
+            Cancel
+          </Button>
+        </div>
       </form>
     </Modal>
   );

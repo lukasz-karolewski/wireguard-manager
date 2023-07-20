@@ -4,7 +4,7 @@ function Footer() {
   const version = process.env.VERSION;
 
   return (
-    <footer className="py-8 mx-auto text-sm text-center">
+    <footer className="mx-auto py-8 text-center text-sm">
       &copy; {new Date().getFullYear()} lk | {version || "development"}
     </footer>
   );

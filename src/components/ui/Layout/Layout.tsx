@@ -10,7 +10,7 @@ const Layout: FC<React.PropsWithChildren<LayoutProps>> = ({ is_full_width, child
     <>
       <TopNav />
       <Container id="content" clean={is_full_width}>
-        <main className="content-min-height">{children}</main>
+        <main>{children}</main>
         <Footer />
       </Container>
     </>

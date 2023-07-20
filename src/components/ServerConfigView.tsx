@@ -23,11 +23,11 @@ export const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = 
 
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div className="flex">
           {/* <button className="flex items-center p-2 bg-white hover:bg-slate-100" onClick={copyToClipboard}><PencilIcon className="w-4" /></button> */}
           <button
-            className="flex items-center p-2 bg-white hover:bg-slate-100"
+            className="flex items-center bg-white p-2 hover:bg-slate-100"
             onClick={copyToClipboard}
           >
             <ClipboardIcon title="Copy to Clipboard" className="w-4" />
@@ -35,7 +35,7 @@ export const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = 
         </div>
       </div>
 
-      <pre className="text-white bg-gray-600 p-2 overflow-auto">{configText}</pre>
+      <pre className="overflow-auto bg-gray-600 p-2 text-white">{configText}</pre>
     </>
   );
 };

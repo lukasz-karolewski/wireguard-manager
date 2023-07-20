@@ -1,15 +1,16 @@
 import { FC } from "react";
-import { useConfig } from "~/providers/configProvider";
 
 import { useRouter } from "next/router";
-import { Layout, Link } from "~/components/ui";
+import useSwr from "swr";
 import { ServerConfigView } from "~/components/ServerConfigView";
+import { Layout, Link } from "~/components/ui";
+import { GlobalConfig } from "~/types";
 
 const ServerDetailPage: FC = () => {
   const router = useRouter();
   const server_name = router.query["name"];
 
-  const { config } = useConfig();
+  const { data: config, isLoading } = useSwr<GlobalConfig>("/api/loadConfig");
   if (!config) return <></>;
 
   const server = config.servers.find((val) => val.name == server_name);

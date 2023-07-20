@@ -5,7 +5,7 @@ type InputProps = {
 
 const Input = ({ name, register }: InputProps) => (
   <input
-    className="border py-2 px-3 text-gray-900"
+    className="border px-3 py-2 text-gray-900"
     type="text"
     {...register(name, { required: true })}
   />

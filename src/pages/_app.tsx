@@ -1,9 +1,7 @@
 import NiceModal from "@ebay/nice-modal-react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import React from "react";
 import { SWRConfig } from "swr";
-import { ConfigProvider } from "~/providers/configProvider";
 import "~/styles/main.css";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
@@ -18,9 +16,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         }}
       >
         <NiceModal.Provider>
-          <ConfigProvider>
-            <Component {...pageProps} />
-          </ConfigProvider>
+          {/* <ConfigProvider> */}
+          <Component {...pageProps} />
+          {/* </ConfigProvider> */}
         </NiceModal.Provider>
       </SWRConfig>
     </>

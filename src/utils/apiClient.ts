@@ -18,4 +18,6 @@ async function saveConfig(config: GlobalConfig) {
   return await res.json();
 }
 
-export default { getNewKeyPair, getServers, saveConfig };
+const apiClient = { getNewKeyPair, getServers, saveConfig };
+
+export default apiClient;

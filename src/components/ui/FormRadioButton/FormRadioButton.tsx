@@ -6,7 +6,7 @@ type FormRadioButtonProps = {
 };
 
 const FormRadioButton = ({ name, value, label, register }: FormRadioButtonProps) => (
-  <label className="inline-flex items-center ml-6">
+  <label className="ml-6 inline-flex items-center">
     <input
       type="radio"
       className="form-radio"

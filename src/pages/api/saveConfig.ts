@@ -2,10 +2,9 @@ import fs from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 
-// write configuration.json file and based on contets of req.body
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<{} | { error: string }>,
+  res: NextApiResponse<Record<string, never> | { error: string }>,
 ) {
   try {
     const configPath = path.join(process.cwd(), "configuration.json");

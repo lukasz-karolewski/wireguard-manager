@@ -22,14 +22,14 @@ const TopNav: React.FC = () => {
   return (
     <nav>
       <Container>
-        <div className="flex items-center content-center justify-between h-16 bg-gray-700 px-4">
+        <div className="flex h-16 content-center items-center justify-between bg-gray-700 px-4">
           <div className="flex items-center">
             <Link
               href="/"
               activeClassName=""
               className="text-2xl font-bold text-white no-underline hover:no-underline md:text-3xl"
             >
-              Wireguard Manager
+              Wireguard Site to Site Manager
             </Link>
           </div>
 
@@ -38,7 +38,7 @@ const TopNav: React.FC = () => {
               <Link
                 href={item.url}
                 key={item.url}
-                className="inline-block px-4 py-2 font-medium text-white no-underline first:ml-4 mt-1 hover:text-gray-800 hover:bg-white"
+                className="mt-1 inline-block px-4 py-2 font-medium text-white no-underline first:ml-4 hover:bg-white hover:text-gray-800"
               >
                 {item.name}
               </Link>

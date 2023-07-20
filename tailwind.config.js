@@ -4,5 +4,5 @@ module.exports = {
     applyComplexClasses: true,
   },
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
-  mode: "jit"
+  mode: "jit",
 };
