@@ -1,5 +1,5 @@
-import { Button, Layout, Link } from "~/app/ui/common";
 import { GlobalConfig } from "~/app/lib/types";
+import { Button, Link } from "~/app/ui/common";
 
 import NiceModal from "@ebay/nice-modal-react";
 import useSwr from "swr";
@@ -11,7 +11,7 @@ export default function Home() {
   if (!config) return <></>;
 
   return (
-    <Layout>
+    <>
       <div className="mb-4 flex justify-end">
         <Button onClick={() => NiceModal.show(AddServerModal)}>Add Server</Button>
       </div>
@@ -25,6 +25,6 @@ export default function Home() {
           );
         })}
       </div>
-    </Layout>
+    </>
   );
 }

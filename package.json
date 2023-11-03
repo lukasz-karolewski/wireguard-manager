@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "next dev --turbo -p 3001",
+    "dev": "next dev -p 3001",
     "debug": "NODE_OPTIONS='--inspect' next -p 3001",
     "analyze": "ANALYZE=true npm run-script build",
     "build": "next build",
@@ -54,6 +54,7 @@
     "postcss": "^8.4.12",
     "postcss-nesting": "^12.0.0",
     "prettier": "^3.0.0",
+    "prisma": "^5.5.2",
     "typescript": "^5.1.6"
   }
 }

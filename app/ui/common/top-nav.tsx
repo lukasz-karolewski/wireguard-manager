@@ -1,24 +1,20 @@
 import clsx from "clsx";
-import { useState } from "react";
 import Container from "./container";
 import Link from "./link";
 
+const navLinksClassName = clsx(
+  "z-20 mt-2 w-full grow gap-2 p-4 text-black md:mt-0 md:flex md:w-auto md:items-center md:bg-transparent md:p-0",
+  "border-2 border-solid border-white md:border-0",
+);
+
+const links = [
+  { name: "Clients", url: "/" },
+  { name: "Servers", url: "/servers" },
+  { name: "Global Settings", url: "/global-settings" },
+  { name: "Status", url: "/status" },
+];
+
 const TopNav: React.FC = () => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  const navLinksClassName = clsx(
-    "bg-primary z-20 mt-2 w-full grow gap-2 p-4 text-black md:mt-0 md:flex md:w-auto md:items-center md:bg-transparent md:p-0",
-    "border-2 border-solid border-white md:border-0",
-    {
-      ["hidden"]: !showMenu,
-    },
-  );
-
-  const links = [
-    { name: "Clients", url: "/" },
-    { name: "Servers", url: "/servers" },
-  ];
-
   return (
     <nav>
       <Container>
@@ -29,7 +25,7 @@ const TopNav: React.FC = () => {
               activeClassName=""
               className="text-2xl font-bold text-white no-underline hover:no-underline md:text-3xl"
             >
-              Wireguard Site to Site Manager
+              Wireguard UI - s2s
             </Link>
           </div>
 

@@ -4,7 +4,7 @@ import { FC, useState } from "react";
 import { useRouter } from "next/router";
 import useSwr from "swr";
 import { GlobalConfig } from "~/app/lib/types";
-import { Layout, Link } from "~/app/ui/common";
+import { Link } from "~/app/ui/common";
 import { ClientConfigView } from "~/app/ui/components/ClientConfigView";
 
 const ClientDetailPage: FC = () => {
@@ -19,7 +19,7 @@ const ClientDetailPage: FC = () => {
   if (!client) return <></>;
 
   return (
-    <Layout>
+    <>
       <h3 className="text-lg">
         <Link href="/">Clients</Link> &gt; {client.name}
       </h3>
@@ -50,7 +50,7 @@ const ClientDetailPage: FC = () => {
           );
         })}
       </div>
-    </Layout>
+    </>
   );
 };
 

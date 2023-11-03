@@ -6,7 +6,7 @@ interface ContainerProps {
   className?: string;
   children?: any;
   el?: HTMLElement;
-  clean?: boolean;
+  is_full_width?: boolean;
 }
 
 const Container: FC<PropsWithChildren<ContainerProps>> = ({
@@ -14,10 +14,10 @@ const Container: FC<PropsWithChildren<ContainerProps>> = ({
   children,
   className,
   el = "div",
-  clean,
+  is_full_width,
 }) => {
   const rootClassName = clsx(className, {
-    "mx-auto max-w-6xl px-6 xl:px-0": !clean,
+    "mx-auto max-w-6xl px-6 xl:px-0": !is_full_width,
   });
 
   const Component: ComponentType<PropsWithChildren<HTMLAttributes<HTMLDivElement>>> = el as any;
