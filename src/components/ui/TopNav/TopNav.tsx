@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import React, { useState } from "react";
 import Container from "../Container";
 import Link from "../Link";
@@ -6,8 +6,8 @@ import Link from "../Link";
 const TopNav: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
 
-  const navLinksClassName = cn(
-    "bg-primary w-full flex-grow md:flex md:items-center md:w-auto mt-2 md:mt-0 md:bg-transparent text-black p-4 md:p-0 z-20 gap-2",
+  const navLinksClassName = clsx(
+    "bg-primary z-20 mt-2 w-full grow gap-2 p-4 text-black md:mt-0 md:flex md:w-auto md:items-center md:bg-transparent md:p-0",
     "border-2 border-solid border-white md:border-0",
     {
       ["hidden"]: !showMenu,

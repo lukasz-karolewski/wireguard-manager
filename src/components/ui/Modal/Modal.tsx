@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import cn from "classnames";
+import clsx from "clsx";
 import noop from "lodash/noop";
 import React, { FC, Fragment, PropsWithChildren } from "react";
 
@@ -37,7 +37,7 @@ const Modal: FC<React.PropsWithChildren<PropsWithChildren<MyModalProps>>> = ({
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-        <div className={cn("fixed inset-0 flex items-center justify-center p-4", className)}>
+        <div className={clsx("fixed inset-0 flex items-center justify-center p-4", className)}>
           <Dialog.Panel className="grid max-h-screen grid-rows-[min-content,minmax(0,100%)] rounded bg-white shadow-xl">
             <Dialog.Title
               as="div"

@@ -5,4 +5,5 @@ module.exports = {
   },
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   mode: "jit",
+  plugins: [require("@tailwindcss/forms")],
 };

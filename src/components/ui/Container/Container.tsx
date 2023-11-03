@@ -1,4 +1,4 @@
-import cn from "classnames";
+import clsx from "clsx";
 import React, { FC } from "react";
 
 interface ContainerProps {
@@ -16,7 +16,7 @@ const Container: FC<React.PropsWithChildren<ContainerProps>> = ({
   el = "div",
   clean,
 }) => {
-  const rootClassName = cn(className, {
+  const rootClassName = clsx(className, {
     "mx-auto max-w-6xl px-6 xl:px-0": !clean,
   });
 
