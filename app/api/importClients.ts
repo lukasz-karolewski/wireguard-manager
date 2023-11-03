@@ -1,16 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { unstable_noStore as noStore } from "next/cache";
 import { WireGuard } from "~/app/lib/types";
 import { execShellCommand } from "~/app/lib/utils/execShellCommand";
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<WireGuard.Peer[]>,
-) {
-  const clients = await getAllClients("wg0.conf");
-
-  res.status(200).json(clients);
-}
-
 export async function getAllClients(
   filename = "/etc/wireguard/wg0.conf",
 ): Promise<WireGuard.Peer[]> {
@@ -28,6 +18,8 @@ export async function getAllClients(
     };
     return clientObject;
   });
+
+  noStore();
   return clients;
 }
 

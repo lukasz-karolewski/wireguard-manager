@@ -46,7 +46,7 @@ namespace WireGuard {
   };
 }
 
-export type GetKeysResponse = {
+export type KeyPair = {
   private_key: string;
   public_key: string;
 };

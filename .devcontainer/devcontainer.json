@@ -19,7 +19,8 @@
         "GitHub.copilot-chat",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "Prisma.prisma"
       ]
     }
   },
