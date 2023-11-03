@@ -1,0 +1,32 @@
+import clsx from "clsx";
+import { FC, PropsWithChildren, ComponentType, HTMLAttributes } from "react";
+
+interface ContainerProps {
+  id?: string;
+  className?: string;
+  children?: any;
+  el?: HTMLElement;
+  clean?: boolean;
+}
+
+const Container: FC<PropsWithChildren<ContainerProps>> = ({
+  id,
+  children,
+  className,
+  el = "div",
+  clean,
+}) => {
+  const rootClassName = clsx(className, {
+    "mx-auto max-w-6xl px-6 xl:px-0": !clean,
+  });
+
+  const Component: ComponentType<PropsWithChildren<HTMLAttributes<HTMLDivElement>>> = el as any;
+
+  return (
+    <Component id={id} className={rootClassName}>
+      {children}
+    </Component>
+  );
+};
+
+export default Container;
