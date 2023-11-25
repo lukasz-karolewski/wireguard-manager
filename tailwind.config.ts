@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ["./app/**/*.{js,ts,jsx,tsx}"],
+  content: ["./src/**/*.tsx"],
+  darkMode: "media",
   plugins: [require("@tailwindcss/forms")],
 };
 
