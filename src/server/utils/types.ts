@@ -1,30 +1,6 @@
-export type GlobalConfig = {
-  wg_network: string;
+export const clientConfigTypes = ["allTraffic", "localOnlyDNS", "localOnly"] as const;
 
-  servers: ServerConfig[];
-  clients: ClientConfig[];
-};
-
-export type ServerConfig = {
-  name: string;
-  mode: "native" | "edgerouter";
-  deployment: "file" | "scp" | "ssh";
-  deployment_target: string;
-
-  for_server: Interface;
-  for_client: Peer;
-};
-
-export type ClientConfig = {
-  name: string;
-  id: number;
-  PublicKey: string;
-  PrivateKey: string;
-};
-
-export type ClientConfigType = "localOnly" | "localOnlyDNS" | "allTraffic";
-
-interface Interface {
+export interface WgInterface {
   Address: string;
   ListenPort: number;
   MTU?: number;
@@ -38,13 +14,8 @@ interface Interface {
   PostDown?: string[];
 }
 
-export type Peer = {
+export interface WgPeer {
   PublicKey: string;
   AllowedIPs: string;
   Endpoint: string;
-};
-
-export type KeyPair = {
-  private_key: string;
-  public_key: string;
-};
+}

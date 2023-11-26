@@ -1,10 +1,5 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useForm } from "react-hook-form";
-import useSwr from "swr";
-import { GlobalConfig, ServerConfig } from "~/src/app/lib/types";
-import apiClient from "~/src/app/lib/utils/apiClient";
-import { get_new_site_address } from "~/src/app/lib/utils/common";
-import { Button, FormField, FormRadioButton, Input, Modal } from "~/src/app/ui/common";
 
 type Props = {
   server?: ServerConfig;

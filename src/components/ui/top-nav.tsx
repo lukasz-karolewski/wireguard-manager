@@ -1,4 +1,7 @@
 import clsx from "clsx";
+
+import { auth } from "~/auth";
+import { SignIn, SignOut } from "./buttons-auth";
 import Container from "./container";
 import Link from "./link";
 
@@ -9,10 +12,16 @@ const navLinksClassName = clsx(
 
 const links = [
   { name: "Clients", url: "/" },
-  { name: "Servers", url: "/servers" },
+  { name: "Sites", url: "/sites" },
   { name: "Global Settings", url: "/global-settings" },
   { name: "Status", url: "/status" },
 ];
+
+const UserButtons: React.FC = async () => {
+  const session = await auth();
+  if (!session?.user) return <SignIn />;
+  else return <SignOut />;
+};
 
 const TopNav: React.FC = () => {
   return (
@@ -39,6 +48,10 @@ const TopNav: React.FC = () => {
                 {item.name}
               </Link>
             ))}
+          </div>
+
+          <div>
+            <UserButtons />
           </div>
         </div>
       </Container>

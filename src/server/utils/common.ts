@@ -1,6 +1,5 @@
-import { ClientConfig, ClientConfigType, GlobalConfig, ServerConfig } from "./types";
-
-export const configTypes: ClientConfigType[] = ["allTraffic", "localOnlyDNS", "localOnly"];
+import { clientConfigTypes } from "./types";
+console.log(clientConfigTypes);
 
 export const get_new_site_address = (config: GlobalConfig) => {
   const id = config.servers.length + 1;

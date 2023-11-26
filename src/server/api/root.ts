@@ -1,4 +1,7 @@
-import { resumeRouter } from "~/server/api/routers/keys";
+import { clientRouter } from "~/server/api/routers/client";
+import { settingsRouter } from "~/server/api/routers/settings";
+import { siteRouter } from "~/server/api/routers/site";
+
 import { createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -7,7 +10,9 @@ import { createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  resume: resumeRouter,
+  settings: settingsRouter,
+  site: siteRouter,
+  client: clientRouter,
 });
 
 // export type definition of API

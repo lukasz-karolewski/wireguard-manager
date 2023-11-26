@@ -1,13 +1,13 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { execShellCommand } from "~/server/utils/execShellCommand";
-import { Peer } from "./types";
+import { WgPeer } from "./types";
 
-export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promise<Peer[]> {
+export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promise<WgPeer[]> {
   const wgConfig = await execShellCommand(`cat ${filename}`);
 
   const clients = wgConfig.split(/\n(?=\[Peer\])/).map((clientConfig) => {
     const client = clientConfig.split("\n");
-    const clientObject: Peer = {
+    const clientObject: WgPeer = {
       //   name: getComment(client),
       //   PrivateKey: getAttr(client, "PrivateKey"),
       PublicKey: getAttr(client, "PublicKey"),
