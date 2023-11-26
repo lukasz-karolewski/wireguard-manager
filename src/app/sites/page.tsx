@@ -27,6 +27,8 @@ export default function SiteListPage() {
             </Link>
           );
         })}
+
+        {sites?.length == 0 && <div>No sites</div>}
       </div>
     </>
   );

@@ -5,7 +5,9 @@ import Container from "~/components/ui/container";
 import Footer from "~/components/ui/footer";
 import TopNav from "~/components/ui/top-nav";
 
+import { redirect } from "next/navigation";
 import "~/app/styles.css";
+import { auth } from "~/auth";
 import NiceModalProviderWrapper from "~/components/providers";
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -13,7 +15,10 @@ export const metadata: Metadata = {
   title: "Wireguard Manager",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  if (!session?.user) redirect("/api/auth/signin");
+
   return (
     <html>
       <body>

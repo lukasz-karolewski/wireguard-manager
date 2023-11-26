@@ -1,18 +1,31 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "~/components/ui/link";
+import { api } from "~/trpc/react";
 
 export default function ClientListPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { data: clients, isLoading } = api.client.getAll.useQuery();
 
-  // const searchParams = new URLSearchParams();
-  // const filter = searchParams.get("filter") ?? "";
+  if (isLoading) return <div>Loading...</div>;
 
-  // const filteredClients = config?.clients?.filter((client) =>
-  //   client.name.toLowerCase().includes(filter.toLowerCase()),
-  // );
+  return (
+    <>
+      <div className="mb-4 flex justify-end">
+        {/* <Button onClick={() => NiceModal.show(AddServerModal)}>Add Server</Button> */}
+      </div>
 
-  return <div>hello</div>;
+      <div className="grid grid-cols-4 gap-4">
+        {clients?.map((client) => {
+          return (
+            <Link key={client.name} href={`/sites/${client.id}`}>
+              {client.name}
+            </Link>
+          );
+        })}
+
+        {clients?.length == 0 && <div>No Clients</div>}
+      </div>
+    </>
+  );
 }
 
 //       <div className="mb-4 flex justify-end">
