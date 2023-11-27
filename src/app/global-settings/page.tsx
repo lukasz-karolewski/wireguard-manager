@@ -1,5 +1,6 @@
 "use client";
 
+import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
@@ -7,7 +8,15 @@ const GlobalSettingsPage: React.FC = () => {
   const { data: settings, refetch } = api.settings.getAllSettings.useQuery();
 
   const { mutate, isLoading: isPosting } = api.settings.set_wg_network.useMutation({
-    onSuccess: (data) => refetch(),
+    onSuccess: (data) => {
+      refetch();
+      toast.success("saved");
+    },
+    onError: (error) => {
+      const errorMessage = error.data?.zodError?.fieldErrors.value;
+      if (errorMessage) toast.error(errorMessage.join(", "));
+      else toast.error("Failed to save");
+    },
   });
 
   if (!settings) return <>loading</>;

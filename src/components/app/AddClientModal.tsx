@@ -1,43 +1,40 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useForm } from "react-hook-form";
-import useSwr from "swr";
-import { ClientConfig, GlobalConfig } from "~/src/app/lib/types";
-import apiClient from "~/src/app/lib/utils/apiClient";
-import { Button, FormField, Input, Modal } from "~/src/app/ui/common";
+import { Button } from "~/components/ui/button";
+import FormField from "~/components/ui/form-field";
+import { Input } from "~/components/ui/input";
+import Modal from "~/components/ui/modal";
 
 type Props = {
-  client?: ClientConfig;
+  // client?: ClientConfig;
 };
 
-type FormValues = ClientConfig;
+type FormValues = {
+  id: number;
+  name: string;
+  PrivateKey: string;
+  PublicKey: string;
+};
 
-const AddClientModal = NiceModal.create<Props>(({ client }) => {
+const AddClientModal = NiceModal.create<Props>(() => {
   const modal = useModal();
-  const { data: config, isLoading, mutate } = useSwr<GlobalConfig>("/api/loadConfig");
-  if (!config) return <></>;
 
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>({
-    defaultValues: client || {
-      id: 1,
-    },
-  });
-
-  apiClient.getNewKeyPair().then((keys) => {
-    setValue("PrivateKey", keys.private_key);
-    setValue("PublicKey", keys.public_key);
+    // defaultValues: client || {
+    //   id: 1,
+    // },
   });
 
   const handleFormSubmit = (data: FormValues) => {
-    const newConfig: GlobalConfig = {
-      ...config,
-      servers: config?.servers ? [...config.servers] : [],
-      clients: config?.clients ? [...config.clients, data] : [data],
-    };
-
-    apiClient.saveConfig(newConfig).then(() => {
-      mutate();
-      modal.remove();
-    });
+    // const newConfig: GlobalConfig = {
+    //   ...config,
+    //   servers: config?.servers ? [...config.servers] : [],
+    //   clients: config?.clients ? [...config.clients, data] : [data],
+    // };
+    // apiClient.saveConfig(newConfig).then(() => {
+    //   mutate();
+    //   modal.remove();
+    // });
   };
 
   return (

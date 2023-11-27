@@ -1,9 +1,9 @@
 "use client";
 
-// import NiceModal from "@ebay/nice-modal-react";
-// import AddServerModal from "~/components/app/AddServerModal";
+import NiceModal from "@ebay/nice-modal-react";
+import AddSiteModal from "~/components/app/AddSiteModal";
 import { ServerItem } from "~/components/app/ServerItem";
-// import Button from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
 
 import { api } from "~/trpc/react";
@@ -16,7 +16,7 @@ export default function SiteListPage() {
   return (
     <>
       <div className="mb-4 flex justify-end">
-        {/* <Button onClick={() => NiceModal.show(AddServerModal)}>Add Server</Button> */}
+        <Button onClick={() => NiceModal.show(AddSiteModal)}>Add Site</Button>
       </div>
 
       <div className="grid grid-cols-4 gap-4">

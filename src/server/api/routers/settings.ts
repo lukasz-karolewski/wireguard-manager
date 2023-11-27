@@ -4,6 +4,21 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 const SettingsValues = z.enum(["wg_network"]);
+const ipWithCidrSchema = z.string().refine(
+  (value) => {
+    const [ip, cidr] = value.split("/");
+    const ipParts = ip.split(".").map(Number);
+    const cidrNumber = Number(cidr);
+
+    const isIpValid = ipParts.length === 4 && ipParts.every((part) => part >= 0 && part <= 255);
+    const isCidrValid = cidrNumber >= 0 && cidrNumber <= 32;
+
+    return isIpValid && isCidrValid;
+  },
+  {
+    message: "Invalid IP address with CIDR notation",
+  },
+);
 
 export const settingsRouter = createTRPCRouter({
   getAllSettings: protectedProcedure.query(async ({ ctx }) => {
@@ -21,7 +36,7 @@ export const settingsRouter = createTRPCRouter({
   set_wg_network: protectedProcedure
     .input(
       z.object({
-        value: z.string(),
+        value: ipWithCidrSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {

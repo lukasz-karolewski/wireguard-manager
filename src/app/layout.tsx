@@ -9,6 +9,7 @@ import Footer from "~/components/ui/footer";
 import TopNav from "~/components/ui/top-nav";
 import { TRPCReactProvider } from "~/trpc/react";
 
+import { Toaster } from "react-hot-toast";
 import "~/app/styles.css";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Container id="content" is_full_width={false}>
               <main>{children}</main>
               <Footer />
+              <Toaster position="bottom-center" />
             </Container>
           </NiceModalProviderWrapper>
         </TRPCReactProvider>

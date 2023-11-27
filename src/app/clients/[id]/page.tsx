@@ -1,28 +1,14 @@
-import { Switch } from "@headlessui/react";
+"use client";
 import { FC, useState } from "react";
-
-import Link from "next/link";
-import { useRouter } from "next/router";
-import useSwr from "swr";
-import { ClientConfigView } from "~/components/app/ClientConfigView";
-import { GlobalConfig } from "~/server/utils/types";
 
 type ClientDetailPageProps = { params: { id: string } };
 
 const ClientDetailPage: FC<ClientDetailPageProps> = (params) => {
-  const { data: config, isLoading } = useSwr<GlobalConfig>("/api/loadConfig");
-  const router = useRouter();
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
-
-  const id = Number(router.query["id"]);
-  if (!config) return <></>;
-  const client = config.clients.find((val) => val.id == id);
-
-  if (!client) return <></>;
 
   return (
     <>
-      <h3 className="text-lg">
+      {/* <h3 className="text-lg">
         <Link href="/">Clients</Link> &gt; {client.name}
       </h3>
 
@@ -51,7 +37,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (params) => {
             </div>
           );
         })}
-      </div>
+      </div> */}
     </>
   );
 };
