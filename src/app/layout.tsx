@@ -1,15 +1,15 @@
 import { Metadata } from "next";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
+import { auth } from "~/auth";
+import NiceModalProviderWrapper from "~/components/providers";
 import Container from "~/components/ui/container";
 import Footer from "~/components/ui/footer";
 import TopNav from "~/components/ui/top-nav";
-
-import { redirect } from "next/navigation";
-import "~/app/styles.css";
-import { auth } from "~/auth";
-import NiceModalProviderWrapper from "~/components/providers";
 import { TRPCReactProvider } from "~/trpc/react";
+
+import "~/app/styles.css";
 
 export const metadata: Metadata = {
   title: "Wireguard Manager",

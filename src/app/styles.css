@@ -1,10 +1,10 @@
 @tailwind base;
-/* @import "./base.css"; */
-
 @tailwind components;
-/* @import "./components.css"; */
-
 @tailwind utilities;
+
+h1 {
+  @apply text-2xl font-bold mb-2;
+}
 
 h2 {
   @apply text-2xl font-bold mb-2;
