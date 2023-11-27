@@ -19,7 +19,7 @@ const ActiveLink = ({
   const pathname = usePathname();
 
   return (
-    <Link className={clsx(className, { activeClassName: pathname === props.href })} {...props}>
+    <Link className={clsx(className, { [activeClassName]: pathname === props.href })} {...props}>
       {children}
     </Link>
   );
