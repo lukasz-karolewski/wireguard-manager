@@ -1,8 +1,8 @@
+import { Client } from "@prisma/client";
 import { FC } from "react";
-import { ClientConfig } from "~/src/app/lib/types";
 
 type ClientConfigProps = {
-  client: ClientConfig;
+  client: Client;
 };
 
 export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client }) => {

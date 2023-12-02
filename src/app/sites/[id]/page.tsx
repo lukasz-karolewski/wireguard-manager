@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 
-import { usePathname } from "next/navigation";
+import { notFound, usePathname } from "next/navigation";
 import { api } from "~/trpc/react";
 
 type SiteDetailPageProps = { params: { id: string } };
@@ -10,8 +10,8 @@ type SiteDetailPageProps = { params: { id: string } };
 const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
   const pathname = usePathname();
 
-  console.log("params", params);
   const { data: config } = api.site.getConfig.useQuery({ id: +params.id });
+  if (!config) return notFound();
 
   return (
     <>

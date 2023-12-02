@@ -1,10 +1,18 @@
 "use client";
+import { notFound } from "next/navigation";
 import { FC, useState } from "react";
+import { api } from "~/trpc/react";
 
-type ClientDetailPageProps = { params: { id: string } };
+type ClientDetailPageProps = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-const ClientDetailPage: FC<ClientDetailPageProps> = (params) => {
+const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
+
+  const { data: configs } = api.client.getConfigs.useQuery({ id: Number(params.id) });
+  if (!configs) return notFound();
 
   return (
     <>

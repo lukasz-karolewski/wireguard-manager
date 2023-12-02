@@ -1,7 +1,8 @@
-import { Prisma } from "@prisma/client";
 import "server-only";
+
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { serverConfigToNativeWireguard } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 
 export const siteRouter = createTRPCRouter({
@@ -62,7 +63,7 @@ export const siteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const settings = await ctx.db.settings.findMany();
 
-      const site = await ctx.db.site.findUnique({
+      const site = await ctx.db.site.findFirstOrThrow({
         where: { id: input.id },
       });
 
@@ -113,55 +114,3 @@ export const siteRouter = createTRPCRouter({
       });
     }),
 });
-
-function serverConfigToNativeWireguard(
-  settings: Prisma.SettingsSelect[],
-  site: Prisma.SiteSelect,
-  otherSites: Prisma.SiteSelect[],
-  clients: Prisma.ClientSelect[],
-): string {
-  const wg_network = settings.find((s) => s.name === "wg_network")!.value;
-
-  let config = `
-    [Interface]
-    Address = ${generateAddress(wg_network, site.id)}
-    ListenPort = 51820
-    PrivateKey = ${site.PrivateKey}
-    # MTU = 1420 - default
-
-    ### site to site Peers
-    ${otherSites
-      .map((s) => {
-        return `[Peer]
-                # ${s.name}
-                PublicKey = ${s.PublicKey}
-                Endpoint = ${s.endpointAddress}
-                AllowedIPs = ${s.localAddresses}
-                `;
-      })
-      .join("\n")}
-
-    ### Clients
-    ${clients
-      .map((c) => {
-        return `[Peer]
-                # ${c.name}
-                PublicKey = ${c.PublicKey}
-                AllowedIPs = ${generateAddress(wg_network, c.id)}
-                `;
-      })
-      .join("\n")}
-    `;
-
-  config = config.replace(/^\s+/gm, ""); // Remove leading whitespace
-
-  return config;
-}
-
-function generateAddress(wg_network: string, id: number): string {
-  const [address, mask] = wg_network.split("/");
-  const ipParts = address.split(".", 4) as [string, string, string, string];
-  ipParts[3] = id.toString(); // Convert id to string before assigning
-
-  return `${ipParts.join(".")}/${mask}`;
-}

@@ -2,7 +2,9 @@ import "server-only";
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { clientConfigToNativeWireguard } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
+import { ClientConfigType } from "~/server/utils/types";
 
 export const clientRouter = createTRPCRouter({
   getAllSettings: protectedProcedure.query(async ({ ctx }) => {
@@ -55,6 +57,30 @@ export const clientRouter = createTRPCRouter({
       return await ctx.db.client.findUnique({
         where: { id: input.id },
       });
+    }),
+
+  getConfigs: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const settings = await ctx.db.settings.findMany();
+      const sites = await ctx.db.site.findMany();
+      const client = await ctx.db.client.findFirstOrThrow({
+        where: { id: input.id },
+      });
+
+      const configs: string[] = [];
+      sites.forEach((site) => {
+        Object.keys(ClientConfigType).forEach((type) => {
+          configs.push(
+            clientConfigToNativeWireguard(settings, site, client, type as ClientConfigType),
+          );
+        });
+      });
+      return configs;
     }),
 
   update: protectedProcedure

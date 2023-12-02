@@ -8,9 +8,7 @@ type FormFieldProps = {
 
 const FormField: FC<FormFieldProps> = ({ children, label, help }) => (
   <div className="mb-4 flex flex-col">
-    <label htmlFor={children.props.id} className="mb-2 text-lg font-bold">
-      {label}
-    </label>
+    <label className="mb-2 text-lg font-bold">{label}</label>
     {children}
     <p className="text-sm italic text-gray-500">{help}</p>
   </div>

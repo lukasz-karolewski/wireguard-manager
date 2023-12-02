@@ -1,4 +1,8 @@
-export const clientConfigTypes = ["allTraffic", "localOnlyDNS", "localOnly"] as const;
+export enum ClientConfigType {
+  allTraffic = "allTraffic",
+  localOnlyDNS = "localOnlyDNS",
+  localOnly = "localOnly",
+}
 
 export interface WgInterface {
   Address: string;

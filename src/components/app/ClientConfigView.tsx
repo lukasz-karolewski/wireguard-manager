@@ -1,23 +1,13 @@
-import { QRCodeSVG } from "qrcode.react";
 import { FC } from "react";
-import { ClientConfig, ServerConfig } from "~/src/app/lib/types";
-
-import { clientConfigTemplate, configTypes } from "~/src/app/lib/utils/common";
 
 type ClientConfigProps = {
-  server: ServerConfig;
-  client: ClientConfig;
   show: "qr" | "config";
 };
 
-export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({
-  server,
-  client,
-  show,
-}) => {
+export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = ({ show }) => {
   return (
     <div className="flex gap-4 overflow-auto">
-      {configTypes.map((variant) => {
+      {/* {configTypes.map((variant) => {
         const config = clientConfigTemplate(server, client, variant);
 
         return (
@@ -28,7 +18,7 @@ export const ClientConfigView: FC<React.PropsWithChildren<ClientConfigProps>> = 
             {show == "qr" && <QRCodeSVG value={config} size={256} />}
           </div>
         );
-      })}
+      })} */}
     </div>
   );
 };

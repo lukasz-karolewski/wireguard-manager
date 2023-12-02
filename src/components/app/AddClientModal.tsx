@@ -1,8 +1,6 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
-import FormField from "~/components/ui/form-field";
-import { Input } from "~/components/ui/input";
 import Modal from "~/components/ui/modal";
 
 type Props = {
@@ -47,7 +45,7 @@ const AddClientModal = NiceModal.create<Props>(() => {
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="min-w-[600px]">
         <div className="p-4">
-          <FormField label="Name">
+          {/* <FormField label="Name">
             <Input name="name" register={register} />
           </FormField>
 
@@ -61,10 +59,10 @@ const AddClientModal = NiceModal.create<Props>(() => {
 
           <FormField label="PublicKey">
             <Input name="PublicKey" register={register} />
-          </FormField>
+          </FormField> */}
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
-          <Button type="submit">{client ? "Update" : "Add"}</Button>
+          {/* <Button type="submit">{client ? "Update" : "Add"}</Button> */}
           <Button type="button" onClick={modal.remove}>
             Cancel
           </Button>

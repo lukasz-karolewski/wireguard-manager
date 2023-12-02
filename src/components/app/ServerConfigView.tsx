@@ -1,24 +1,24 @@
 import { ClipboardIcon } from "@heroicons/react/24/outline";
+import { notFound } from "next/navigation";
 import { FC } from "react";
-import { GlobalConfig } from "~/src/app/lib/types";
-import { printServerConfig } from "~/src/app/lib/utils/common";
+import { api } from "~/trpc/react";
 
 type ServerConfigProps = {
-  config: GlobalConfig;
+  // config: GlobalConfig;
   server_name: string;
 };
 
 export const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = ({
-  config,
+  // config,
   server_name,
 }) => {
-  const server = config.servers.find((s) => s.name === server_name);
-  if (!server) return <></>;
+  const server = api.site.get.useQuery({ id: Number(server_name) });
+  if (!server) return notFound();
 
-  const configText = printServerConfig(config, server);
+  // const configText = printServerConfig(config, server);
 
   async function copyToClipboard() {
-    configText && (await navigator.clipboard.writeText(configText));
+    // configText && (await navigator.clipboard.writeText(configText));
   }
 
   return (
@@ -35,7 +35,7 @@ export const ServerConfigView: FC<React.PropsWithChildren<ServerConfigProps>> = 
         </div>
       </div>
 
-      <pre className="overflow-auto bg-gray-600 p-2 text-white">{configText}</pre>
+      {/* <pre className="overflow-auto bg-gray-600 p-2 text-white">{configText}</pre> */}
     </>
   );
 };

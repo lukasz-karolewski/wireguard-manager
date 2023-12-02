@@ -30,7 +30,10 @@ const AddSiteModal = NiceModal.create(() => {
     defaultValues: {},
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => mutate(data);
+  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+    console.log(data, event);
+    mutate(data);
+  };
 
   return (
     <Modal
@@ -38,12 +41,12 @@ const AddSiteModal = NiceModal.create(() => {
       onClose={() => {
         modal.remove();
       }}
-      title="Add Server"
+      title="Add Site"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
           <FormField label="Site ID">
-            <Input {...register("id", { required: true, valueAsNumber: true })} />
+            <Input type="number" {...register("id", { required: true, valueAsNumber: true })} />
           </FormField>
 
           <FormField label="Name">
@@ -51,7 +54,7 @@ const AddSiteModal = NiceModal.create(() => {
           </FormField>
 
           <FormField label="Public DNS/IP">
-            <Input {...register("endpointAddress", { required: false })} />
+            <Input {...register("endpointAddress", { required: true })} />
           </FormField>
 
           <FormField label="DNS address">
