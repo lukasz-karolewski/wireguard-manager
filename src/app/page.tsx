@@ -1,22 +1,29 @@
 "use client";
+import NiceModal from "@ebay/nice-modal-react";
+import AddClientModal from "~/components/app/AddClientModal";
+import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
 import { api } from "~/trpc/react";
 
 export default function ClientListPage() {
-  const { data: clients, isLoading } = api.client.getAll.useQuery();
+  const { data: clients, isLoading, refetch } = api.client.getAll.useQuery();
 
   if (isLoading) return <div>Loading...</div>;
 
+  async function showAddClientModal() {
+    await NiceModal.show(AddClientModal);
+    refetch();
+  }
   return (
     <>
       <div className="mb-4 flex justify-end">
-        {/* <Button onClick={() => NiceModal.show(AddServerModal)}>Add Server</Button> */}
+        <Button onClick={showAddClientModal}>Add Client</Button>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
         {clients?.map((client) => {
           return (
-            <Link key={client.name} href={`/sites/${client.id}`}>
+            <Link key={client.name} href={`/clients/${client.id}`}>
               {client.name}
             </Link>
           );

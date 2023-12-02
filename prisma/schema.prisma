@@ -86,7 +86,7 @@ model Client {
   updatedAt  DateTime @updatedAt
   enabled    Boolean  @default(true)
   name       String
-  email      String
+  email      String?
   PublicKey  String
   PrivateKey String
 }

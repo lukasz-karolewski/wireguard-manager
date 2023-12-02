@@ -9,13 +9,15 @@ export function serverConfigToNativeWireguard(
 ): string {
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
 
-  let config = `
+  const interface_section = `
     [Interface]
     Address = ${generateAddress(wg_network, site.id)}
     ListenPort = 51820
     PrivateKey = ${site.PrivateKey}
     # MTU = 1420 - default
+    `.trim();
 
+  const peers_section = `
     ### site to site Peers
     ${otherSites
       .map((s) => {
@@ -27,7 +29,10 @@ export function serverConfigToNativeWireguard(
                 `;
       })
       .join("\n")}
+      `.trim();
 
+  const client_section = clients.length
+    ? ` 
     ### Clients
     ${clients
       .map((c) => {
@@ -38,9 +43,15 @@ export function serverConfigToNativeWireguard(
                 `;
       })
       .join("\n")}
-    `;
+    `.trim()
+    : "";
 
-  config = config.replace(/^\s+/gm, ""); // Remove leading whitespace
+  let config = [interface_section, peers_section, client_section].join("\n\n");
+
+  config = config
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n");
 
   return config;
 }

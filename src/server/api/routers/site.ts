@@ -108,7 +108,7 @@ export const siteRouter = createTRPCRouter({
         id: z.number(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       return await ctx.db.site.delete({
         where: { id: input.id },
       });

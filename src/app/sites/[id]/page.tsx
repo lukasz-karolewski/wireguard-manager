@@ -2,20 +2,41 @@
 
 import { FC } from "react";
 
-import { notFound, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
 type SiteDetailPageProps = { params: { id: string } };
 
 const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
   const pathname = usePathname();
+  const router = useRouter();
 
-  const { data: config } = api.site.getConfig.useQuery({ id: +params.id });
-  if (!config) return notFound();
+  const { data: config } = api.site.getConfig.useQuery({
+    id: +params.id,
+  });
+
+  const { mutate: removeSite } = api.site.remove.useMutation({
+    onSuccess: () => {
+      toast.success("Deleted");
+      router.push("/sites");
+    },
+  });
 
   return (
     <>
-      <pre>{config}</pre>
+      <pre
+        className="bg-slate-200 p-4"
+        onCopy={(e) => {
+          e.preventDefault();
+          e.clipboardData.setData("text/plain", config!);
+          toast.success("Copied to clipboard");
+        }}
+      >
+        {config}
+      </pre>
+      <Button onClick={() => removeSite({ id: +params.id })}>Delete</Button>
       {/* <h3 className="text-lg">
         <Link href="/servers">Servers</Link> &gt; {server_name}
       </h3>

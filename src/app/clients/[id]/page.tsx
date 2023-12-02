@@ -1,5 +1,7 @@
 "use client";
-import { notFound } from "next/navigation";
+import { Switch } from "@headlessui/react";
+import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
 import { api } from "~/trpc/react";
 
@@ -12,12 +14,11 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
 
   const { data: configs } = api.client.getConfigs.useQuery({ id: Number(params.id) });
-  if (!configs) return notFound();
 
   return (
     <>
-      {/* <h3 className="text-lg">
-        <Link href="/">Clients</Link> &gt; {client.name}
+      <h3 className="text-lg">
+        <Link href="/">Clients</Link> &gt;
       </h3>
 
       <Switch
@@ -36,16 +37,16 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
         />
       </Switch>
 
-      <div className="flex flex-col gap-4">
-        {config.servers.map((server) => {
+      <div className="flex flex-wrap gap-4">
+        {configs?.map((config, index) => {
           return (
-            <div className="bg-blue-100 p-4" key={server.name}>
-              <h3>{server.name}</h3>
-              <ClientConfigView server={server} client={client} show={show} />
+            <div className="bg-blue-100 p-4" key={index}>
+              {show == "config" && <pre>{config}</pre>}
+              {show == "qr" && <QRCodeSVG value={config} size={256} />}
             </div>
           );
         })}
-      </div> */}
+      </div>
     </>
   );
 };

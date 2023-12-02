@@ -17,6 +17,7 @@ const AddSiteModal = NiceModal.create(() => {
   const { mutate } = api.site.create.useMutation({
     onSuccess: (data) => {
       toast.success("saved");
+      modal.resolve();
       modal.remove();
     },
     onError: (error) => {
@@ -27,7 +28,9 @@ const AddSiteModal = NiceModal.create(() => {
   });
 
   const { register, handleSubmit } = useForm<FormValues>({
-    defaultValues: {},
+    defaultValues: {
+      config_path: "/etc/wireguard/wg0.conf",
+    },
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
@@ -44,16 +47,16 @@ const AddSiteModal = NiceModal.create(() => {
       title="Add Site"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="p-4">
+        <div className="w-80 p-4">
           <FormField label="Site ID">
             <Input type="number" {...register("id", { required: true, valueAsNumber: true })} />
           </FormField>
 
           <FormField label="Name">
-            <Input {...register("name", { required: true })} />
+            <Input type="text" {...register("name", { required: true })} />
           </FormField>
 
-          <FormField label="Public DNS/IP">
+          <FormField label="Endpoint">
             <Input {...register("endpointAddress", { required: true })} />
           </FormField>
 
@@ -61,7 +64,7 @@ const AddSiteModal = NiceModal.create(() => {
             <Input {...register("dns", { required: false })} />
           </FormField>
 
-          <FormField label="PIhole address">
+          <FormField label="Pihole address">
             <Input {...register("dns_pihole", { required: false })} />
           </FormField>
 

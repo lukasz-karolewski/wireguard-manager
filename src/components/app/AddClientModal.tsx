@@ -1,38 +1,50 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { useForm } from "react-hook-form";
+
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
+import { api } from "~/trpc/react";
+import { RouterInputs } from "~/trpc/shared";
+import FormField from "../ui/form-field";
+import { Input } from "../ui/input";
 
-type Props = {
-  // client?: ClientConfig;
-};
+interface Props {}
 
-type FormValues = {
-  id: number;
-  name: string;
-  PrivateKey: string;
-  PublicKey: string;
-};
+type FormValues = RouterInputs["client"]["create"];
 
 const AddClientModal = NiceModal.create<Props>(() => {
   const modal = useModal();
 
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>({
-    // defaultValues: client || {
-    //   id: 1,
-    // },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {},
   });
 
-  const handleFormSubmit = (data: FormValues) => {
-    // const newConfig: GlobalConfig = {
-    //   ...config,
-    //   servers: config?.servers ? [...config.servers] : [],
-    //   clients: config?.clients ? [...config.clients, data] : [data],
-    // };
-    // apiClient.saveConfig(newConfig).then(() => {
-    //   mutate();
-    //   modal.remove();
-    // });
+  const { mutate } = api.client.create.useMutation({
+    onSuccess: (data) => {
+      toast.success("saved");
+      modal.resolve();
+      modal.remove();
+    },
+    onError: (error) => {
+      const errorMessage = error.data?.zodError?.fieldErrors.value;
+      if (errorMessage) toast.error(errorMessage.join(", "));
+      else toast.error("Failed to save");
+    },
+  });
+
+  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+    console.log(data, event);
+    Object.keys(data).forEach((key) => {
+      if (!data[key as keyof typeof data]) {
+        delete data[key as keyof typeof data];
+      }
+    });
+    mutate(data);
   };
 
   return (
@@ -43,26 +55,20 @@ const AddClientModal = NiceModal.create<Props>(() => {
       }}
       title="Add Client"
     >
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="min-w-[600px]">
+      <form onSubmit={handleSubmit(onSubmit)} className="min-w-[600px]">
         <div className="p-4">
-          {/* <FormField label="Name">
-            <Input name="name" register={register} />
+          <FormField label="Name">
+            <Input type="text" {...register("name", { required: true })} />
           </FormField>
-
-          <FormField label="Id">
-            <Input name="id" register={register} />
+          <FormField label="Email">
+            <>
+              <Input type="email" {...register("email", { required: false })} />
+              {errors.email && <span>{errors.email.message}</span>}
+            </>
           </FormField>
-
-          <FormField label="PrivateKey">
-            <Input name="PrivateKey" register={register} />
-          </FormField>
-
-          <FormField label="PublicKey">
-            <Input name="PublicKey" register={register} />
-          </FormField> */}
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
-          {/* <Button type="submit">{client ? "Update" : "Add"}</Button> */}
+          <Button type="submit">Add</Button>
           <Button type="button" onClick={modal.remove}>
             Cancel
           </Button>
