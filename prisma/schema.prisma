@@ -51,6 +51,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  defaultSiteId Int?
+  defaultSite   Site?     @relation(fields: [defaultSiteId], references: [id])
 }
 
 model VerificationToken {
@@ -78,6 +80,10 @@ model Site {
   PublicKey       String
   PrivateKey      String
   localAddresses  String
+  postUp          String?
+  postDown        String?
+  listenPort      Int      @default(51820)
+  User            User[]
 }
 
 model Client {

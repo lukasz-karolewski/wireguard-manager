@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { serverConfigToNativeWireguard } from "~/server/utils/common";
+import { generateAddress, serverConfigToNativeWireguard } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 
 export const siteRouter = createTRPCRouter({
@@ -12,11 +12,14 @@ export const siteRouter = createTRPCRouter({
         id: z.number(),
         name: z.string(),
         endpointAddress: z.string(),
-        dns: z.string(),
-        dns_pihole: z.string(),
+        dns: z.string().optional(),
+        dns_pihole: z.string().optional(),
         config_path: z.string().optional(),
         private_key: z.string().optional(),
         localAddresses: z.array(z.string()).optional(),
+        listenPort: z.number().min(1024).max(65535).optional(),
+        postUp: z.string().optional(),
+        postDown: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -34,12 +37,34 @@ export const siteRouter = createTRPCRouter({
           PrivateKey: private_key,
           PublicKey: public_key,
           localAddresses: input.localAddresses?.join(",") ?? "",
+          listenPort: input.listenPort,
+          postUp: input.postUp,
+          postDown: input.postDown,
         },
       });
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.site.findMany();
+    const user = await ctx.db.user.findFirst({
+      where: { id: ctx.session.user.id },
+
+      select: { defaultSiteId: true },
+    });
+    const sites = await ctx.db.site.findMany();
+
+    const wg_network = await ctx.db.settings.findFirst({
+      where: { name: "wg_network" },
+    });
+
+    const sitesWithDefault = sites.map((site) => {
+      return {
+        ...site,
+        isDefault: site.id === user?.defaultSiteId,
+        assignedNetwork: generateAddress(wg_network?.value ?? "", site.id, 0, "24"),
+      };
+    });
+
+    return sitesWithDefault;
   }),
 
   get: protectedProcedure
@@ -91,6 +116,9 @@ export const siteRouter = createTRPCRouter({
         config_path: z.string().optional(),
         private_key: z.string().optional(),
         localAddresses: z.array(z.string()).optional(),
+        listenPort: z.number().min(1024).max(65535).optional(),
+        postUp: z.string().optional(),
+        postDown: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

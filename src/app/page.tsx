@@ -4,9 +4,10 @@ import NiceModal from "@ebay/nice-modal-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC } from "react";
 import AddClientModal from "~/components/app/AddClientModal";
+import { ClientItem } from "~/components/app/ClientItem";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import Link from "~/components/ui/link";
+import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 import { createUrl } from "~/utils";
 
@@ -42,7 +43,7 @@ const ClientListPage: FC<ClientListPageParams> = () => {
   }
   return (
     <>
-      <div className="mb-4 flex justify-center gap-2">
+      <PageHeader title="Clients">
         <form onSubmit={onSubmit}>
           <Input
             name="search"
@@ -53,15 +54,11 @@ const ClientListPage: FC<ClientListPageParams> = () => {
           />
         </form>
         <Button onClick={showAddClientModal}>Add Client</Button>
-      </div>
+      </PageHeader>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {clients?.map((client) => {
-          return (
-            <Link key={client.name} href={`/clients/${client.id}`}>
-              {client.name}
-            </Link>
-          );
+          return <ClientItem key={client.id} client={client} />;
         })}
 
         {clients?.length == 0 && <div>No Clients</div>}

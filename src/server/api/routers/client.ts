@@ -1,4 +1,3 @@
-import { Site } from "@prisma/client";
 import "server-only";
 
 import { z } from "zod";
@@ -63,19 +62,46 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findFirst({
+        where: { id: ctx.session.user.id },
+
+        select: { defaultSiteId: true },
+      });
       const settings = await ctx.db.settings.findMany();
       const sites = await ctx.db.site.findMany();
+      const sitesWithDefault = sites.map((site) => {
+        return {
+          ...site,
+          isDefault: site.id === user?.defaultSiteId,
+        };
+      });
+
       const client = await ctx.db.client.findFirstOrThrow({
         where: { id: input.id },
       });
 
-      const configs: { site: Site; configs: string[] }[] = [];
-      sites.forEach((site) => {
-        const siteConfigs: string[] = [];
-        Object.keys(ClientConfigType).forEach((type) => {
-          siteConfigs.push(
-            clientConfigToNativeWireguard(settings, site, client, type as ClientConfigType),
-          );
+      type Config = { type: ClientConfigType; value: string };
+      const configs: { site: (typeof sitesWithDefault)[number]; configs: Config[] }[] = [];
+
+      sitesWithDefault.forEach((site) => {
+        const siteConfigs: Config[] = [];
+        Object.entries(ClientConfigType).forEach((entry) => {
+          const [type, description] = entry;
+          // Generate only configs that are have required settings
+          if (
+            ((type == ClientConfigType.localOnlyDNS || type == ClientConfigType.allTrafficDNS) &&
+              !site.DSN) ||
+            ((type == ClientConfigType.localOnlyPiholeDNS ||
+              type == ClientConfigType.allTrafficPiholeDNS) &&
+              !site.PiholeDNS)
+          ) {
+            return;
+          }
+
+          siteConfigs.push({
+            type: description,
+            value: clientConfigToNativeWireguard(settings, site, client, type as ClientConfigType),
+          });
         });
         configs.push({ site, configs: siteConfigs });
       });

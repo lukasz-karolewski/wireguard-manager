@@ -2,9 +2,9 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import AddSiteModal from "~/components/app/AddSiteModal";
-import { ServerItem } from "~/components/app/ServerItem";
+import { SiteItem } from "~/components/app/SiteItem";
 import { Button } from "~/components/ui/button";
-import Link from "~/components/ui/link";
+import PageHeader from "~/components/ui/page-header";
 
 import { api } from "~/trpc/react";
 
@@ -20,18 +20,16 @@ export default function SiteListPage() {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <PageHeader title={`Sites`}>
         <Button onClick={showAddSiteModal}>Add Site</Button>
-      </div>
+      </PageHeader>
 
-      <div className="grid grid-cols-4 gap-4">
-        {sites?.map((site) => {
-          return (
-            <Link key={site.name} href={`/sites/${site.id}#${site.name}`}>
-              <ServerItem site={site} />
-            </Link>
-          );
-        })}
+      <div className="grid grid-cols-3 gap-4">
+        {sites
+          ?.sort((a, b) => (a.isDefault ? -1 : 1))
+          .map((site) => {
+            return <SiteItem key={site.id} site={site} />;
+          })}
 
         {sites?.length == 0 && <div>No sites</div>}
       </div>

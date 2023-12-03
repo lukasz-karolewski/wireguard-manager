@@ -30,6 +30,7 @@ const AddSiteModal = NiceModal.create(() => {
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       config_path: "/etc/wireguard/wg0.conf",
+      listenPort: 51820,
     },
   });
 
@@ -70,6 +71,18 @@ const AddSiteModal = NiceModal.create(() => {
 
           <FormField label="Config Path">
             <Input {...register("config_path", { required: false })} />
+          </FormField>
+
+          <FormField label="Listen Port">
+            <Input {...register("listenPort", { required: false })} />
+          </FormField>
+
+          <FormField label="Config Path">
+            <Input {...register("postUp", { required: false })} />
+          </FormField>
+
+          <FormField label="Config Path">
+            <Input {...register("postDown", { required: false })} />
           </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">

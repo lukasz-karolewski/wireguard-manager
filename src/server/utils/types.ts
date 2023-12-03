@@ -1,7 +1,11 @@
 export enum ClientConfigType {
-  allTraffic = "allTraffic",
-  localOnlyDNS = "localOnlyDNS",
-  localOnly = "localOnly",
+  allTraffic = "All Traffic",
+  allTrafficDNS = "All Traffic, DNS",
+  allTrafficPiholeDNS = "All Traffic, Pihole DNS",
+
+  localOnly = "Local Only",
+  localOnlyDNS = "Local Only, DNS",
+  localOnlyPiholeDNS = "Local Only, Pihole DNS",
 }
 
 export interface WgInterface {

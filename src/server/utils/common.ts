@@ -1,7 +1,7 @@
 import { Client, Settings, Site } from "@prisma/client";
 import { ClientConfigType } from "./types";
 
-function generateAddress(
+export function generateAddress(
   network: string,
   site_id: number,
   device_id: number,
@@ -79,7 +79,17 @@ export function clientConfigToNativeWireguard(
   type: ClientConfigType,
 ) {
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
-  const DNS = type == ClientConfigType.localOnlyDNS ? site.DSN : "";
+
+  let DNS = "";
+
+  if (type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) {
+    DNS = site.DSN ?? "";
+  } else if (
+    type === ClientConfigType.localOnlyPiholeDNS ||
+    type === ClientConfigType.allTrafficPiholeDNS
+  ) {
+    DNS = site.PiholeDNS ?? "";
+  }
 
   let config = `
     [Interface]

@@ -1,8 +1,9 @@
 "use client";
 import { Switch } from "@headlessui/react";
-import Link from "next/link";
+import clsx from "clsx";
 import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
+import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
 type ClientDetailPageProps = {
@@ -17,42 +18,48 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
 
   return (
     <>
-      <h3 className="text-lg">
-        <Link href="/">Clients</Link> &gt; {data?.client.name}
-      </h3>
-
-      <Switch
-        checked={show === "qr"}
-        onChange={(v: boolean) => {
-          setShowConfig(v ? "qr" : "config");
-        }}
-        className={`${show === "qr" ? "bg-teal-900" : "bg-teal-700"}
+      <PageHeader title={`Clients > ${data?.client.name}`}>
+        <Switch
+          checked={show === "qr"}
+          onChange={(v: boolean) => {
+            setShowConfig(v ? "qr" : "config");
+          }}
+          className={`${show === "qr" ? "bg-teal-900" : "bg-teal-700"}
           relative inline-flex h-[28px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75`}
-      >
-        <span className="sr-only">Use setting</span>
-        <span
-          aria-hidden="true"
-          className={`${show === "qr" ? "translate-x-4" : "translate-x-0"}
+        >
+          <span className="sr-only">Use setting</span>
+          <span
+            aria-hidden="true"
+            className={`${show === "qr" ? "translate-x-4" : "translate-x-0"}
             pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-        />
-      </Switch>
+          />
+        </Switch>
+      </PageHeader>
 
       <div className="flex flex-wrap gap-4">
-        {data?.configs.map(({ site, configs }, index) => {
-          return (
-            <div className="bg-blue-100 p-4" key={index}>
-              <div>{site.name}</div>
-              {configs.map((config, index) => {
-                return (
-                  <div key={index}>
-                    {show == "config" && <pre>{config}</pre>}
-                    {show == "qr" && <QRCodeSVG value={config} size={256} />}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
+        {data?.configs
+          .sort((a, b) => (a.site.isDefault ? -1 : 1))
+          .map(({ site, configs }, index) => {
+            return (
+              <div
+                className={clsx("bg-blue-100 p-4", { "bg-green-300": site.isDefault })}
+                key={index}
+              >
+                <h2>{site.name}</h2>
+                <div className="flex gap-4">
+                  {configs.map((config, index) => {
+                    return (
+                      <div key={index} className="p-8">
+                        <h3>{config.type}</h3>
+                        {show == "config" && <pre>{config.value}</pre>}
+                        {show == "qr" && <QRCodeSVG value={config.value} size={256} />}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
       </div>
     </>
   );

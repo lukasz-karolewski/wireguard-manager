@@ -9,7 +9,7 @@ const links = [
   { name: "Clients", url: "/" },
   { name: "Sites", url: "/sites" },
   { name: "Global Settings", url: "/global-settings" },
-  { name: "Status", url: "/status" },
+  // { name: "Status", url: "/status" },
 ];
 
 const UserButtons: React.FC = async () => {

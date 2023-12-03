@@ -2,6 +2,8 @@
 
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
 const GlobalSettingsPage: React.FC = () => {
@@ -23,6 +25,7 @@ const GlobalSettingsPage: React.FC = () => {
 
   return (
     <div>
+      <PageHeader title={`Global settings`}></PageHeader>
       <form
         action={(formData: FormData) => {
           mutate({ value: `${formData.get("wg_network")}` });
@@ -30,13 +33,14 @@ const GlobalSettingsPage: React.FC = () => {
         className="bg-slate-200 p-4"
       >
         <fieldset className="flex flex-row items-center gap-2">
-          <label htmlFor="wg_network">network</label>
-          <input
+          <label htmlFor="wg_network">Wireguard network</label>
+          <Input
             type="text"
             id="wg_network"
             name="wg_network"
             defaultValue={settings["wg_network"]}
           />
+          <div>/16 network for all sites, each site will get a /24 </div>
         </fieldset>
         <Button type="submit" disabled={isPosting}>
           save
