@@ -28,3 +28,5 @@ npm-debug.log*
 .vercel
 
 prisma/dev.db
+
+.env*
