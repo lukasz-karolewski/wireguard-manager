@@ -3,6 +3,7 @@ import { Switch } from "@headlessui/react";
 import clsx from "clsx";
 import { QRCodeSVG } from "qrcode.react";
 import { FC, useState } from "react";
+import Accordion from "~/components/ui/accordion";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
@@ -36,28 +37,30 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
         </Switch>
       </PageHeader>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col gap-4">
         {data?.configs
           .sort((a, b) => (a.site.isDefault ? -1 : 1))
-          .map(({ site, configs }, index) => {
+          .map(({ site, configs }) => {
             return (
-              <div
-                className={clsx("bg-blue-100 p-4", { "bg-green-300": site.isDefault })}
-                key={index}
+              <Accordion
+                key={site.id}
+                title={<h2>Configs for site "{site.name}"</h2>}
+                isInitiallyOpen={site.isDefault}
               >
-                <h2>{site.name}</h2>
-                <div className="flex gap-4">
-                  {configs.map((config, index) => {
-                    return (
-                      <div key={index} className="p-8">
-                        <h3>{config.type}</h3>
-                        {show == "config" && <pre>{config.value}</pre>}
-                        {show == "qr" && <QRCodeSVG value={config.value} size={256} />}
-                      </div>
-                    );
-                  })}
+                <div className={clsx("bg-blue-100", { "bg-green-300": site.isDefault })}>
+                  <div className="flex flex-wrap justify-between gap-4">
+                    {configs.map((config, index) => {
+                      return (
+                        <div key={index} className="p-8">
+                          <h3>{config.type}</h3>
+                          {show == "config" && <pre>{config.value}</pre>}
+                          {show == "qr" && <QRCodeSVG value={config.value} size={256} />}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              </Accordion>
             );
           })}
       </div>
