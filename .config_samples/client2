@@ -1,9 +1,0 @@
-[Interface]
-Address = fd69:0:0:2::a/48, 172.16.2.2/16
-PrivateKey = <PRIVATE KEY OF client2a>
-
-[Peer]
-PublicKey = JS9jXHlQjx/Vl0nYM6qnPIUI/B/EFNq7DzNKb78ctz8=
-Endpoint = edgerouter-waw.duckdns.org:51820
-AllowedIPs = fd69::/48, 172.16.0.0/16, 192.168.20.0/24, 192.168.21.0/24
-PersistentKeepalive = 25

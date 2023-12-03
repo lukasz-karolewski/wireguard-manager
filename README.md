@@ -2,13 +2,17 @@
 
 Helps to setup multi-way site-to-site and manage client configs. Works well for single site too.
 
+## roadmap
+
+- ipv6 subnets
+  - https://simpledns.plus/private-ipv6
+  - https://computering.tastytea.de/posts/wireguard-vpn-with-2-or-more-subnets/
+
 ## Network architecture
 
-- prereq: each site has to have unique private address space ideally from 192.168.0.0/16 range
-
+- each site has to have unique private address space ideally from 192.168.0.0/16 range
 - VPN uses 172.16.0.0/16 network
 - each site gets a /24 segment assigned, from 172.16.0.0/16 range
-
 - clients get an address at each site, and couple of useful predefined configs:
   - local only
   - local only, pihole dns
@@ -162,4 +166,4 @@ This command will find all files in the specified directory and its subdirectori
 
 ## Persistance/backup
 
-Configuration and all keys, is stored on disk in /configuration.json file.
+sql lite db is stored in prod.db file

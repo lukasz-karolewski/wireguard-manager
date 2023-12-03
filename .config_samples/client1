@@ -1,9 +1,0 @@
-[Interface]
-Address = fd69:0:0:1::a/48, 172.16.1.2/16
-PrivateKey = <PRIVATE KEY OF client1a>
-
-[Peer]
-PublicKey = BEGg/cVw0trQmwZvbaf+0JZ1KJkQxnZYlQQSNrx9kGM=
-Endpoint = edgerouter-sjc.duckdns.org:51820
-AllowedIPs = fd69::/48, 172.16.0.0/16, 192.168.2.0/24
-PersistentKeepalive = 25
