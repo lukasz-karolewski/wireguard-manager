@@ -101,8 +101,9 @@ export const siteRouter = createTRPCRouter({
       });
 
       const clients = await ctx.db.client.findMany();
+      const config = serverConfigToNativeWireguard(settings, site, otherSites, clients);
 
-      return serverConfigToNativeWireguard(settings, site, otherSites, clients);
+      return { site: site, config: config };
     }),
 
   update: protectedProcedure
