@@ -22,15 +22,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html>
-      <body>
+      <body className="flex min-h-screen flex-col">
         <TRPCReactProvider cookies={cookies().toString()}>
           <NiceModalProviderWrapper>
             <TopNav />
-            <Container id="content" is_full_width={false}>
-              <main>{children}</main>
-              <Footer />
-              <Toaster position="bottom-center" />
+            <Container className="grow">
+              <main className="py-6">{children}</main>
             </Container>
+            <Footer />
+            <Toaster position="bottom-center" />
           </NiceModalProviderWrapper>
         </TRPCReactProvider>
       </body>

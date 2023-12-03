@@ -1,14 +1,40 @@
 "use client";
+
 import NiceModal from "@ebay/nice-modal-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC } from "react";
 import AddClientModal from "~/components/app/AddClientModal";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import Link from "~/components/ui/link";
 import { api } from "~/trpc/react";
+import { createUrl } from "~/utils";
 
-export default function ClientListPage() {
-  const { data: clients, isLoading, refetch } = api.client.getAll.useQuery();
+interface ClientListPageParams {}
 
-  if (isLoading) return <div>Loading...</div>;
+const ClientListPage: FC<ClientListPageParams> = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const { data: clients, refetch } = api.client.getAll.useQuery({
+    search: searchParams?.get("search") ?? "",
+  });
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const val = e.target as HTMLFormElement;
+    const search = val.search as HTMLInputElement;
+    const newParms = new URLSearchParams(searchParams.toString());
+
+    if (search.value) {
+      newParms.set("search", search.value);
+    } else {
+      newParms.delete("search");
+    }
+
+    router.push(createUrl("/", newParms));
+  }
 
   async function showAddClientModal() {
     await NiceModal.show(AddClientModal);
@@ -16,7 +42,16 @@ export default function ClientListPage() {
   }
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-center gap-2">
+        <form onSubmit={onSubmit}>
+          <Input
+            name="search"
+            placeholder="Search"
+            autoFocus={true}
+            type="text"
+            defaultValue={searchParams?.get("search") ?? ""}
+          />
+        </form>
         <Button onClick={showAddClientModal}>Add Client</Button>
       </div>
 
@@ -33,7 +68,8 @@ export default function ClientListPage() {
       </div>
     </>
   );
-}
+};
+export default ClientListPage;
 
 //       <div className="mb-4 flex justify-end">
 //         <Button onClick={() => NiceModal.show(AddClientModal)}>Add Client</Button>
@@ -66,7 +102,7 @@ export default function ClientListPage() {
 //       placeholder="Filter by name"
 //       value={filter}
 //       onChange={(e) => setFilter(e.target.value)}
-//       className="block w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 sm:text-sm"
+//
 //       ref={inputRef}
 //     />
 //   );

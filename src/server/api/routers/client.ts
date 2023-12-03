@@ -44,9 +44,17 @@ export const clientRouter = createTRPCRouter({
       });
     }),
 
-  getAll: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.client.findMany();
-  }),
+  getAll: protectedProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const condition = input.search ? { where: { name: { contains: input.search } } } : undefined;
+
+      return await ctx.db.client.findMany(condition);
+    }),
 
   get: protectedProcedure
     .input(

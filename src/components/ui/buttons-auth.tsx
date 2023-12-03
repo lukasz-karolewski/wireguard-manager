@@ -16,7 +16,9 @@ export function SignIn({
         redirect(url);
       }}
     >
-      <Button {...props}>Sign In</Button>
+      <Button className="whitespace-nowrap" {...props}>
+        Sign In
+      </Button>
     </form>
   );
 }
@@ -28,9 +30,8 @@ export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
         "use server";
         await signOut();
       }}
-      className="w-full"
     >
-      <Button className="w-full p-0" {...props}>
+      <Button className="whitespace-nowrap" {...props}>
         Sign Out
       </Button>
     </form>

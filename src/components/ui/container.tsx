@@ -1,31 +1,27 @@
 import clsx from "clsx";
-import { ComponentType, FC, HTMLAttributes, PropsWithChildren } from "react";
+import { FC, PropsWithChildren } from "react";
 
-interface ContainerProps {
-  id?: string;
+interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   children?: any;
-  el?: HTMLElement;
   is_full_width?: boolean;
 }
 
 const Container: FC<PropsWithChildren<ContainerProps>> = ({
-  id,
   children,
   className,
-  el = "div",
   is_full_width,
+  ...props
 }) => {
-  const rootClassName = clsx(className, {
-    "mx-auto max-w-6xl px-6 xl:px-0": !is_full_width,
-  });
-
-  const Component: ComponentType<PropsWithChildren<HTMLAttributes<HTMLDivElement>>> = el as any;
-
   return (
-    <Component id={id} className={rootClassName}>
+    <div
+      className={clsx(className, {
+        "mx-auto max-w-6xl px-6 min-w-min w-full": !is_full_width,
+      })}
+      {...props}
+    >
       {children}
-    </Component>
+    </div>
   );
 };
 

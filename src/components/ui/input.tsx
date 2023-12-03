@@ -8,7 +8,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref)
     <input
       id={id}
       ref={ref}
-      className="border px-3 py-2 text-gray-900"
+      className="w-full rounded border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
       type="text"
       autoComplete="off"
       autoCorrect="off"
