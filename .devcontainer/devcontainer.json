@@ -10,6 +10,11 @@
       "VARIANT": "ubuntu-22.04"
     }
   },
+  "runArgs": [
+    // mount docker socket to allow docker builds inside the container
+    "-v",
+    "/var/run/docker.sock:/var/run/docker.sock"
+  ],
   // Add the IDs of extensions you want installed when the container is created.
   "customizations": {
     "vscode": {
