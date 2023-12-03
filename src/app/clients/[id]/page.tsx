@@ -13,12 +13,12 @@ type ClientDetailPageProps = {
 const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
 
-  const { data: configs } = api.client.getConfigs.useQuery({ id: Number(params.id) });
+  const { data } = api.client.get.useQuery({ id: Number(params.id) });
 
   return (
     <>
       <h3 className="text-lg">
-        <Link href="/">Clients</Link> &gt;
+        <Link href="/">Clients</Link> &gt; {data?.client.name}
       </h3>
 
       <Switch
@@ -38,11 +38,18 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
       </Switch>
 
       <div className="flex flex-wrap gap-4">
-        {configs?.map((config, index) => {
+        {data?.configs.map(({ site, configs }, index) => {
           return (
             <div className="bg-blue-100 p-4" key={index}>
-              {show == "config" && <pre>{config}</pre>}
-              {show == "qr" && <QRCodeSVG value={config} size={256} />}
+              <div>{site.name}</div>
+              {configs.map((config, index) => {
+                return (
+                  <div key={index}>
+                    {show == "config" && <pre>{config}</pre>}
+                    {show == "qr" && <QRCodeSVG value={config} size={256} />}
+                  </div>
+                );
+              })}
             </div>
           );
         })}

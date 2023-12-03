@@ -1,3 +1,4 @@
+import { Site } from "@prisma/client";
 import "server-only";
 
 import { z } from "zod";
@@ -54,33 +55,26 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.db.client.findUnique({
-        where: { id: input.id },
-      });
-    }),
-
-  getConfigs: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
       const settings = await ctx.db.settings.findMany();
       const sites = await ctx.db.site.findMany();
       const client = await ctx.db.client.findFirstOrThrow({
         where: { id: input.id },
       });
 
-      const configs: string[] = [];
+      const configs: { site: Site; configs: string[] }[] = [];
       sites.forEach((site) => {
+        const siteConfigs: string[] = [];
         Object.keys(ClientConfigType).forEach((type) => {
-          configs.push(
+          siteConfigs.push(
             clientConfigToNativeWireguard(settings, site, client, type as ClientConfigType),
           );
         });
+        configs.push({ site, configs: siteConfigs });
       });
-      return configs;
+      return {
+        client,
+        configs,
+      };
     }),
 
   update: protectedProcedure
