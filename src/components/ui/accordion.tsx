@@ -19,7 +19,9 @@ const Accordion: React.FC<AccordionProps> = ({ title, isInitiallyOpen, children 
 
   return (
     <div>
-      <button onClick={toggleAccordion}>{title}</button>
+      <button onClick={toggleAccordion} className="w-full">
+        {title}
+      </button>
       <Transition
         show={isOpen}
         enter="transition-opacity duration-300"
