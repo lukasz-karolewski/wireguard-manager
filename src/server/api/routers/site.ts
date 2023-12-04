@@ -129,8 +129,8 @@ export const siteRouter = createTRPCRouter({
       await fs.promises.mkdir(site.ConfigPath, { recursive: true });
 
       //check if contents of config file are the same as the new config
-      const oldConfig = fs.existsSync(`${site.ConfigPath}/wg0.conf`)
-        ? await fs.promises.readFile(`${site.ConfigPath}/wg0.conf`, "utf8")
+      const oldConfig = fs.existsSync(site.ConfigPath)
+        ? await fs.promises.readFile(site.ConfigPath, "utf8")
         : null;
 
       if (oldConfig === config) {
@@ -139,10 +139,7 @@ export const siteRouter = createTRPCRouter({
 
       // Backup old config if exists
       if (oldConfig) {
-        await fs.promises.copyFile(
-          `${site.ConfigPath}/wg0.conf`,
-          `${site.ConfigPath}/wg0.conf.bak`,
-        );
+        await fs.promises.copyFile(site.ConfigPath, `${site.ConfigPath}.bak`);
       }
 
       // write new config with correct permissions
