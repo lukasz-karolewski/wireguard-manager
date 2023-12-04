@@ -47,10 +47,11 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
     const suggestedName = contentDisposition?.split("filename=")[1] ?? "config.zip";
 
     // Use File System Access API to save the file
-    // TODO pending fix https://github.com/microsoft/vscode/issues/141908
+
     if ("showSaveFilePicker" in window) {
       try {
-        const handle = await window.showSaveFilePicker({
+        // TODO pending fix https://github.com/microsoft/vscode/issues/141908
+        const handle = await (window as any).showSaveFilePicker({
           suggestedName,
           types: [
             {

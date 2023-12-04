@@ -52,6 +52,7 @@
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
+    "@types/adm-zip": "^0.5.5",
     "@types/jest": "^29.5.7",
     "@types/lodash": "^4.14.195",
     "@types/qrcode.react": "^1.0.2",
