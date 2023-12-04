@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC, TRPCError } from "@trpc/server";
+import { inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -34,6 +34,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     ...opts,
   };
 };
+
+export type TrpcContext = inferAsyncReturnType<typeof createTRPCContext>;
 
 /**
  * 2. INITIALIZATION
