@@ -14,13 +14,13 @@ const links = [
 
 const UserButtons: React.FC = async () => {
   const session = await auth();
-  return <div>{!session?.user ? <SignIn /> : <SignOut />}</div>;
+  return <div>{!session?.user ? <SignIn /> : <SignOut variant={"secondary"} />}</div>;
 };
 
 const TopNav: React.FC = () => {
   return (
     <Container>
-      <div className="flex h-16 w-full content-center items-center justify-between bg-gray-700 px-4">
+      <div className="flex h-16 w-full content-center items-center justify-between bg-accent px-4">
         <div className="flex items-center">
           <Link
             href="/"
@@ -36,7 +36,7 @@ const TopNav: React.FC = () => {
             <Link
               href={item.url}
               key={item.url}
-              className="mt-1 inline-block px-4 py-2 font-medium text-white no-underline first:ml-4 hover:bg-white hover:text-gray-800"
+              className="inline-block px-4 py-2 font-medium text-white no-underline first:ml-4 hover:bg-gray-300/20"
             >
               {item.name}
             </Link>

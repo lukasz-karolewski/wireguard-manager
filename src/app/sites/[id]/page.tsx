@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
@@ -11,10 +11,9 @@ import { api } from "~/trpc/react";
 type SiteDetailPageProps = { params: { id: string } };
 
 const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
-  const pathname = usePathname();
   const router = useRouter();
 
-  const { data } = api.site.getConfig.useQuery({
+  const { data } = api.site.get.useQuery({
     id: +params.id,
   });
 
@@ -38,7 +37,9 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
       >
         {data?.config}
       </pre>
-      <Button onClick={() => removeSite({ id: +params.id })}>Delete</Button>
+      <Button variant={"destructive"} onClick={() => removeSite({ id: +params.id })}>
+        Delete
+      </Button>
     </>
   );
 };

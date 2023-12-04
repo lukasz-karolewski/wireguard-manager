@@ -50,7 +50,7 @@ export const siteRouter = createTRPCRouter({
 
       select: { defaultSiteId: true },
     });
-    const sites = await ctx.db.site.findMany();
+    const sites = await ctx.db.site.findMany({ orderBy: { name: "asc" } });
 
     const wg_network = await ctx.db.settings.findFirst({
       where: { name: "wg_network" },
@@ -74,18 +74,6 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.db.site.findUnique({
-        where: { id: input.id },
-      });
-    }),
-
-  getConfig: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
       const settings = await ctx.db.settings.findMany();
 
       const site = await ctx.db.site.findFirstOrThrow({
@@ -100,7 +88,7 @@ export const siteRouter = createTRPCRouter({
         },
       });
 
-      const clients = await ctx.db.client.findMany();
+      const clients = await ctx.db.client.findMany({ where: { enabled: true } });
       const config = serverConfigToNativeWireguard(settings, site, otherSites, clients);
 
       return { site: site, config: config };

@@ -7,20 +7,6 @@ import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ClientConfigType } from "~/server/utils/types";
 
 export const clientRouter = createTRPCRouter({
-  getAllSettings: protectedProcedure.query(async ({ ctx }) => {
-    const settingsArray = await ctx.db.settings.findMany();
-
-    const settingsDictionary = settingsArray.reduce(
-      (acc, setting) => {
-        acc[setting.name] = setting.value;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-
-    return settingsDictionary;
-  }),
-
   create: protectedProcedure
     .input(
       z.object({
@@ -39,6 +25,7 @@ export const clientRouter = createTRPCRouter({
           email: input.email,
           PrivateKey: private_key,
           PublicKey: public_key,
+          createdById: ctx.session.user.id,
         },
       });
     }),
@@ -52,7 +39,10 @@ export const clientRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const condition = input.search ? { where: { name: { contains: input.search } } } : undefined;
 
-      return await ctx.db.client.findMany(condition);
+      return await ctx.db.client.findMany({
+        ...condition,
+        orderBy: { name: "asc" },
+      });
     }),
 
   get: protectedProcedure
@@ -62,9 +52,14 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
+      const client = await ctx.db.client.findFirstOrThrow({
+        where: { id: input.id },
+        include: { createdBy: true },
+      });
+      if (client.enabled === false) return { client, configs: [] };
+
       const user = await ctx.db.user.findFirst({
         where: { id: ctx.session.user.id },
-
         select: { defaultSiteId: true },
       });
       const settings = await ctx.db.settings.findMany();
@@ -76,10 +71,6 @@ export const clientRouter = createTRPCRouter({
         };
       });
 
-      const client = await ctx.db.client.findFirstOrThrow({
-        where: { id: input.id },
-      });
-
       type Config = { type: ClientConfigType; value: string };
       const configs: { site: (typeof sitesWithDefault)[number]; configs: Config[] }[] = [];
 
@@ -87,14 +78,15 @@ export const clientRouter = createTRPCRouter({
         const siteConfigs: Config[] = [];
         Object.entries(ClientConfigType).forEach((entry) => {
           const [type, description] = entry;
-          // Generate only configs that are have required settings
+          // Generate site configs only if PiholeDNS is not empty
           if (
-            ((type == ClientConfigType.localOnlyDNS || type == ClientConfigType.allTrafficDNS) &&
+            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
               !site.DSN) ||
-            ((type == ClientConfigType.localOnlyPiholeDNS ||
-              type == ClientConfigType.allTrafficPiholeDNS) &&
+            ((type === ClientConfigType.localOnlyPiholeDNS ||
+              type === ClientConfigType.allTrafficPiholeDNS) &&
               !site.PiholeDNS)
           ) {
+            console.log("Skipping", type);
             return;
           }
 
@@ -127,14 +119,37 @@ export const clientRouter = createTRPCRouter({
         data,
       });
     }),
-
+  disable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.client.update({
+        where: { id: input.id },
+        data: { enabled: false },
+      });
+    }),
+  enable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.client.update({
+        where: { id: input.id },
+        data: { enabled: true },
+      });
+    }),
   remove: protectedProcedure
     .input(
       z.object({
         id: z.number(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       return await ctx.db.client.delete({
         where: { id: input.id },
       });

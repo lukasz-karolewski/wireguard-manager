@@ -41,7 +41,7 @@ const Modal: FC<PropsWithChildren<PropsWithChildren<MyModalProps>>> = ({
           <Dialog.Panel className="grid max-h-screen grid-rows-[min-content,minmax(0,100%)] rounded bg-white shadow-xl">
             <Dialog.Title
               as="div"
-              className="flex items-center justify-between rounded-t bg-gray-700 p-6 text-lg font-medium leading-6 text-white"
+              className="flex items-center justify-between rounded-t bg-accent p-6 text-lg font-medium leading-6 text-white"
             >
               {title}
               <XMarkIcon className="w-6 cursor-pointer" onClick={() => onClose(false)} />

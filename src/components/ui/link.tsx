@@ -13,7 +13,7 @@ type ActiveLinkProps = LinkProps & {
 const ActiveLink = ({
   children,
   className,
-  activeClassName = "border-b-2 border-b-orange-300",
+  activeClassName = "border-b-2 border-b-highlight",
   ...props
 }: PropsWithChildren<ActiveLinkProps>) => {
   const pathname = usePathname();
