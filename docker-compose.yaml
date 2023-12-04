@@ -1,7 +1,10 @@
 version: "3"
 services:
   wireguard:
-    image: lkarolewski/wg-manager:latest
+    # image: lkarolewski/wg-manager:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - /etc/wireguard:/etc/wireguard
     ports:
