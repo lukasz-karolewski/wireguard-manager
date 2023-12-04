@@ -1,9 +1,12 @@
-version: '3'
+version: "3"
 services:
-    wireguard:
-        image: lkarolewski/wg-manager:latest
-        volumes:
-        - /etc/wireguard:/config
-        ports:
-        - "80:80"
-        - "443:443"
+  wireguard:
+    image: lkarolewski/wg-manager:latest
+    volumes:
+      - /etc/wireguard:/etc/wireguard
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - GOOGLE_ID=<insert>
+      - GOOGLE_SECRET=<insert>
