@@ -25,6 +25,7 @@ export function serverConfigToNativeWireguard(
 
   const interface_section = `
     [Interface]
+    # ${site.name}
     Address = ${generateAddress(wg_network, site.id, 1)}
     ListenPort = 51820
     PrivateKey = ${site.PrivateKey}
