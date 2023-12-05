@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npx prisma generate && npm run build
 
 RUN echo "AUTH_SECRET=$(openssl rand -base64 32)" > .env.local
 RUN echo "AUTH_URL_INTERNAL=http://localhost:3000/api/auth" >> .env.local
