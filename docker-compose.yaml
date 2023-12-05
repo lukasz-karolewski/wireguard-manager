@@ -7,9 +7,12 @@ services:
       dockerfile: Dockerfile
     volumes:
       - /etc/wireguard:/etc/wireguard
+      - ./db:/app/prisma/db
     ports:
-      - "80:80"
-      - "443:443"
+      - "8888:3000"
     environment:
-      - GOOGLE_ID=<insert>
-      - GOOGLE_SECRET=<insert>
+      - DATABASE_URL=${DATABASE_URL-file:./db/prod.db}
+      - AUTH_SECRET=${AUTH_SECRET} # set to openssl rand -base64 32
+      - AUTH_URL=${AUTH_URL} # update to external url http://localhost:3000/api/auth
+      - GOOGLE_ID=${GOOGLE_ID}
+      - GOOGLE_SECRET=${GOOGLE_SECRET}
