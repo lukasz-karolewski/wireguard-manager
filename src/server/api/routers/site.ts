@@ -21,28 +21,42 @@ export const siteRouter = createTRPCRouter({
         listenPort: z.number().min(1024).max(65535).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
+        markAsDefault: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const private_key = input.private_key ?? (await execShellCommand("wg genkey"));
       const public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
 
-      return await ctx.db.site.create({
-        data: {
-          id: input.id,
-          name: input.name,
-          endpointAddress: input.endpointAddress,
-          DNS: input.dns,
-          PiholeDNS: input.dns_pihole,
-          ConfigPath: input.config_path,
-          PrivateKey: private_key,
-          PublicKey: public_key,
-          localAddresses: input.localAddresses?.join(",") ?? "",
-          listenPort: input.listenPort,
-          postUp: input.postUp,
-          postDown: input.postDown,
-        },
-      });
+      const createdSite = await ctx.db.$transaction([
+        ctx.db.site.create({
+          data: {
+            id: input.id,
+            name: input.name,
+            endpointAddress: input.endpointAddress,
+            DNS: input.dns,
+            PiholeDNS: input.dns_pihole,
+            ConfigPath: input.config_path,
+            PrivateKey: private_key,
+            PublicKey: public_key,
+            localAddresses: input.localAddresses?.join(",") ?? "",
+            listenPort: input.listenPort,
+            postUp: input.postUp,
+            postDown: input.postDown,
+          },
+        }),
+      ]);
+
+      if (input.markAsDefault) {
+        await ctx.db.$transaction([
+          ctx.db.user.update({
+            where: { id: ctx.session.user.id },
+            data: { defaultSiteId: createdSite[0].id },
+          }),
+        ]);
+      }
+
+      return createdSite[0];
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {

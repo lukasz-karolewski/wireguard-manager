@@ -76,12 +76,16 @@ const AddSiteModal = NiceModal.create(() => {
             <Input {...register("listenPort", { required: false })} />
           </FormField>
 
-          <FormField label="Config Path">
+          <FormField label="postUp">
             <Input {...register("postUp", { required: false })} />
           </FormField>
 
-          <FormField label="Config Path">
+          <FormField label="postDown">
             <Input {...register("postDown", { required: false })} />
+          </FormField>
+
+          <FormField label="Mark as Default site">
+            <Input type="checkbox" {...register("markAsDefault", { required: false })} />
           </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
