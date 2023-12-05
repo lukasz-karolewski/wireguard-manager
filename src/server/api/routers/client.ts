@@ -86,7 +86,6 @@ export const clientRouter = createTRPCRouter({
               type === ClientConfigType.allTrafficPiholeDNS) &&
               !site.PiholeDNS)
           ) {
-            console.log("Skipping", type);
             return;
           }
 

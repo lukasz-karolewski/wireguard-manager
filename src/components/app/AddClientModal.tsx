@@ -38,7 +38,6 @@ const AddClientModal = NiceModal.create<Props>(() => {
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
-    console.log(data, event);
     Object.keys(data).forEach((key) => {
       if (!data[key as keyof typeof data]) {
         delete data[key as keyof typeof data];

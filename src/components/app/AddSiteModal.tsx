@@ -35,7 +35,6 @@ const AddSiteModal = NiceModal.create(() => {
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
-    console.log(data, event);
     mutate(data);
   };
 

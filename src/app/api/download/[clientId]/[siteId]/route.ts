@@ -25,7 +25,9 @@ export async function POST(
     });
   });
 
-  archive.finalize();
+  // ...
+
+  await archive.finalize();
 
   const headers = new Headers();
   headers.append(
@@ -34,7 +36,7 @@ export async function POST(
   );
   headers.append("Content-Type", "application/zip");
 
-  return new Response(archive, {
+  return new Response(archive as unknown as ReadableStream, {
     headers,
   });
 }
