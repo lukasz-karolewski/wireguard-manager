@@ -6,6 +6,7 @@ import NextAuth from "next-auth";
 const prisma = new PrismaClient();
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   adapter: PrismaAdapter(prisma),
   // pages: {
   //   signIn: "/login",
