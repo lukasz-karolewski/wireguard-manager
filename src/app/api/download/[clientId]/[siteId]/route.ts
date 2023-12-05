@@ -1,4 +1,4 @@
-import AdmZip from "adm-zip";
+import archiver from "archiver";
 import { api } from "~/trpc/server";
 
 export async function POST(
@@ -17,10 +17,15 @@ export async function POST(
     });
   }
 
-  const zip = new AdmZip();
+  const archive = archiver("zip");
+
   configsForRequestedSite.configs.forEach((config) => {
-    zip.addFile(`${data.client.name}-${config.type}.conf`, Buffer.from(config.value, "utf-8"));
+    archive.append(Buffer.from(config.value, "utf-8"), {
+      name: `${data.client.name}-${config.type}.conf`,
+    });
   });
+
+  archive.finalize();
 
   const headers = new Headers();
   headers.append(
@@ -29,9 +34,7 @@ export async function POST(
   );
   headers.append("Content-Type", "application/zip");
 
-  const zipBuffer = zip.toBuffer();
-
-  return new Response(zipBuffer, {
+  return new Response(archive, {
     headers,
   });
 }
