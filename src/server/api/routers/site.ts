@@ -32,7 +32,7 @@ export const siteRouter = createTRPCRouter({
           id: input.id,
           name: input.name,
           endpointAddress: input.endpointAddress,
-          DSN: input.dns,
+          DNS: input.dns,
           PiholeDNS: input.dns_pihole,
           ConfigPath: input.config_path,
           PrivateKey: private_key,

@@ -75,7 +75,7 @@ model Site {
   updatedAt       DateTime @updatedAt
   name            String
   endpointAddress String
-  DSN             String?
+  DNS             String?
   PiholeDNS       String?
   ConfigPath      String   @default("/etc/wireguard/wg0.conf")
   PublicKey       String

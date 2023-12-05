@@ -81,7 +81,7 @@ export const clientRouter = createTRPCRouter({
           // Generate site configs only if PiholeDNS is not empty
           if (
             ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
-              !site.DSN) ||
+              !site.DNS) ||
             ((type === ClientConfigType.localOnlyPiholeDNS ||
               type === ClientConfigType.allTrafficPiholeDNS) &&
               !site.PiholeDNS)

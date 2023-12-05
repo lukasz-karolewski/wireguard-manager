@@ -82,9 +82,8 @@ export function clientConfigToNativeWireguard(
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
 
   let DNS = "";
-
   if (type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) {
-    DNS = site.DSN ?? "";
+    DNS = site.DNS ?? "";
   } else if (
     type === ClientConfigType.localOnlyPiholeDNS ||
     type === ClientConfigType.allTrafficPiholeDNS
