@@ -1,6 +1,7 @@
 FROM node:21-alpine
-
 EXPOSE 3001
+
+ENV SKIP_ENV_VALIDATION=1
 
 RUN mkdir /app
 WORKDIR /app
