@@ -39,10 +39,13 @@ RUN npx prisma generate && npm run build
 # ---- Release ----
 FROM base AS release  
 
+ARG VERSION=development
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
+ENV VERSION=$VERSION
 
 EXPOSE 3000
 
