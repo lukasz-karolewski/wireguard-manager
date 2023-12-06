@@ -1,13 +1,16 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
+import React from "react";
 
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
 
 interface Props {
-  client_name: string;
+  title: string;
+  message: React.ReactNode;
+  actionName: string;
 }
 
-const ConfirmClientRemoveModal = NiceModal.create<Props>(({ client_name }) => {
+const ConfirmModal = NiceModal.create<Props>(({ title, message, actionName }) => {
   const modal = useModal();
 
   return (
@@ -16,14 +19,9 @@ const ConfirmClientRemoveModal = NiceModal.create<Props>(({ client_name }) => {
       onClose={() => {
         modal.remove();
       }}
-      title="Confirm Client Removal"
+      title={title}
     >
-      <div className="p-4">
-        <p>
-          You are about to remove the client <strong>{client_name}</strong>.
-        </p>
-        This action <strong>cannot</strong> be undone. Are you sure?
-      </div>
+      <div className="p-4">{message}</div>
       <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
         <Button
           variant="destructive"
@@ -32,9 +30,9 @@ const ConfirmClientRemoveModal = NiceModal.create<Props>(({ client_name }) => {
             modal.remove();
           }}
         >
-          Remove
+          {actionName}
         </Button>
-        <Button variant="ghost" onClick={modal.remove}>
+        <Button variant="ghost" onClick={modal.remove} autoFocus={true}>
           Cancel
         </Button>
       </div>
@@ -42,4 +40,4 @@ const ConfirmClientRemoveModal = NiceModal.create<Props>(({ client_name }) => {
   );
 });
 
-export default ConfirmClientRemoveModal;
+export default ConfirmModal;

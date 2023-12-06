@@ -9,7 +9,7 @@ import { api } from "~/trpc/react";
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import ConfirmClientRemoveModal from "~/components/app/ConfirmClientRemoveModal";
+import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import type { ClientConfigType } from "~/server/utils/types";
 
@@ -21,6 +21,7 @@ type ClientDetailPageProps = {
 const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
   const router = useRouter();
+
   const { data, refetch } = api.client.get.useQuery({ id: Number(params.id) });
   const { mutate: disableClient } = api.client.disable.useMutation({
     onSuccess: () => {
@@ -102,13 +103,26 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
 
   async function onRemove() {
     if (!data) return;
-    await NiceModal.show(ConfirmClientRemoveModal, { client_name: data.client.name });
+    await NiceModal.show(ConfirmModal, {
+      title: "Remove client",
+      message: (
+        <>
+          <p>
+            You are about to remove the client <strong>{data.client.name}</strong>.
+          </p>
+          <p>
+            This action <strong>cannot</strong> be undone. Are you sure?
+          </p>
+        </>
+      ),
+      actionName: "Remove",
+    });
     removeClient({ id: data?.client.id });
   }
 
   function onEdit() {
     if (!data) return;
-    NiceModal.show(ConfirmClientRemoveModal, { client_name: data.client.name });
+    // NiceModal.show(ConfirmModal, { client_name: data.client.name });
   }
 
   return (

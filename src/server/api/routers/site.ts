@@ -62,7 +62,6 @@ export const siteRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.user.findFirst({
       where: { id: ctx.session.user.id },
-
       select: { defaultSiteId: true },
     });
     const sites = await ctx.db.site.findMany({ orderBy: { name: "asc" } });
@@ -116,6 +115,19 @@ export const siteRouter = createTRPCRouter({
       return await ctx.db.site.update({
         where: { id: input.id },
         data: { ...data, localAddresses: localAddresses?.join(",") ?? "" },
+      });
+    }),
+
+  setAsDefault: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where: { id: ctx.session.user.id },
+        data: { defaultSiteId: input.id },
       });
     }),
 

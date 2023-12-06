@@ -167,3 +167,8 @@ This command will find all files in the specified directory and its subdirectori
 ## Persistance/backup
 
 sql lite db is stored in prod.db file
+
+# status
+
+https://github.com/vx3r/wg-gen-web
+https://github.com/jamescun/wg-api
