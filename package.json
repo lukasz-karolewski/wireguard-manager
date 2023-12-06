@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
+    "vsdebug": "next dev",
     "debug": "NODE_OPTIONS='--inspect' next",
     "analyze": "ANALYZE=true npm run-script build",
     "build": "next build",
