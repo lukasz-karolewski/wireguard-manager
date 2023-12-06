@@ -18,6 +18,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    session: async ({ session, token, user }) => {
+      // By default, only exposes a name, email, image. Need to add back the id at minimum.
+      session.user!.id = user.id;
+      return session;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
