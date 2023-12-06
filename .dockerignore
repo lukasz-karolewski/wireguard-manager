@@ -1,0 +1,10 @@
+.devcontainer
+.dockerignore
+.env
+.git
+.github
+.next
+.vscode
+Dockerfile
+node_modules
+README.md
