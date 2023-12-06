@@ -1,6 +1,7 @@
 import "server-only";
 
 import fs from "fs";
+import path from "path";
 import { z } from "zod";
 import { TrpcContext, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateAddress, serverConfigToNativeWireguard } from "~/server/utils/common";
@@ -152,7 +153,8 @@ export const siteRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { site, config } = await getSiteConfig(ctx, input);
 
-      await fs.promises.mkdir(site.ConfigPath, { recursive: true });
+      const configDir = path.dirname(site.ConfigPath);
+      await fs.promises.mkdir(configDir, { recursive: true });
 
       //check if contents of config file are the same as the new config
       const oldConfig = fs.existsSync(site.ConfigPath)
