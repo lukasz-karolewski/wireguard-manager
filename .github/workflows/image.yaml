@@ -11,6 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create Version
+        id: version
+        run: echo "version=$(date +'%y.%m.%d.')${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -36,7 +40,7 @@ jobs:
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
             --platform linux/amd64,linux/arm64 \
-            --build-arg VERSION=$(date +%Y.%m.%d).${{ github.sha }}.substring(0,7)
+            --build-arg VERSION=${{ env.version }}
             --output "type=image,push=false" \
             --tag lkarolewski/wg-manager:latest \
             --file ./Dockerfile ./
@@ -52,7 +56,7 @@ jobs:
           docker buildx build \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --platform linux/amd64,linux/arm64 \
-            --build-arg VERSION=$(date +%Y.%m.%d).${{ github.sha }}.substring(0,7)
+            --build-arg VERSION=${{ env.version }}
             --output "type=image,push=true" \
             --tag lkarolewski/wg-manager:latest \
             --file ./Dockerfile ./
