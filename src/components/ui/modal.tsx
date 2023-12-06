@@ -37,8 +37,13 @@ const Modal: FC<PropsWithChildren<PropsWithChildren<MyModalProps>>> = ({
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-        <div className={clsx("fixed inset-0 flex items-center justify-center p-4", className)}>
-          <Dialog.Panel className="grid max-h-screen grid-rows-[min-content,minmax(0,100%)] rounded bg-white shadow-xl">
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel
+            className={clsx(
+              "grid max-h-screen grid-rows-[min-content,minmax(0,100%)] rounded bg-white shadow-xl",
+              className,
+            )}
+          >
             <Dialog.Title
               as="div"
               className="flex items-center justify-between rounded-t bg-accent p-6 text-lg font-medium leading-6 text-white"
