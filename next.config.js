@@ -5,6 +5,6 @@
 await import("./src/env.js");
 
 /** @type {import('next').NextConfig} */
-const config = { poweredByHeader: false };
+const config = { poweredByHeader: false, output: "standalone" };
 
 export default config;
