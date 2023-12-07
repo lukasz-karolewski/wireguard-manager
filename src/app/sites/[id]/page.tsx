@@ -15,7 +15,7 @@ type SiteDetailPageProps = { params: { id: string } };
 const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
   const router = useRouter();
 
-  const { data } = api.site.get.useQuery({
+  const { data, refetch } = api.site.get.useQuery({
     id: +params.id,
   });
 
@@ -54,23 +54,33 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
   return (
     <>
       <PageHeader title={`Sites > ${data?.site.name}`}>
-        <Button variant={"ghost"} onClick={() => setAsDefault({ id: data!.site.id })}>
-          Mark As Default
+        <Button
+          variant={"ghost"}
+          onClick={() => {
+            //set data!.config to clipboard
+            navigator.clipboard.writeText(data!.config);
+            toast.success("Copied to clipboard");
+          }}
+        >
+          Copy to clipboard
         </Button>
+
+        {!data?.site.isDefault && (
+          <Button
+            variant={"ghost"}
+            onClick={() => {
+              setAsDefault({ id: data!.site.id });
+              refetch();
+            }}
+          >
+            Mark As Default
+          </Button>
+        )}
         <Button variant={"destructive"} onClick={onRemove}>
           Remove
         </Button>
       </PageHeader>
-      <pre
-        className="bg-slate-200 p-4"
-        onCopy={(e) => {
-          e.preventDefault();
-          e.clipboardData.setData("text/plain", data!.config);
-          toast.success("Copied to clipboard");
-        }}
-      >
-        {data?.config}
-      </pre>
+      <pre className="bg-slate-200 p-4">{data?.config}</pre>
     </>
   );
 };

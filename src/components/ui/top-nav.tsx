@@ -14,7 +14,22 @@ const links = [
 
 const UserButtons: React.FC = async () => {
   const session = await auth();
-  return <div>{!session?.user ? <SignIn /> : <SignOut variant={"secondary"} />}</div>;
+  return (
+    <>
+      {!session?.user ? (
+        <SignIn />
+      ) : (
+        <div className="inline-flex items-center gap-4">
+          <img
+            src={session.user.image}
+            alt="avatar"
+            className="w-9 rounded-full ring-2 ring-white"
+          />
+          <SignOut variant={"secondary"} />
+        </div>
+      )}
+    </>
+  );
 };
 
 const TopNav: React.FC = () => {

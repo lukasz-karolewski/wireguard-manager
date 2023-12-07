@@ -20,6 +20,7 @@ const ConfirmModal = NiceModal.create<Props>(({ title, message, actionName }) =>
         modal.remove();
       }}
       title={title}
+      className="w-1/2"
     >
       <div className="p-4">{message}</div>
       <div className="flex justify-end gap-4 bg-slate-100 p-4 ">

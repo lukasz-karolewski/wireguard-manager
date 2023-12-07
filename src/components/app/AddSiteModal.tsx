@@ -45,7 +45,7 @@ const AddSiteModal = NiceModal.create(() => {
         modal.remove();
       }}
       title="Add Site"
-      className="w-1/2"
+      className="w-2/3"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
@@ -53,7 +53,7 @@ const AddSiteModal = NiceModal.create(() => {
             <Input type="text" {...register("name", { required: true })} />
           </FormField>
 
-          <FormField label="Site ID" help="Used to assign a /24 network ">
+          <FormField label="Site Id" help="Used to assign a /24 network ">
             <Input
               type="number"
               min={1}
@@ -70,7 +70,7 @@ const AddSiteModal = NiceModal.create(() => {
             label="Local Networks"
             help="Local networks to expose to other sites, and clients"
           >
-            <Input {...register("endpointAddress", { required: true })} />
+            <Input {...register("localAddresses", { required: false })} />
           </FormField>
 
           <FormField label="DNS address" help="optional, can be used by clients">

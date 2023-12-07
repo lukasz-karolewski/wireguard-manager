@@ -134,7 +134,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
               variant={"ghost"}
               onClick={() => setShowConfig(show === "qr" ? "config" : "qr")}
             >
-              {show == "qr" ? "Show config" : "Show QR code"}
+              {show == "qr" ? "Show configs" : "Show QR codes"}
             </Button>
             <Button variant="ghost" onClick={onEdit}>
               Edit
@@ -171,27 +171,26 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
               <Accordion
                 key={site.id}
                 title={
-                  <div className="flex items-center justify-between">
-                    <h2>
-                      Configs for {site.isDefault ? "the default" : ""} site &quot;{site.name}
-                      &quot;
-                      {" @ "}
-                      {site.endpointAddress}
-                    </h2>
-
-                    <Button variant="link" onClick={() => downloadAllConfigsForSite(site.id)}>
-                      download all configs
-                    </Button>
-                  </div>
+                  <h2>
+                    Configs for {site.isDefault ? "the default" : ""} site &quot;{site.name}
+                    &quot;
+                    {" @ "}
+                    {site.endpointAddress}
+                  </h2>
+                }
+                actions={
+                  <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
+                    download all configs <DocumentArrowDownIcon className="ml-2 h-5 w-5" />
+                  </Button>
                 }
                 isInitiallyOpen={site.isDefault}
               >
                 <div className={clsx("border", { "": site.isDefault })}>
-                  <div className="flex flex-wrap justify-between gap-4">
+                  <div className="flex flex-wrap justify-around gap-4">
                     {configs.map((config, index) => {
                       return (
                         <div key={index} className="p-8">
-                          <div className="flex items-center">
+                          <div className="flex items-center justify-between">
                             <h3>{config.type}</h3>
                             <Button
                               variant={"ghost"}
@@ -200,7 +199,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
                                 download(data?.client.name, config.type, config.value)
                               }
                             >
-                              <DocumentArrowDownIcon className="h-6 w-6" />
+                              <DocumentArrowDownIcon className="h-5 w-5" />
                             </Button>
                           </div>
                           {show == "config" && <pre>{config.value}</pre>}

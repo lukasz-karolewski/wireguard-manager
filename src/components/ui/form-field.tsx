@@ -1,13 +1,14 @@
+import clsx from "clsx";
 import { FC, ReactElement } from "react";
 
-type FormFieldProps = {
+interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactElement<{ id: string }>;
   label: string;
   help?: string;
-};
+}
 
-const FormField: FC<FormFieldProps> = ({ children, label, help }) => (
-  <div className="mb-4">
+const FormField: FC<FormFieldProps> = ({ children, label, help, className, ...props }) => (
+  <div className={clsx("mb-4", className)} {...props}>
     <div className="grid grid-cols-3 items-center gap-x-4">
       <label className="text-right font-bold">{label}</label>
       <div className="col-span-2">{children}</div>

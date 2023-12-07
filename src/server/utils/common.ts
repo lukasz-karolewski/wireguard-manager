@@ -37,7 +37,7 @@ export function serverConfigToNativeWireguard(
     ${otherSites
       .map((s) => {
         return `[Peer]
-                # ${s.name}
+                # site: ${s.name}
                 PublicKey = ${s.PublicKey}
                 Endpoint = ${s.endpointAddress}
                 AllowedIPs = ${[generateAddress(wg_network, s.id, 0, "24"), s.localAddresses].join(

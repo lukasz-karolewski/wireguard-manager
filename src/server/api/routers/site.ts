@@ -18,7 +18,7 @@ export const siteRouter = createTRPCRouter({
         dns_pihole: z.string().optional(),
         config_path: z.string().optional(),
         private_key: z.string().optional(),
-        localAddresses: z.array(z.string()).optional(),
+        localAddresses: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
@@ -40,7 +40,11 @@ export const siteRouter = createTRPCRouter({
             ConfigPath: input.config_path,
             PrivateKey: private_key,
             PublicKey: public_key,
-            localAddresses: input.localAddresses?.join(",") ?? "",
+            localAddresses:
+              input.localAddresses
+                ?.split(",")
+                .map((v) => v.trim())
+                .join(", ") ?? "",
             listenPort: input.listenPort,
             postUp: input.postUp,
             postDown: input.postDown,
@@ -61,10 +65,7 @@ export const siteRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.user.findFirst({
-      where: { id: ctx.session.user.id },
-      select: { defaultSiteId: true },
-    });
+    const defaultSiteId = await getDefaultSiteId(ctx);
     const sites = await ctx.db.site.findMany({ orderBy: { name: "asc" } });
 
     const wg_network = await ctx.db.settings.findFirst({
@@ -74,7 +75,7 @@ export const siteRouter = createTRPCRouter({
     const sitesWithDefault = sites.map((site) => {
       return {
         ...site,
-        isDefault: site.id === user?.defaultSiteId,
+        isDefault: site.id === defaultSiteId,
         assignedNetwork: generateAddress(wg_network?.value ?? "", site.id, 0, "24"),
       };
     });
@@ -90,8 +91,9 @@ export const siteRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { site, config } = await getSiteConfig(ctx, input);
+      const defaultSiteId = await getDefaultSiteId(ctx);
 
-      return { site: site, config: config };
+      return { site: { ...site, isDefault: site.id === defaultSiteId }, config: config };
     }),
 
   update: protectedProcedure
@@ -176,6 +178,15 @@ export const siteRouter = createTRPCRouter({
       return "written";
     }),
 });
+
+async function getDefaultSiteId(ctx: TrpcContext) {
+  const user = await ctx.db.user.findFirst({
+    where: { id: ctx?.session?.user?.id },
+    select: { defaultSiteId: true },
+  });
+
+  return user?.defaultSiteId;
+}
 
 async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   const settings = await ctx.db.settings.findMany();
