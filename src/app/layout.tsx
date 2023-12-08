@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <NiceModalProviderWrapper>
             <TopNav />
             <Container className="grow">
-              <main className="py-6">{children}</main>
+              <main className="py-4">{children}</main>
             </Container>
             <Footer />
             <Toaster position="bottom-center" />
