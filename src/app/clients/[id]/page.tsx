@@ -11,7 +11,7 @@ import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
-import type { ClientConfigType } from "~/server/utils/types";
+import { clientConfigToString, type ClientConfigType } from "~/server/utils/types";
 
 type ClientDetailPageProps = {
   params: { id: string };
@@ -191,7 +191,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
                       return (
                         <div key={index} className="p-8">
                           <div className="flex items-center justify-between">
-                            <h3>{config.type}</h3>
+                            <h3>{clientConfigToString(config.type)}</h3>
                             <Button
                               variant={"ghost"}
                               size={"icon"}

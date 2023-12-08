@@ -1,4 +1,5 @@
 import archiver from "archiver";
+import { clientConfigToString } from "~/server/utils/types";
 import { api } from "~/trpc/server";
 
 export async function POST(
@@ -21,7 +22,7 @@ export async function POST(
 
   configsForRequestedSite.configs.forEach((config) => {
     archive.append(Buffer.from(config.value, "utf-8"), {
-      name: `${data.client.name}-${config.type}.conf`,
+      name: `${configsForRequestedSite.site.name}-${clientConfigToString(config.type)}.conf`,
     });
   });
 

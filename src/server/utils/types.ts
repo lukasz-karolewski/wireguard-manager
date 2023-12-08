@@ -8,6 +8,23 @@ export enum ClientConfigType {
   localOnlyPiholeDNS = "localOnlyPiholeDNS",
 }
 
+export function clientConfigToString(type: ClientConfigType): string {
+  switch (type) {
+    case ClientConfigType.allTraffic:
+      return "redirect all";
+    case ClientConfigType.allTrafficDNS:
+      return "redirect all, dns";
+    case ClientConfigType.allTrafficPiholeDNS:
+      return "redirect all, pihole";
+    case ClientConfigType.localOnly:
+      return "local only";
+    case ClientConfigType.localOnlyDNS:
+      return "local only, dns";
+    case ClientConfigType.localOnlyPiholeDNS:
+      return "local only, pihole";
+  }
+}
+
 export interface WgInterface {
   Address: string;
   ListenPort: number;
