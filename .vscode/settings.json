@@ -17,7 +17,7 @@
   "editor.linkedEditing": true,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
+    "source.fixAll.eslint": "always",
     "source.organizeImports": "always"
   },
   "editor.gotoLocation.multipleDefinitions": "goto",
@@ -28,5 +28,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
