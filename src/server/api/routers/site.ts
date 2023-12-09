@@ -1,5 +1,6 @@
 import "server-only";
 
+import { Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import { z } from "zod";
@@ -106,18 +107,39 @@ export const siteRouter = createTRPCRouter({
         dns_pihole: z.string().optional(),
         config_path: z.string().optional(),
         private_key: z.string().optional(),
-        localAddresses: z.array(z.string()).optional(),
+        localAddresses: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, localAddresses, ...data } = input;
+      const { id, private_key } = input;
+
+      const data: Prisma.SiteUpdateInput = {
+        name: input.name,
+        endpointAddress: input.endpointAddress,
+        DNS: input.dns,
+        PiholeDNS: input.dns_pihole,
+        ConfigPath: input.config_path,
+        localAddresses:
+          input.localAddresses
+            ?.split(",")
+            .map((v) => v.trim())
+            .join(", ") ?? "",
+        listenPort: input.listenPort,
+        postUp: input.postUp,
+        postDown: input.postDown,
+      };
+
+      if (private_key) {
+        data.PrivateKey = private_key;
+        data.PublicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      }
 
       return await ctx.db.site.update({
-        where: { id: input.id },
-        data: { ...data, localAddresses: localAddresses?.join(",") ?? "" },
+        where: { id },
+        data,
       });
     }),
 

@@ -1,7 +1,7 @@
 "use client";
 
 import NiceModal from "@ebay/nice-modal-react";
-import AddEditSiteModal from "~/components/app/AddEditSiteModal";
+import { AddEditSiteModal } from "~/components/app/AddEditSiteModal";
 import { SiteItem } from "~/components/app/SiteItem";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";

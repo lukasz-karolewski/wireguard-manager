@@ -20,11 +20,13 @@ const UserButtons: React.FC = async () => {
         <SignIn />
       ) : (
         <div className="inline-flex items-center gap-4">
-          <img
-            src={session.user.image}
-            alt="avatar"
-            className="w-9 rounded-full ring-2 ring-white"
-          />
+          {session.user.image && (
+            <img
+              src={session.user.image}
+              alt="avatar"
+              className="w-9 rounded-full ring-2 ring-white"
+            />
+          )}
           <SignOut variant={"secondary"} />
         </div>
       )}

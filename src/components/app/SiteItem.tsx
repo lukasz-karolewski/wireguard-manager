@@ -1,11 +1,13 @@
 import { FC } from "react";
 
+import NiceModal from "@ebay/nice-modal-react";
 import clsx from "clsx";
 import toast from "react-hot-toast";
 import { api } from "~/trpc/react";
 import { RouterOutputs } from "~/trpc/shared";
 import { Button } from "../ui/button";
 import Link from "../ui/link";
+import { AddEditSiteModal, mapSiteForEdit } from "./AddEditSiteModal";
 
 type SiteConfigProps = {
   site: NonNullable<RouterOutputs["site"]["getAll"][number]>;
@@ -44,30 +46,40 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
         {site.endpointAddress}
         <div>Assigned network: {site.assignedNetwork}</div>
       </Link>
-      {site.isDefault && (
+      <div className="mt-4 flex items-center gap-2">
+        {site.isDefault && (
+          <Button
+            variant="destructive"
+            disabled={isPosting}
+            onClick={() => {
+              writeConfig({ id: site.id });
+            }}
+          >
+            Write config
+          </Button>
+        )}
+        {!site.isDefault && (
+          <Button
+            disabled={isPosting}
+            onClick={() => {
+              copyToClipboard(site.id);
+            }}
+            variant="link"
+            size="inline"
+          >
+            Copy config
+          </Button>
+        )}
         <Button
-          disabled={isPosting}
-          onClick={() => {
-            writeConfig({ id: site.id });
+          variant={"link"}
+          onClick={async () => {
+            await NiceModal.show(AddEditSiteModal, { site: mapSiteForEdit(site) });
+            refetch();
           }}
-          className="mt-2"
         >
-          Write config
+          Edit
         </Button>
-      )}
-      {!site.isDefault && (
-        <Button
-          disabled={isPosting}
-          onClick={() => {
-            copyToClipboard(site.id);
-          }}
-          className="mt-2"
-          variant="link"
-          size="inline"
-        >
-          Copy config
-        </Button>
-      )}
+      </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { RouterInputs } from "~/trpc/shared";
 
+import { Site } from "@prisma/client";
 import toast from "react-hot-toast";
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
@@ -10,32 +11,65 @@ import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 import Modal from "../ui/modal";
 
+interface Props {
+  site?: RouterInputs["site"]["update"];
+}
+
 type FormValues = RouterInputs["site"]["create"];
 
-const AddEditSiteModal = NiceModal.create(() => {
+export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
+  return {
+    name: site.name ?? undefined,
+    id: site.id,
+    endpointAddress: site.endpointAddress ?? undefined,
+    localAddresses: site.localAddresses ?? undefined,
+    dns: site.DNS ?? undefined,
+    dns_pihole: site.PiholeDNS ?? undefined,
+    config_path: site.ConfigPath ?? undefined,
+    listenPort: site.listenPort ?? undefined,
+    postUp: site.postUp ?? undefined,
+    postDown: site.postDown ?? undefined,
+    private_key: site.PrivateKey ?? undefined,
+  };
+}
+
+export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
   const modal = useModal();
-  const { mutate } = api.site.create.useMutation({
-    onSuccess: (data) => {
+  const isAdd = !site;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: isAdd
+      ? { config_path: "/etc/wireguard/wg0.conf", listenPort: 51820 }
+      : {
+          ...site,
+        },
+  });
+
+  const options = {
+    onSuccess: (data: any) => {
       toast.success("saved");
       modal.resolve();
       modal.remove();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       const errorMessage = error.data?.zodError?.fieldErrors.value;
       if (errorMessage) toast.error(errorMessage.join(", "));
       else toast.error("Failed to save");
     },
-  });
-
-  const { register, handleSubmit } = useForm<FormValues>({
-    defaultValues: {
-      config_path: "/etc/wireguard/wg0.conf",
-      listenPort: 51820,
-    },
-  });
+  };
+  const { mutate: create } = api.site.create.useMutation(options);
+  const { mutate: update } = api.site.update.useMutation(options);
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
-    mutate(data);
+    if (isAdd) {
+      create(data);
+    } else {
+      update(data);
+    }
   };
 
   return (
@@ -44,7 +78,7 @@ const AddEditSiteModal = NiceModal.create(() => {
       onClose={() => {
         modal.remove();
       }}
-      title="Add Site"
+      title={isAdd ? "Add Site" : "Edit Site"}
       className="w-2/3"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -112,7 +146,7 @@ const AddEditSiteModal = NiceModal.create(() => {
           </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
-          <Button type="submit">{"Add"}</Button>
+          <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
           <Button type="button" variant="secondary" onClick={modal.remove}>
             Cancel
           </Button>
@@ -121,5 +155,3 @@ const AddEditSiteModal = NiceModal.create(() => {
     </Modal>
   );
 });
-
-export default AddEditSiteModal;

@@ -4,6 +4,8 @@ Helps to setup multi-way site-to-site and manage client configs. Works well for 
 
 ## roadmap
 
+- check for ip conflicts, right now clients start getting assigned with a x.x.x.1 address which is the same as for the site server
+
 - ipv6 subnets
   - https://simpledns.plus/private-ipv6
   - https://computering.tastytea.de/posts/wireguard-vpn-with-2-or-more-subnets/

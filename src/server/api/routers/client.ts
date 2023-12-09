@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import "server-only";
 
 import { z } from "zod";
@@ -112,9 +113,20 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
+      const { id, private_key } = input;
+
+      const data: Prisma.ClientUpdateInput = {
+        name: input.name,
+        email: input.email,
+      };
+
+      if (private_key) {
+        data.PrivateKey = private_key;
+        data.PublicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      }
+
       return await ctx.db.client.update({
-        where: { id: input.id },
+        where: { id },
         data,
       });
     }),
