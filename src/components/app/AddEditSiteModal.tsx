@@ -92,6 +92,7 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
               type="number"
               min={1}
               max={255}
+              disabled={!isAdd}
               {...register("id", { required: true, valueAsNumber: true, min: 1, max: 255 })}
             />
           </FormField>
@@ -132,6 +133,10 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
 
           <FormField label="Post Down script">
             <Input {...register("postDown", { required: false })} />
+          </FormField>
+
+          <FormField label="Private Key">
+            <Input {...register("private_key", { required: false })} />
           </FormField>
 
           <FormField
