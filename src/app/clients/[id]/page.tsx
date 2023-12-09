@@ -9,6 +9,7 @@ import { api } from "~/trpc/react";
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { AddEditClientModal, mapClientForEdit } from "~/components/app/AddEditClientModal";
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import { clientConfigToString, type ClientConfigType } from "~/server/utils/types";
@@ -120,9 +121,12 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
     removeClient({ id: data?.client.id });
   }
 
-  function onEdit() {
+  async function onEdit() {
     if (!data) return;
-    // NiceModal.show(ConfirmModal, { client_name: data.client.name });
+    await NiceModal.show(AddEditClientModal, {
+      client: mapClientForEdit(data?.client),
+    });
+    refetch();
   }
 
   return (

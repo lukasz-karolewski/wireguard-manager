@@ -12,7 +12,7 @@ import Modal from "../ui/modal";
 
 type FormValues = RouterInputs["site"]["create"];
 
-const AddSiteModal = NiceModal.create(() => {
+const AddEditSiteModal = NiceModal.create(() => {
   const modal = useModal();
   const { mutate } = api.site.create.useMutation({
     onSuccess: (data) => {
@@ -122,4 +122,4 @@ const AddSiteModal = NiceModal.create(() => {
   );
 });
 
-export default AddSiteModal;
+export default AddEditSiteModal;

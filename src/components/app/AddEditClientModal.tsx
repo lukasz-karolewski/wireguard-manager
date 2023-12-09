@@ -1,5 +1,6 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 
+import { Client } from "@prisma/client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
@@ -9,41 +10,55 @@ import { RouterInputs } from "~/trpc/shared";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 
-interface Props {}
+interface Props {
+  client?: RouterInputs["client"]["update"];
+}
 
 type FormValues = RouterInputs["client"]["create"];
 
-const AddClientModal = NiceModal.create<Props>(() => {
+export function mapClientForEdit(client: Client): RouterInputs["client"]["update"] {
+  return {
+    id: client.id,
+    name: client.name ?? undefined,
+    email: client.email ?? undefined,
+    private_key: client.PrivateKey ?? undefined,
+  };
+}
+
+export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
+  const isAdd = !client;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
-    defaultValues: {},
+    defaultValues: isAdd ? {} : { ...client },
   });
 
-  const { mutate } = api.client.create.useMutation({
-    onSuccess: (data) => {
-      toast.success("saved");
+  const options = {
+    onSuccess: (data: any) => {
+      toast.success("Saved");
       modal.resolve();
       modal.remove();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       const errorMessage = error.data?.zodError?.fieldErrors.value;
       if (errorMessage) toast.error(errorMessage.join(", "));
       else toast.error("Failed to save");
     },
-  });
+  };
+
+  const { mutate: create } = api.client.create.useMutation(options);
+  const { mutate: update } = api.client.update.useMutation(options);
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
-    Object.keys(data).forEach((key) => {
-      if (!data[key as keyof typeof data]) {
-        delete data[key as keyof typeof data];
-      }
-    });
-    mutate(data);
+    if (isAdd) {
+      return create(data);
+    } else {
+      return update({ id: client.id, ...data });
+    }
   };
 
   return (
@@ -52,9 +67,10 @@ const AddClientModal = NiceModal.create<Props>(() => {
       onClose={() => {
         modal.remove();
       }}
-      title="Add Client"
+      title={isAdd ? "New Client" : "Edit Client"}
+      className="w-1/2"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="min-w-[600px]">
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
           <FormField label="Name">
             <Input type="text" {...register("name", { required: true })} />
@@ -65,10 +81,19 @@ const AddClientModal = NiceModal.create<Props>(() => {
               {errors.email && <span>{errors.email.message}</span>}
             </>
           </FormField>
+          <FormField label="Private key" className="bg-red-300 p-4">
+            <>
+              <Input
+                placeholder="optional, leave empty to autogenerate"
+                {...register("private_key", { required: false })}
+              />
+              {errors.private_key && <span>{errors.private_key.message}</span>}
+            </>
+          </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
-          <Button type="submit">Add</Button>
-          <Button type="button" onClick={modal.remove}>
+          <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
+          <Button type="button" variant="secondary" onClick={modal.remove}>
             Cancel
           </Button>
         </div>
@@ -76,5 +101,3 @@ const AddClientModal = NiceModal.create<Props>(() => {
     </Modal>
   );
 });
-
-export default AddClientModal;

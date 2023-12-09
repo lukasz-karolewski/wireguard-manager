@@ -1,7 +1,7 @@
 "use client";
 
 import NiceModal from "@ebay/nice-modal-react";
-import AddSiteModal from "~/components/app/AddSiteModal";
+import AddEditSiteModal from "~/components/app/AddEditSiteModal";
 import { SiteItem } from "~/components/app/SiteItem";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
@@ -14,7 +14,7 @@ export default function SiteListPage() {
   if (isLoading) return <div>Loading...</div>;
 
   async function showAddSiteModal() {
-    await NiceModal.show(AddSiteModal);
+    await NiceModal.show(AddEditSiteModal);
     refetch();
   }
 
