@@ -105,7 +105,9 @@ export function clientConfigToNativeWireguard(
     Endpoint = ${site.endpointAddress}
     PublicKey = ${site.PublicKey}
     AllowedIPs = ${
-      type == ClientConfigType.localOnly || type == ClientConfigType.localOnlyDNS
+      type == ClientConfigType.localOnly ||
+      type == ClientConfigType.localOnlyDNS ||
+      type == ClientConfigType.localOnlyPiholeDNS
         ? [generateAddress(wg_network, 0, 0), site.localAddresses].join(", ")
         : "0.0.0.0/0, ::/0"
     }
