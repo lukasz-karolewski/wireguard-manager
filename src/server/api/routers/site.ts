@@ -7,22 +7,25 @@ import { z } from "zod";
 import { TrpcContext, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateAddress, serverConfigToNativeWireguard } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
+import { emptyToNull } from "~/utils";
 
 export const siteRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
         name: z.string(),
-        endpointAddress: z.string(),
-        dns: z.string().optional(),
-        dns_pihole: z.string().optional(),
-        config_path: z.string().optional(),
-        private_key: z.string().optional(),
-        localAddresses: z.string().optional(),
+        id: z.number(),
         listenPort: z.number().min(1024).max(65535).optional(),
+        private_key: z.string().optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
+
+        endpointAddress: z.string().ip().or(z.string().url()),
+        localAddresses: z.string().optional(),
+        dns: emptyToNull(z.string().ip().optional()),
+        dns_pihole: emptyToNull(z.string().ip().optional()),
+
+        config_path: z.string().optional(),
         markAsDefault: z.boolean().optional(),
       }),
     )
@@ -101,16 +104,19 @@ export const siteRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
+
         name: z.string().optional(),
-        endpointAddress: z.string().optional(),
-        dns: z.string().optional(),
-        dns_pihole: z.string().optional(),
-        config_path: z.string().optional(),
-        private_key: z.string().optional(),
-        localAddresses: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
+        private_key: z.string().optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
+
+        endpointAddress: z.string().ip().or(z.string().url()).optional(),
+        localAddresses: z.string().optional(),
+        dns: emptyToNull(z.string().ip().optional()),
+        dns_pihole: emptyToNull(z.string().ip().optional()),
+
+        config_path: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
