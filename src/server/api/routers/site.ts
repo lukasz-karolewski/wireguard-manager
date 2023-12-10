@@ -108,6 +108,7 @@ export const siteRouter = createTRPCRouter({
         name: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
         private_key: z.string().optional(),
+        public_key: z.string().optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 
@@ -120,7 +121,7 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, private_key } = input;
+      const { id, private_key, public_key } = input;
 
       const data: Prisma.SiteUpdateInput = {
         name: input.name,
@@ -141,6 +142,9 @@ export const siteRouter = createTRPCRouter({
       if (private_key) {
         data.PrivateKey = private_key;
         data.PublicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      } else if (public_key) {
+        data.PrivateKey = "";
+        data.PublicKey = public_key;
       }
 
       return await ctx.db.site.update({
