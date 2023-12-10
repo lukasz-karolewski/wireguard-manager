@@ -123,7 +123,12 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
           <FormField label="Listen Port">
             <Input
               type="number"
-              {...register("listenPort", { required: false, min: 1024, max: 65535 })}
+              {...register("listenPort", {
+                required: false,
+                min: 1024,
+                max: 65535,
+                valueAsNumber: true,
+              })}
             />
           </FormField>
 
