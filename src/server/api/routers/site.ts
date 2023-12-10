@@ -16,7 +16,7 @@ export const siteRouter = createTRPCRouter({
         name: z.string(),
         id: z.number(),
         listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: z.string().optional(),
+        private_key: z.string().length(44).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 
@@ -107,8 +107,8 @@ export const siteRouter = createTRPCRouter({
 
         name: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: z.string().optional(),
-        public_key: z.string().optional(),
+        private_key: z.string().length(44).optional(),
+        public_key: z.string().length(44).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 

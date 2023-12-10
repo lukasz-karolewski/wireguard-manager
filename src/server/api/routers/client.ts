@@ -14,7 +14,7 @@ export const clientRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         email: emptyToNull(z.string().email().optional()),
-        private_key: emptyToNull(z.string().optional()),
+        private_key: emptyToNull(z.string().length(44).optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -110,7 +110,7 @@ export const clientRouter = createTRPCRouter({
         id: z.number(),
         name: z.string().min(2).optional(),
         email: emptyToNull(z.string().email().optional()),
-        private_key: emptyToNull(z.string().optional()),
+        private_key: emptyToNull(z.string().length(44).optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
