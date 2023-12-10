@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
 import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
+import { zodErrorsToString } from "~/utils";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 
@@ -32,7 +33,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<FormValues>({
     defaultValues: isAdd ? {} : { ...client },
   });
@@ -44,8 +45,8 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
       modal.remove();
     },
     onError: (error: any) => {
-      const errorMessage = error.data?.zodError?.fieldErrors.value;
-      if (errorMessage) toast.error(errorMessage.join(", "));
+      const errorMessage = zodErrorsToString(error);
+      if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");
     },
   };

@@ -6,6 +6,7 @@ import { RouterInputs } from "~/trpc/shared";
 import { Site } from "@prisma/client";
 import toast from "react-hot-toast";
 import { api } from "~/trpc/react";
+import { zodErrorsToString } from "~/utils";
 import { Button } from "../ui/button";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
@@ -56,8 +57,8 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
       modal.remove();
     },
     onError: (error: any) => {
-      const errorMessage = error.data?.zodError?.fieldErrors.value;
-      if (errorMessage) toast.error(errorMessage.join(", "));
+      const errorMessage = zodErrorsToString(error);
+      if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");
     },
   };
