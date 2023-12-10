@@ -30,3 +30,11 @@ export function zodErrorsToString(error: any) {
   }
   return errorMessage;
 }
+
+import { z } from "zod";
+
+const emptyStringToNull = z.literal("").transform(() => null);
+
+export function emptyToNull<T extends z.ZodTypeAny>(schema: T) {
+  return schema.nullable().or(emptyStringToNull);
+}

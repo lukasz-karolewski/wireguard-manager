@@ -6,14 +6,15 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { clientConfigToNativeWireguard } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ClientConfigType } from "~/server/utils/types";
+import { emptyToNull } from "~/utils";
 
 export const clientRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
         name: z.string(),
-        email: z.string().email().optional(),
-        private_key: z.string().optional(),
+        email: emptyToNull(z.string().email().optional()),
+        private_key: emptyToNull(z.string().optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -107,9 +108,9 @@ export const clientRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        name: z.string().optional(),
-        email: z.string().email().optional(),
-        private_key: z.string().optional(),
+        name: z.string().min(2).optional(),
+        email: emptyToNull(z.string().email().optional()),
+        private_key: emptyToNull(z.string().optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
