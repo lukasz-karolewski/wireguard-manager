@@ -16,11 +16,12 @@ export const siteRouter = createTRPCRouter({
         name: z.string(),
         id: z.number(),
         listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: z.string().length(44).optional(),
+        private_key: emptyToNull(z.string().length(44).optional()),
+        public_key: z.string().length(44).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 
-        endpointAddress: z.string().ip().or(z.string().url()),
+        endpointAddress: z.string().ip().or(z.string()),
         localAddresses: z.string().optional(),
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
@@ -30,8 +31,15 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const private_key = input.private_key ?? (await execShellCommand("wg genkey"));
-      const public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      let private_key = null;
+      let public_key = "";
+
+      if (input.private_key) {
+        private_key = input.private_key ?? (await execShellCommand("wg genkey"));
+        public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      } else if (input.public_key) {
+        public_key = input.public_key;
+      }
 
       const createdSite = await ctx.db.$transaction([
         ctx.db.site.create({
@@ -107,12 +115,12 @@ export const siteRouter = createTRPCRouter({
 
         name: z.string().optional(),
         listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: z.string().length(44).optional(),
+        private_key: emptyToNull(z.string().length(44).optional()),
         public_key: z.string().length(44).optional(),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 
-        endpointAddress: z.string().ip().or(z.string().url()).optional(),
+        endpointAddress: z.string().ip().or(z.string()).optional(),
         localAddresses: z.string().optional(),
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),

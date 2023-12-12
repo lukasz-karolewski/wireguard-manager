@@ -78,8 +78,8 @@ model Site {
   DNS             String?
   PiholeDNS       String?
   ConfigPath      String   @default("/etc/wireguard/wg0.conf")
+  PrivateKey      String?
   PublicKey       String
-  PrivateKey      String
   localAddresses  String
   postUp          String?
   postDown        String?

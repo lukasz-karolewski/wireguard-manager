@@ -120,6 +120,13 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 />
               </FormField>
 
+              <FormField label="Public Key">
+                <Input
+                  placeholder="leave empty to generate key"
+                  {...register("public_key", { required: false })}
+                />
+              </FormField>
+
               <FormField label="Post Up script">
                 <Input {...register("postUp", { required: false })} />
               </FormField>
