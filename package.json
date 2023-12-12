@@ -49,6 +49,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@auth/core": "0.18.4",
     "@babel/eslint-parser": "^7.17.0",
     "@next/bundle-analyzer": "~14.0.1",
     "@next/eslint-plugin-next": "^14.0.1",
