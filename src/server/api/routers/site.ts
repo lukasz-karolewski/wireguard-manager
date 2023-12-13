@@ -17,7 +17,7 @@ export const siteRouter = createTRPCRouter({
         id: z.number(),
         listenPort: z.number().min(1024).max(65535).optional(),
         private_key: emptyToNull(z.string().length(44).optional()),
-        public_key: z.string().length(44).optional(),
+        public_key: emptyToNull(z.string().length(44).optional()),
         postUp: z.string().optional(),
         postDown: z.string().optional(),
 
@@ -35,10 +35,13 @@ export const siteRouter = createTRPCRouter({
       let public_key = "";
 
       if (input.private_key) {
-        private_key = input.private_key ?? (await execShellCommand("wg genkey"));
+        private_key = input.private_key;
         public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
       } else if (input.public_key) {
         public_key = input.public_key;
+      } else {
+        private_key = await execShellCommand("wg genkey");
+        public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
       }
 
       const createdSite = await ctx.db.$transaction([
@@ -153,6 +156,9 @@ export const siteRouter = createTRPCRouter({
       } else if (public_key) {
         data.PrivateKey = "";
         data.PublicKey = public_key;
+      } else {
+        data.PrivateKey = await execShellCommand("wg genkey");
+        data.PublicKey = await execShellCommand(`echo "${data.PrivateKey}" | wg pubkey`);
       }
 
       return await ctx.db.site.update({
