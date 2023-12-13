@@ -135,6 +135,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
         {data?.client.enabled && (
           <>
             <Button
+              className="hidden md:block"
               variant={"ghost"}
               onClick={() => setShowConfig(show === "qr" ? "config" : "qr")}
             >
@@ -143,24 +144,24 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
             <Button variant="ghost" onClick={onEdit}>
               Edit
             </Button>
-            <Button variant="ghost" onClick={onDisable}>
+            <Button className="hidden md:block" variant="ghost" onClick={onDisable}>
               Disable
             </Button>
           </>
         )}
         {!data?.client.enabled && (
           <>
-            <Button variant="default" onClick={onEnable}>
+            <Button className="hidden md:block" variant="default" onClick={onEnable}>
               Enable
             </Button>
           </>
         )}
-        <Button variant="destructive" onClick={onRemove}>
+        <Button className="hidden md:block" variant="destructive" onClick={onRemove}>
           Remove
         </Button>
       </PageHeader>
       {data?.client.enabled && (
-        <div>
+        <div className="hidden md:block">
           <div>Created By: {data?.client.createdBy.name}</div>
           <div>Created: {data?.client.createdAt.toISOString()}</div>
           <div>Updated: {data?.client.updatedAt.toISOString()}</div>
@@ -176,15 +177,13 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
                 key={site.id}
                 title={
                   <h2>
-                    Configs for {site.isDefault ? "the default" : ""} site &quot;{site.name}
-                    &quot;
-                    {" @ "}
-                    {site.endpointAddress}
+                    {site.name} @ {site.endpointAddress}
                   </h2>
                 }
                 actions={
                   <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
-                    download all configs <DocumentArrowDownIcon className="ml-2 h-5 w-5" />
+                    <span className="hidden md:inline">download all configs</span>{" "}
+                    <DocumentArrowDownIcon className="ml-2 h-5 w-5" />
                   </Button>
                 }
                 isInitiallyOpen={site.isDefault}

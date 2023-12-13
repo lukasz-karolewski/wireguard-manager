@@ -69,7 +69,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
         modal.remove();
       }}
       title={isAdd ? "New Client" : "Edit Client"}
-      className="w-1/2"
+      className="md:w-1/2"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">

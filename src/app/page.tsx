@@ -53,16 +53,17 @@ const ClientListPage: FC<ClientListPageParams> = () => {
             defaultValue={searchParams?.get("search") ?? ""}
           />
         </form>
-        <Button onClick={showAddClientModal}>Add Client</Button>
+        <Button onClick={showAddClientModal}>Add</Button>
       </PageHeader>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {clients?.map((client) => {
           return <ClientItem key={client.id} client={client} />;
         })}
-
-        {clients?.length == 0 && <div>No Clients</div>}
       </div>
+      {clients?.length == 0 && (
+        <div className="flex items-center justify-center py-12">No Clients</div>
+      )}
     </>
   );
 };

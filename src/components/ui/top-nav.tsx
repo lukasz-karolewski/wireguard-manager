@@ -8,8 +8,8 @@ import Link from "./link";
 const links = [
   { name: "Clients", url: "/" },
   { name: "Sites", url: "/sites" },
-  { name: "Global Settings", url: "/global-settings" },
-  // { name: "Status", url: "/status" },
+  { name: "Settings", url: "/global-settings" },
+  { name: "Users", url: "/users" },
 ];
 
 const UserButtons: React.FC = async () => {
@@ -24,7 +24,7 @@ const UserButtons: React.FC = async () => {
             <img
               src={session.user.image}
               alt="avatar"
-              className="w-9 rounded-full ring-2 ring-white"
+              className="hidden w-9 rounded-full ring-2 ring-white lg:block "
             />
           )}
           <SignOut variant={"secondary"} />
@@ -45,7 +45,7 @@ const TopNav: React.FC = () => {
               activeClassName=""
               className="text-2xl font-bold text-white no-underline hover:no-underline"
             >
-              Wireguard UI - s2s
+              Wireguard Manager
             </Link>
           </div>
 
@@ -54,7 +54,10 @@ const TopNav: React.FC = () => {
               <Link
                 href={item.url}
                 key={item.url}
-                className="inline-block px-4 py-2 font-medium text-white no-underline first:ml-4 hover:bg-gray-300/20"
+                className={clsx(
+                  "px-4 py-2 font-medium text-white no-underline first:ml-4 hover:bg-gray-300/20",
+                  "hidden md:block",
+                )}
               >
                 {item.name}
               </Link>
