@@ -21,7 +21,7 @@ export default function SiteListPage() {
   return (
     <>
       <PageHeader title={`Sites`}>
-        <Button onClick={showAddSiteModal}>Add Site</Button>
+        <Button onClick={showAddSiteModal}>Add</Button>
       </PageHeader>
 
       <div className="grid grid-cols-3 gap-4">
@@ -30,9 +30,11 @@ export default function SiteListPage() {
           .map((site) => {
             return <SiteItem key={site.id} site={site} />;
           })}
-
-        {sites?.length == 0 && <div>No sites</div>}
       </div>
+
+      {sites?.length == 0 && (
+        <div className="flex items-center justify-center py-12">No Sites</div>
+      )}
     </>
   );
 }

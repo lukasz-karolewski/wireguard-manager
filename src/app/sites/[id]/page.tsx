@@ -5,6 +5,7 @@ import { FC } from "react";
 import NiceModal from "@ebay/nice-modal-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteModal";
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
@@ -64,7 +65,16 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         >
           Copy to clipboard
         </Button>
-
+        <Button
+          variant={"ghost"}
+          onClick={async () => {
+            if (!data) return;
+            await NiceModal.show(AddEditSiteModal, { site: mapSiteForEdit(data.site) });
+            refetch();
+          }}
+        >
+          Edit
+        </Button>
         {!data?.site.isDefault && (
           <Button
             variant={"ghost"}

@@ -31,6 +31,7 @@ export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
     postUp: site.postUp ?? undefined,
     postDown: site.postDown ?? undefined,
     private_key: site.PrivateKey ?? undefined,
+    public_key: site.PublicKey ?? undefined,
   };
 }
 
@@ -139,21 +140,24 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
           <div className="border border-gray-300">
             <h3 className="bg-accent p-4 text-white">Peer options</h3>
             <div className="p-4">
-              <FormField label="Endpoint" help="External IP or DNS where should clients connect">
+              <FormField
+                label="Endpoint"
+                help="External IP or DNS with port where clients should connect"
+              >
                 <Input {...register("endpointAddress", { required: true })} />
               </FormField>
               <FormField
                 label="Local Networks"
-                help="Local networks to expose to other sites, and clients"
+                help="Comma separated local networks in CIDR notation to expose to other sites, and clients"
               >
                 <Input {...register("localAddresses", { required: false })} />
               </FormField>
 
-              <FormField label="DNS IP" help="optional, can be used by clients">
+              <FormField label="DNS IP" help="local DNS server clients can use">
                 <Input {...register("dns", { required: false })} />
               </FormField>
 
-              <FormField label="Pihole IP" help="optional, can be used by clients">
+              <FormField label="Pihole IP" help="local Pihole instance clients can use">
                 <Input {...register("dns_pihole", { required: false })} />
               </FormField>
             </div>
