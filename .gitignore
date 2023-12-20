@@ -20,3 +20,6 @@ npm-debug.log*
 # prisma
 prisma/*.db
 prisma/*.db-journal
+
+#local testing files
+wg*
