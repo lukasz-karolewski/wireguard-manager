@@ -3,7 +3,7 @@ import React from "react";
 
 interface PageHeaderProps {
   title: string;
-  parent?: string;
+  parent?: string | string[];
   parentHref?: string;
   children?: React.ReactNode;
 }
@@ -15,7 +15,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, parent, parentHref, chil
         {parent && parentHref && (
           <>
             <Link href={parentHref} className="hover:underline">
-              {parent}
+              {Array.isArray(parent) ? parent.join(" > ") : parent}
             </Link>
             <span className="mx-2">&gt;</span>
           </>

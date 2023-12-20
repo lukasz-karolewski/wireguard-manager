@@ -11,7 +11,12 @@ type AccordionProps = {
 
 import { Transition } from "@headlessui/react";
 
-const Accordion: React.FC<AccordionProps> = ({ title, actions, isInitiallyOpen, children }) => {
+const Accordion: React.FC<AccordionProps> = ({
+  title,
+  actions,
+  isInitiallyOpen = false,
+  children,
+}) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
 
   const toggleAccordion = () => {

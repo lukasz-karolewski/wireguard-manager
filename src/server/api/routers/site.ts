@@ -112,6 +112,25 @@ export const siteRouter = createTRPCRouter({
       return { site: { ...site, isDefault: site.id === defaultSiteId }, config: config };
     }),
 
+  getVersions: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const site = await ctx.db.site.findFirstOrThrow({
+        where: { id: input.id },
+      });
+
+      const versions = await ctx.db.siteVersion.findMany({
+        where: { SiteId: input.id },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return { site, versions };
+    }),
+
   update: protectedProcedure
     .input(
       z.object({
