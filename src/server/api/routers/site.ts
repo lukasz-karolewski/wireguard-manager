@@ -126,6 +126,7 @@ export const siteRouter = createTRPCRouter({
       const versions = await ctx.db.siteVersion.findMany({
         where: { SiteId: input.id },
         orderBy: { createdAt: "desc" },
+        include: { createdBy: true },
       });
 
       return { site, versions };
@@ -244,6 +245,7 @@ export const siteRouter = createTRPCRouter({
           hash: hash,
           SiteId: site.id,
           data: config,
+          createdById: ctx.session.user.id,
         },
       });
 

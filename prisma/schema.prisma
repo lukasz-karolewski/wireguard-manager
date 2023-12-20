@@ -44,16 +44,17 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   defaultSiteId Int?
-  defaultSite   Site?     @relation(fields: [defaultSiteId], references: [id])
+  defaultSite   Site?         @relation(fields: [defaultSiteId], references: [id])
   Client        Client[]
+  SiteVersion   SiteVersion[]
 }
 
 model VerificationToken {
@@ -89,11 +90,13 @@ model Site {
 }
 
 model SiteVersion {
-  hash      String   @id @unique
-  SiteId    Int
-  Site      Site     @relation(fields: [SiteId], references: [id])
-  createdAt DateTime @default(now())
-  data      String
+  hash        String   @id @unique
+  SiteId      Int
+  Site        Site     @relation(fields: [SiteId], references: [id])
+  createdAt   DateTime @default(now())
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  data        String
 }
 
 model Client {

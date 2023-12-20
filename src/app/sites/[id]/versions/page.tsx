@@ -26,7 +26,7 @@ const SiteConfigVersionsPage: FC<SiteDetailPageProps> = ({ params }) => {
       {data &&
         data.versions.map((version) => (
           <div key={version.hash}>
-            <Accordion title={`${version.createdAt.toString()} ${version.hash}`}>
+            <Accordion title={`${version.createdBy.name} @ ${version.createdAt.toString()} `}>
               <pre>{version.data}</pre>
             </Accordion>
           </div>

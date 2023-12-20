@@ -3,6 +3,7 @@
 import { FC } from "react";
 
 import NiceModal from "@ebay/nice-modal-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteModal";
@@ -104,6 +105,9 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         >
           Edit
         </Button>
+        <Link href={`/sites/${data?.site.id}/versions`}>
+          <Button variant={"ghost"}>Versions</Button>
+        </Link>
         {!data?.site.isDefault && (
           <Button
             variant={"ghost"}
