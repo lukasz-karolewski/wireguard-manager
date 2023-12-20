@@ -3,7 +3,7 @@ import "server-only";
 
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { clientConfigToNativeWireguard } from "~/server/utils/common";
+import { generateClientConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ClientConfigType } from "~/server/utils/types";
 import { emptyToNull } from "~/utils";
@@ -93,7 +93,7 @@ export const clientRouter = createTRPCRouter({
 
           siteConfigs.push({
             type: description,
-            value: clientConfigToNativeWireguard(settings, site, client, type as ClientConfigType),
+            value: generateClientConfig(settings, site, client, type as ClientConfigType),
           });
         });
         configs.push({ site, configs: siteConfigs });

@@ -2,6 +2,7 @@
 
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
+import FormField from "~/components/ui/form-field";
 import { Input } from "~/components/ui/input";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
@@ -32,18 +33,19 @@ const GlobalSettingsPage: React.FC = () => {
         }}
         className="bg-slate-200 p-4"
       >
-        <fieldset className="flex flex-row items-center gap-2">
-          <label htmlFor="wg_network">Wireguard network</label>
+        <FormField
+          label="Wireguard network"
+          help="/16 network for all sites, each site will get a /24"
+        >
           <Input
             type="text"
             id="wg_network"
             name="wg_network"
             defaultValue={settings["wg_network"]}
           />
-          <div>/16 network for all sites, each site will get a /24 </div>
-        </fieldset>
+        </FormField>
         <Button type="submit" disabled={isPosting}>
-          save
+          Save
         </Button>
       </form>
     </div>

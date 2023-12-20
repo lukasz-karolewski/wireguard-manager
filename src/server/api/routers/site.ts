@@ -1,11 +1,12 @@
 import "server-only";
 
 import { Prisma } from "@prisma/client";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { z } from "zod";
 import { TrpcContext, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { generateAddress, serverConfigToNativeWireguard } from "~/server/utils/common";
+import { generateCIDR, generateWgServerConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 import { emptyToNull } from "~/utils";
 
@@ -91,7 +92,7 @@ export const siteRouter = createTRPCRouter({
       return {
         ...site,
         isDefault: site.id === defaultSiteId,
-        assignedNetwork: generateAddress(wg_network?.value ?? "", site.id, 0, "24"),
+        assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
       };
     });
 
@@ -199,26 +200,35 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { site, config } = await getSiteConfig(ctx, input);
+      const { site, config, hash } = await getSiteConfig(ctx, input);
 
       const configDir = path.dirname(site.ConfigPath);
       await fs.promises.mkdir(configDir, { recursive: true });
 
       //check if contents of config file are the same as the new config
-      const oldConfig = fs.existsSync(site.ConfigPath)
+      const currentConfig = fs.existsSync(site.ConfigPath)
         ? await fs.promises.readFile(site.ConfigPath, "utf8")
         : null;
 
-      if (oldConfig === config) {
+      if (config === currentConfig) {
         return "no_changes";
       }
 
       // Backup old config if exists
-      if (oldConfig) {
+      if (currentConfig) {
         await fs.promises.copyFile(site.ConfigPath, `${site.ConfigPath}.bak`);
       }
 
-      // write new config with correct permissions
+      // save new config to db for future reference
+      await ctx.db.siteVersion.create({
+        data: {
+          hash: hash,
+          SiteId: site.id,
+          data: config,
+        },
+      });
+
+      // write new config to disk with correct permissions
       await fs.promises.writeFile(site.ConfigPath, config, { encoding: "utf8", mode: 0o600 });
 
       return "written";
@@ -250,6 +260,13 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   });
 
   const clients = await ctx.db.client.findMany({ where: { enabled: true } });
-  const config = serverConfigToNativeWireguard(settings, site, otherSites, clients);
-  return { site, config };
+
+  const config = generateWgServerConfig(settings, site, otherSites, clients);
+  const hash = compute_hash(config);
+
+  return { site, config, hash };
+}
+
+function compute_hash(str: string) {
+  return crypto.createHash("sha256").update(str).digest("hex");
 }

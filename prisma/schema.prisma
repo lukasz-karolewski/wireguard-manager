@@ -70,21 +70,30 @@ model Settings {
 }
 
 model Site {
-  id              Int      @id
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id              Int           @id
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   name            String
   endpointAddress String
   DNS             String?
   PiholeDNS       String?
-  ConfigPath      String   @default("/etc/wireguard/wg0.conf")
+  ConfigPath      String        @default("/etc/wireguard/wg0.conf")
   PrivateKey      String?
   PublicKey       String
   localAddresses  String
   postUp          String?
   postDown        String?
-  listenPort      Int      @default(51820)
+  listenPort      Int           @default(51820)
   User            User[]
+  SiteVersion     SiteVersion[]
+}
+
+model SiteVersion {
+  hash      String   @id @unique
+  SiteId    Int
+  Site      Site     @relation(fields: [SiteId], references: [id])
+  createdAt DateTime @default(now())
+  data      String
 }
 
 model Client {

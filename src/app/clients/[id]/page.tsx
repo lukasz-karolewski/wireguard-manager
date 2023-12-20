@@ -131,7 +131,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
 
   return (
     <>
-      <PageHeader title={`Clients > ${data?.client.name}`}>
+      <PageHeader title={`${data?.client.name}`} parent="Clients" parentHref="/">
         {data?.client.enabled && (
           <>
             <Button

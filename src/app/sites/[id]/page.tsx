@@ -20,6 +20,24 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
     id: +params.id,
   });
 
+  const { mutate: writeConfig, isLoading: isPosting } = api.site.writeSiteConfigToDisk.useMutation(
+    {
+      onSuccess: (ret) => {
+        switch (ret) {
+          case "no_changes":
+            toast.success("Config is identical, no changes were made");
+            break;
+          case "written":
+            toast.success("Config written");
+            break;
+        }
+      },
+      onError: (err) => {
+        toast.error(err.message);
+      },
+    },
+  );
+
   const { mutate: removeSite } = api.site.remove.useMutation({
     onSuccess: () => {
       toast.success("Deleted");
@@ -54,7 +72,18 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
 
   return (
     <>
-      <PageHeader title={`Sites > ${data?.site.name}`}>
+      <PageHeader title={`${data?.site.name}`} parent="Sites" parentHref={"/sites"}>
+        {data?.site.isDefault && (
+          <Button
+            variant="ghost"
+            disabled={isPosting}
+            onClick={() => {
+              writeConfig({ id: data?.site.id });
+            }}
+          >
+            Write config
+          </Button>
+        )}
         <Button
           variant={"ghost"}
           onClick={() => {
