@@ -9,7 +9,7 @@
     "debug": "NODE_OPTIONS='--inspect' next",
     "analyze": "ANALYZE=true npm run-script build",
     "build": "next build",
-    "start": "prisma migrate deploy && next start",
+    "start": "prisma migrate deploy && node server.js",
     "lint": "eslint './**/*.{js,jsx}'",
     "lint.fix": "eslint --fix './**/*.{js,jsx}'",
     "lint.config": "eslint --print-config ./pages/index.jsx",

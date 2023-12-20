@@ -54,4 +54,4 @@ WORKDIR /app
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 
-CMD ["node", "server.js"]
+CMD [ "npm", "run", "start"]
