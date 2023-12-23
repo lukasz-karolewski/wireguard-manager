@@ -41,13 +41,19 @@ export function generateWgServerConfig(
   const interfaceSection = [
     `
     [Interface]
-    Address = ${assignSiteCIRD(wg_network, site.id)}
-    ListenPort = 51820
     PrivateKey = ${site.PrivateKey}
+    Address = ${assignSiteCIRD(wg_network, site.id)}
+    ListenPort = ${site.listenPort}
     `,
   ];
-  if (site.postUp) interfaceSection.push(`PostUp = ${site.postUp}`);
-  if (site.postDown) interfaceSection.push(`PostDown = ${site.postDown}`);
+  if (site.postUp) {
+    const postUpLines = site.postUp.split("\n").filter((l) => l.trim());
+    interfaceSection.push(...postUpLines.map((line) => `PostUp = ${line}`));
+  }
+  if (site.postDown) {
+    const postDownLines = site.postDown.split("\n").filter((l) => l.trim());
+    interfaceSection.push(...postDownLines.map((line) => `PostDown = ${line}`));
+  }
   config.push(trimSection(interfaceSection));
 
   otherSites.length &&

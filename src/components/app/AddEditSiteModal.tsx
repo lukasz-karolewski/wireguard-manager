@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 import Modal from "../ui/modal";
+import { Textarea } from "../ui/textarea";
 
 interface Props {
   site?: RouterInputs["site"]["update"];
@@ -128,12 +129,12 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 />
               </FormField>
 
-              <FormField label="Post Up script">
-                <Input {...register("postUp", { required: false })} />
+              <FormField label="Post Up script" help="Each line will be separate PostUp command">
+                <Textarea {...register("postUp", { required: false })} />
               </FormField>
 
-              <FormField label="Post Down script">
-                <Input {...register("postDown", { required: false })} />
+              <FormField label="Post Down script" help="Each line will be separate PostUp command">
+                <Textarea {...register("postDown", { required: false })} />
               </FormField>
             </div>
           </div>
