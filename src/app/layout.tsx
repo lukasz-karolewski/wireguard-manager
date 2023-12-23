@@ -22,7 +22,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-dvh flex-col">
         <TRPCReactProvider cookies={cookies().toString()}>
           <NiceModalProviderWrapper>
             <TopNav />

@@ -24,7 +24,7 @@ const UserButtons: React.FC = async () => {
             <img
               src={session.user.image}
               alt="avatar"
-              className="hidden w-9 rounded-full ring-2 ring-white lg:block "
+              className="hidden size-9 rounded-full ring-2 ring-white lg:block "
             />
           )}
           <SignOut variant={"secondary"} />
