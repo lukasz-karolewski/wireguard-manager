@@ -24,7 +24,7 @@ export default function SiteListPage() {
         <Button onClick={showAddSiteModal}>Add</Button>
       </PageHeader>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {sites
           ?.sort((a, b) => (a.isDefault ? -1 : 1))
           .map((site) => {

@@ -87,6 +87,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         )}
         <Button
           variant={"ghost"}
+          className="hidden md:block"
           onClick={() => {
             //set data!.config to clipboard
             navigator.clipboard.writeText(data!.config);
@@ -111,6 +112,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         {!data?.site.isDefault && (
           <Button
             variant={"ghost"}
+            className="hidden md:block"
             onClick={() => {
               setAsDefault({ id: data!.site.id });
               refetch();
@@ -119,11 +121,11 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
             Mark As Default
           </Button>
         )}
-        <Button variant={"destructive"} onClick={onRemove}>
+        <Button variant={"destructive"} onClick={onRemove} className="hidden md:block">
           Remove
         </Button>
       </PageHeader>
-      <pre className="bg-slate-200 p-4">{data?.config}</pre>
+      <pre className="overflow-auto bg-slate-200 p-4">{data?.config}</pre>
     </>
   );
 };
