@@ -97,6 +97,78 @@ export function generateWgServerConfig(
     .trim();
 }
 
+export function generateWgServerConfigEdgeRouter(
+  settings: Settings[],
+  site: Site,
+  otherSites: Site[],
+  clients: Client[],
+): string {
+  const wg_network = settings.find((s) => s.name === "wg_network")!.value;
+
+  if (!site.PrivateKey) {
+    return "There's no private key for this site.";
+  }
+
+  const config: string[] = [];
+
+  const interfaceSection = [
+    `
+    address = ${assignSiteCIRD(wg_network, site.id)}
+    listen-port = ${site.listenPort}
+    mtu = 1420
+    private-key /config/wireguard/wg.key
+    route-allowed-ips true
+    `,
+  ];
+  // if (site.postUp) {
+  //   const postUpLines = site.postUp.split("\n").filter((l) => l.trim());
+  //   interfaceSection.push(...postUpLines.map((line) => `PostUp = ${line}`));
+  // }
+  // if (site.postDown) {
+  //   const postDownLines = site.postDown.split("\n").filter((l) => l.trim());
+  //   interfaceSection.push(...postDownLines.map((line) => `PostDown = ${line}`));
+  // }
+  config.push(trimSection(interfaceSection));
+
+  otherSites.length &&
+    config.push(
+      `${otherSites
+        .map((s) => {
+          return `peer ${s.PublicKey} {
+                    description ${s.name}      
+                    endpoint ${s.endpointAddress}
+                     ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
+                       .filter((v) => v)
+                       .map((v) => "allowed-ips " + v)
+                       .join("\n ")}
+                    }
+                  `;
+        })
+        .join("\n")}
+      `,
+    );
+
+  clients.length &&
+    config.push(
+      `${clients
+        .map((c) => {
+          return `peer ${c.PublicKey} {
+                  description ${c.name}
+                  allowed-ips ${assignSiteClientCIDR(wg_network, site.id, c.id)}
+          }`;
+        })
+        .join("\n")}
+      `,
+    );
+
+  return config
+    .join("\n\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .trim();
+}
+
 function trimSection(section: string[]) {
   return section
     .map((chunk) =>
