@@ -1,13 +1,18 @@
 import "server-only";
 
 import { Prisma } from "@prisma/client";
-import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { z } from "zod";
 import { TrpcContext, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { generateCIDR, generateWgServerConfig } from "~/server/utils/common";
+import {
+  compute_hash,
+  generateCIDR,
+  generateWgServerConfig,
+  generateWgServerConfigEdgeRouter,
+} from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
+import { ActionType, SiteType } from "~/server/utils/types";
 import { emptyToNull } from "~/utils";
 
 export const siteRouter = createTRPCRouter({
@@ -27,12 +32,13 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
 
+        type: z.enum([SiteType.NATIVE, SiteType.EDGEROUTER]).optional(),
         config_path: z.string().optional(),
         markAsDefault: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      let private_key = null;
+      let private_key: string | null = null;
       let public_key = "";
 
       if (input.private_key) {
@@ -45,17 +51,17 @@ export const siteRouter = createTRPCRouter({
         public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
       }
 
-      const createdSite = await ctx.db.$transaction([
-        ctx.db.site.create({
+      return ctx.db.$transaction(async (tx) => {
+        const createdSite = await tx.site.create({
           data: {
             id: input.id,
             name: input.name,
             endpointAddress: input.endpointAddress,
             DNS: input.dns,
-            PiholeDNS: input.dns_pihole,
-            ConfigPath: input.config_path,
-            PrivateKey: private_key,
-            PublicKey: public_key,
+            piholeDNS: input.dns_pihole,
+            configPath: input.config_path,
+            privateKey: private_key,
+            publicKey: public_key,
             localAddresses:
               input.localAddresses
                 ?.split(",")
@@ -65,19 +71,29 @@ export const siteRouter = createTRPCRouter({
             postUp: input.postUp,
             postDown: input.postDown,
           },
-        }),
-      ]);
+        });
 
-      if (input.markAsDefault) {
-        await ctx.db.$transaction([
-          ctx.db.user.update({
+        if (input.markAsDefault) {
+          tx.user.update({
             where: { id: ctx.session.user.id },
-            data: { defaultSiteId: createdSite[0].id },
-          }),
-        ]);
-      }
+            data: { defaultSiteId: createdSite.id },
+          });
+        }
 
-      return createdSite[0];
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.CREATE,
+            changedModel: "site",
+            changedModelId: createdSite.id,
+            createdById: ctx.session.user.id!,
+            data: JSON.stringify({
+              site: createdSite,
+            }),
+          },
+        });
+
+        return createdSite;
+      });
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -106,10 +122,16 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { site, config } = await getSiteConfig(ctx, input);
+      const { site, config, hash } = await getSiteConfig(ctx, input);
       const defaultSiteId = await getDefaultSiteId(ctx);
 
-      return { site: { ...site, isDefault: site.id === defaultSiteId }, config: config };
+      const currentConfig = await getConfigFromDisk(site.configPath);
+      const configChanged = currentConfig ? hash !== compute_hash(currentConfig) : true;
+
+      return {
+        site: { ...site, isDefault: site.id === defaultSiteId, configChanged },
+        config: config,
+      };
     }),
 
   getVersions: protectedProcedure
@@ -123,7 +145,7 @@ export const siteRouter = createTRPCRouter({
         where: { id: input.id },
       });
 
-      const versions = await ctx.db.siteVersion.findMany({
+      const versions = await ctx.db.release.findMany({
         where: { SiteId: input.id },
         orderBy: { createdAt: "desc" },
         include: { createdBy: true },
@@ -149,6 +171,7 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
 
+        type: z.enum([SiteType.NATIVE, SiteType.EDGEROUTER]).optional(),
         config_path: z.string().optional(),
       }),
     )
@@ -159,8 +182,8 @@ export const siteRouter = createTRPCRouter({
         name: input.name,
         endpointAddress: input.endpointAddress,
         DNS: input.dns,
-        PiholeDNS: input.dns_pihole,
-        ConfigPath: input.config_path,
+        piholeDNS: input.dns_pihole,
+        configPath: input.config_path,
         localAddresses:
           input.localAddresses
             ?.split(",")
@@ -169,22 +192,38 @@ export const siteRouter = createTRPCRouter({
         listenPort: input.listenPort,
         postUp: input.postUp,
         postDown: input.postDown,
+        type: input.type,
       };
 
       if (private_key) {
-        data.PrivateKey = private_key;
-        data.PublicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+        data.privateKey = private_key;
+        data.publicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
       } else if (public_key) {
-        data.PrivateKey = "";
-        data.PublicKey = public_key;
+        data.privateKey = "";
+        data.publicKey = public_key;
       } else {
-        data.PrivateKey = await execShellCommand("wg genkey");
-        data.PublicKey = await execShellCommand(`echo "${data.PrivateKey}" | wg pubkey`);
+        data.privateKey = await execShellCommand("wg genkey");
+        data.publicKey = await execShellCommand(`echo "${data.privateKey}" | wg pubkey`);
       }
 
-      return await ctx.db.site.update({
-        where: { id },
-        data,
+      return ctx.db.$transaction(async (tx) => {
+        const updatedSite = await tx.site.update({
+          where: { id },
+          data,
+        });
+
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.UPDATE,
+            changedModel: "site",
+            changedModelId: updatedSite.id,
+            createdById: ctx.session.user.id!,
+            data: JSON.stringify({
+              site: updatedSite,
+            }),
+          },
+        });
+        return updatedSite;
       });
     }),
 
@@ -208,8 +247,19 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.site.delete({
-        where: { id: input.id },
+      return ctx.db.$transaction(async (tx) => {
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.DELETE,
+            changedModel: "site",
+            changedModelId: input.id,
+            createdById: ctx.session.user.id!,
+            data: "",
+          },
+        });
+        return await tx.site.delete({
+          where: { id: input.id },
+        });
       });
     }),
 
@@ -222,13 +272,11 @@ export const siteRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { site, config, hash } = await getSiteConfig(ctx, input);
 
-      const configDir = path.dirname(site.ConfigPath);
+      const configDir = path.dirname(site.configPath);
       await fs.promises.mkdir(configDir, { recursive: true });
 
       //check if contents of config file are the same as the new config
-      const currentConfig = fs.existsSync(site.ConfigPath)
-        ? await fs.promises.readFile(site.ConfigPath, "utf8")
-        : null;
+      const currentConfig = await getConfigFromDisk(site.configPath);
 
       if (config === currentConfig) {
         return "no_changes";
@@ -236,25 +284,29 @@ export const siteRouter = createTRPCRouter({
 
       // Backup old config if exists
       if (currentConfig) {
-        await fs.promises.copyFile(site.ConfigPath, `${site.ConfigPath}.bak`);
+        await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
       }
 
       // save new config to db for future reference
-      await ctx.db.siteVersion.create({
+      await ctx.db.release.create({
         data: {
           hash: hash,
           SiteId: site.id,
           data: config,
-          createdById: ctx.session.user.id,
+          createdById: ctx.session.user.id!,
         },
       });
 
       // write new config to disk with correct permissions
-      await fs.promises.writeFile(site.ConfigPath, config, { encoding: "utf8", mode: 0o600 });
+      await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
 
       return "written";
     }),
 });
+
+async function getConfigFromDisk(configPath: string) {
+  return fs.existsSync(configPath) ? await fs.promises.readFile(configPath, "utf8") : null;
+}
 
 async function getDefaultSiteId(ctx: TrpcContext) {
   const user = await ctx.db.user.findFirst({
@@ -282,12 +334,11 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
 
   const clients = await ctx.db.client.findMany({ where: { enabled: true } });
 
-  const config = generateWgServerConfig(settings, site, otherSites, clients);
+  const configBuilder =
+    site.type == SiteType.NATIVE ? generateWgServerConfig : generateWgServerConfigEdgeRouter;
+
+  const config = configBuilder(settings, site, otherSites, clients);
   const hash = compute_hash(config);
 
   return { site, config, hash };
-}
-
-function compute_hash(str: string) {
-  return crypto.createHash("sha256").update(str).digest("hex");
 }

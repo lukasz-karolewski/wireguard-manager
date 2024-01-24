@@ -1,3 +1,14 @@
+export enum SiteType {
+  NATIVE = "native",
+  EDGEROUTER = "edgerouter",
+}
+
+export enum ActionType {
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+}
+
 export enum ClientConfigType {
   allTraffic = "allTraffic",
   allTrafficDNS = "allTrafficDNS",
@@ -23,24 +34,4 @@ export function clientConfigToString(type: ClientConfigType): string {
     case ClientConfigType.localOnlyPiholeDNS:
       return "local only, pihole";
   }
-}
-
-export interface WgInterface {
-  Address: string;
-  ListenPort: number;
-  MTU?: number;
-  DNS?: string;
-
-  PrivateKey: string;
-
-  PreUp?: string[];
-  PreDown?: string[];
-  PostUp?: string[];
-  PostDown?: string[];
-}
-
-export interface WgPeer {
-  PublicKey: string;
-  AllowedIPs: string;
-  Endpoint: string;
 }

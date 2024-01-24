@@ -1,4 +1,5 @@
 import { Client, Settings, Site } from "@prisma/client";
+import crypto from "crypto";
 import { ClientConfigType } from "./types";
 
 export function generateCIDR(
@@ -23,7 +24,7 @@ export function generateWgServerConfig(
 ): string {
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
 
-  if (!site.PrivateKey) {
+  if (!site.privateKey) {
     return "There's no private key for this site.";
   }
 
@@ -41,7 +42,7 @@ export function generateWgServerConfig(
   const interfaceSection = [
     `
     [Interface]
-    PrivateKey = ${site.PrivateKey}
+    PrivateKey = ${site.privateKey}
     Address = ${assignSiteCIRD(wg_network, site.id)}
     ListenPort = ${site.listenPort}
     `,
@@ -63,7 +64,7 @@ export function generateWgServerConfig(
         .map((s) => {
           return `[Peer]
                   # site: ${s.name}
-                  PublicKey = ${s.PublicKey}
+                  PublicKey = ${s.publicKey}
                   Endpoint = ${s.endpointAddress}
                   AllowedIPs = ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
                     .filter((v) => v)
@@ -81,7 +82,7 @@ export function generateWgServerConfig(
         .map((c) => {
           return `[Peer]
                   # ${c.name}
-                  PublicKey = ${c.PublicKey}
+                  PublicKey = ${c.publicKey}
                   AllowedIPs = ${assignSiteClientCIDR(wg_network, site.id, c.id)}
                   `;
         })
@@ -105,7 +106,7 @@ export function generateWgServerConfigEdgeRouter(
 ): string {
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
 
-  if (!site.PrivateKey) {
+  if (!site.privateKey) {
     return "There's no private key for this site.";
   }
 
@@ -134,7 +135,7 @@ export function generateWgServerConfigEdgeRouter(
     config.push(
       `${otherSites
         .map((s) => {
-          return `peer ${s.PublicKey} {
+          return `peer ${s.publicKey} {
                     description ${s.name}      
                     endpoint ${s.endpointAddress}
                      ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
@@ -152,7 +153,7 @@ export function generateWgServerConfigEdgeRouter(
     config.push(
       `${clients
         .map((c) => {
-          return `peer ${c.PublicKey} {
+          return `peer ${c.publicKey} {
                   description ${c.name}
                   allowed-ips ${assignSiteClientCIDR(wg_network, site.id, c.id)}
           }`;
@@ -211,18 +212,18 @@ export function generateClientConfig(
     type === ClientConfigType.localOnlyPiholeDNS ||
     type === ClientConfigType.allTrafficPiholeDNS
   ) {
-    DNS = site.PiholeDNS ?? "";
+    DNS = site.piholeDNS ?? "";
   }
 
   let config = `
     [Interface]
     Address = ${assignClientCIDR(wg_network, site.id, client.id)}
-    PrivateKey = ${client.PrivateKey}
+    PrivateKey = ${client.privateKey}
     ${DNS ? `DNS = ${DNS}` : ""}
 
     [Peer]
     Endpoint = ${site.endpointAddress}
-    PublicKey = ${site.PublicKey}
+    PublicKey = ${site.publicKey}
     AllowedIPs = ${
       type == ClientConfigType.localOnly ||
       type == ClientConfigType.localOnlyDNS ||
@@ -234,4 +235,8 @@ export function generateClientConfig(
 
   config = config.replace(/^\s+/gm, ""); // Remove leading whitespace
   return config;
+}
+
+export function compute_hash(str: string) {
+  return crypto.createHash("sha256").update(str).digest("hex");
 }

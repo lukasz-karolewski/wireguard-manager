@@ -5,12 +5,14 @@ import { RouterInputs } from "~/trpc/shared";
 
 import { Site } from "@prisma/client";
 import toast from "react-hot-toast";
+import { SiteType } from "~/server/utils/types";
 import { api } from "~/trpc/react";
 import { zodErrorsToString } from "~/utils";
 import { Button } from "../ui/button";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 import Modal from "../ui/modal";
+import { Select } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 interface Props {
@@ -26,13 +28,14 @@ export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
     endpointAddress: site.endpointAddress ?? undefined,
     localAddresses: site.localAddresses ?? undefined,
     dns: site.DNS ?? undefined,
-    dns_pihole: site.PiholeDNS ?? undefined,
-    config_path: site.ConfigPath ?? undefined,
+    dns_pihole: site.piholeDNS ?? undefined,
+    config_path: site.configPath ?? undefined,
     listenPort: site.listenPort ?? undefined,
     postUp: site.postUp ?? undefined,
     postDown: site.postDown ?? undefined,
-    private_key: site.PrivateKey ?? undefined,
-    public_key: site.PublicKey ?? undefined,
+    private_key: site.privateKey ?? undefined,
+    public_key: site.publicKey ?? undefined,
+    type: site.type as SiteType,
   };
 }
 
@@ -166,6 +169,16 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
           <div className="border border-gray-300">
             <h3 className="bg-accent p-4 text-white">App options</h3>
             <div className="p-4">
+              <FormField
+                label="Server Type"
+                help={`native wireguard config or EdgeRouter config file format`}
+              >
+                <Select {...register("type", { required: false })}>
+                  <option value={SiteType.NATIVE}>Native</option>
+                  <option value={SiteType.EDGEROUTER}>EdgeRouter</option>
+                </Select>
+              </FormField>
+
               <FormField label="Config Path">
                 <Input {...register("config_path", { required: false })} />
               </FormField>

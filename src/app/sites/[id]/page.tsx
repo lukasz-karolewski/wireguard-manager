@@ -77,7 +77,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         {data?.site.isDefault && (
           <Button
             variant="ghost"
-            disabled={isPosting}
+            disabled={data?.site.configChanged == false}
             onClick={() => {
               writeConfig({ id: data?.site.id });
             }}

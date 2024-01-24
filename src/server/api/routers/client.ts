@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateClientConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
-import { ClientConfigType } from "~/server/utils/types";
+import { ActionType, ClientConfigType } from "~/server/utils/types";
 import { emptyToNull } from "~/utils";
 
 export const clientRouter = createTRPCRouter({
@@ -21,14 +21,29 @@ export const clientRouter = createTRPCRouter({
       const private_key = input.private_key ?? (await execShellCommand("wg genkey"));
       const public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
 
-      return await ctx.db.client.create({
-        data: {
-          name: input.name,
-          email: input.email,
-          PrivateKey: private_key,
-          PublicKey: public_key,
-          createdById: ctx.session.user.id,
-        },
+      return ctx.db.$transaction(async (tx) => {
+        const newClient = await tx.client.create({
+          data: {
+            name: input.name,
+            email: input.email,
+            privateKey: private_key,
+            publicKey: public_key,
+            createdById: ctx.session.user.id!,
+          },
+        });
+
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.CREATE,
+            changedModel: "client",
+            changedModelId: newClient.id,
+            createdById: ctx.session.user.id!,
+            data: JSON.stringify({
+              site: newClient,
+            }),
+          },
+        });
+        return newClient;
       });
     }),
 
@@ -86,7 +101,7 @@ export const clientRouter = createTRPCRouter({
               !site.DNS) ||
             ((type === ClientConfigType.localOnlyPiholeDNS ||
               type === ClientConfigType.allTrafficPiholeDNS) &&
-              !site.PiholeDNS)
+              !site.piholeDNS)
           ) {
             return;
           }
@@ -122,13 +137,29 @@ export const clientRouter = createTRPCRouter({
       };
 
       if (private_key) {
-        data.PrivateKey = private_key;
-        data.PublicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+        data.privateKey = private_key;
+        data.publicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
       }
 
-      return await ctx.db.client.update({
-        where: { id },
-        data,
+      return ctx.db.$transaction(async (tx) => {
+        const updatedClient = await tx.client.update({
+          where: { id },
+          data,
+        });
+
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.UPDATE,
+            changedModel: "client",
+            changedModelId: updatedClient.id,
+            createdById: ctx.session.user.id!,
+            data: JSON.stringify({
+              site: updatedClient,
+            }),
+          },
+        });
+
+        return updatedClient;
       });
     }),
   disable: protectedProcedure
@@ -162,8 +193,20 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.client.delete({
-        where: { id: input.id },
+      return ctx.db.$transaction(async (tx) => {
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.DELETE,
+            changedModel: "client",
+            changedModelId: input.id,
+            createdById: ctx.session.user.id!,
+            data: "",
+          },
+        });
+
+        return await tx.client.delete({
+          where: { id: input.id },
+        });
       });
     }),
 });

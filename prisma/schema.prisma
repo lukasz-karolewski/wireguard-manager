@@ -10,12 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// current provider is sqlite, and enums are not supported
-// enum SettingsName {
-//   wg_network
-//   mode: "native_wg" | "edgerouter";
-// }
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -44,17 +38,18 @@ model Session {
 }
 
 model User {
-  id            String        @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String?       @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   defaultSiteId Int?
-  defaultSite   Site?         @relation(fields: [defaultSiteId], references: [id])
+  defaultSite   Site?      @relation(fields: [defaultSiteId], references: [id])
   Client        Client[]
-  SiteVersion   SiteVersion[]
+  Release       Release[]
+  AuditLog      AuditLog[]
 }
 
 model VerificationToken {
@@ -71,32 +66,27 @@ model Settings {
 }
 
 model Site {
-  id              Int           @id
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  name            String
-  endpointAddress String
-  DNS             String?
-  PiholeDNS       String?
-  ConfigPath      String        @default("/etc/wireguard/wg0.conf")
-  PrivateKey      String?
-  PublicKey       String
-  localAddresses  String
-  postUp          String?
-  postDown        String?
-  listenPort      Int           @default(51820)
-  User            User[]
-  SiteVersion     SiteVersion[]
-}
+  id        Int      @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
 
-model SiteVersion {
-  hash        String   @id @unique
-  SiteId      Int
-  Site        Site     @relation(fields: [SiteId], references: [id])
-  createdAt   DateTime @default(now())
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  data        String
+  listenPort      Int     @default(51820)
+  privateKey      String?
+  publicKey       String
+  endpointAddress String
+
+  DNS            String?
+  piholeDNS      String?
+  localAddresses String
+  postUp         String?
+  postDown       String?
+
+  configPath String @default("/etc/wireguard/wg0.conf")
+  type       String @default("native")
+
+  User    User[]
+  Release Release[]
 }
 
 model Client {
@@ -106,8 +96,29 @@ model Client {
   enabled     Boolean  @default(true)
   name        String
   email       String?
-  PublicKey   String
-  PrivateKey  String
+  publicKey   String
+  privateKey  String
   createdById String
   createdBy   User     @relation(fields: [createdById], references: [id])
+}
+
+model Release {
+  hash        String   @id @unique
+  SiteId      Int
+  Site        Site     @relation(fields: [SiteId], references: [id])
+  createdAt   DateTime @default(now())
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  data        String
+}
+
+model AuditLog {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  createdById    String
+  createdBy      User     @relation(fields: [createdById], references: [id])
+  actionType     String
+  changedModel   String
+  changedModelId Int
+  data           String
 }
