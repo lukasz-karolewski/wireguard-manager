@@ -25,7 +25,7 @@ const GlobalSettingsPage: React.FC = () => {
   if (!settings) return <>loading</>;
 
   return (
-    <div>
+    <>
       <PageHeader title={`Global settings`}></PageHeader>
       <form
         action={(formData: FormData) => {
@@ -48,7 +48,7 @@ const GlobalSettingsPage: React.FC = () => {
           Save
         </Button>
       </form>
-    </div>
+    </>
   );
 };
 

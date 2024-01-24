@@ -53,6 +53,7 @@ const ClientListPage: FC<ClientListPageParams> = () => {
             defaultValue={searchParams?.get("search") ?? ""}
           />
         </form>
+        <div className="mx-4 h-full border-l border-gray-300"></div>
         <Button onClick={showAddClientModal}>Add</Button>
       </PageHeader>
 
