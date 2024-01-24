@@ -189,12 +189,14 @@ function assignSiteCIRD(wg_network: string, site_id: number) {
 
 function assignSiteClientCIDR(wg_network: string, site_id: number, client_id: number) {
   // allow only traffic coming directly from the client
-  return generateCIDR(wg_network, site_id, client_id, "32");
+  // adding 1, because autoincrement starts at 1, which is the site itself
+  return generateCIDR(wg_network, site_id, client_id + 1, "32");
 }
 
 function assignClientCIDR(wg_network: string, site_id: number, client_id: number) {
   // client can talk to all other clients in the wg_network
-  return generateCIDR(wg_network, site_id, client_id);
+  // adding 1, because autoincrement starts at 1, which is the site itself
+  return generateCIDR(wg_network, site_id, client_id + 1);
 }
 
 export function generateClientConfig(
