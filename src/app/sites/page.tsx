@@ -9,9 +9,9 @@ import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
 export default function SiteListPage() {
-  const { data: sites, isLoading, refetch } = api.site.getAll.useQuery();
+  const { data: sites, isPending, refetch } = api.site.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isPending) return <div>Loading...</div>;
 
   async function showAddSiteModal() {
     await NiceModal.show(AddEditSiteModal);

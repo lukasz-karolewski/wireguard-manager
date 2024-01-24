@@ -10,7 +10,7 @@ import { api } from "~/trpc/react";
 const GlobalSettingsPage: React.FC = () => {
   const { data: settings, refetch } = api.settings.getAllSettings.useQuery();
 
-  const { mutate, isLoading: isPosting } = api.settings.set_wg_network.useMutation({
+  const { mutate, isPending: isPosting } = api.settings.set_wg_network.useMutation({
     onSuccess: (data) => {
       refetch();
       toast.success("saved");

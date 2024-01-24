@@ -21,7 +21,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
     id: +params.id,
   });
 
-  const { mutate: writeConfig, isLoading: isPosting } = api.site.writeSiteConfigToDisk.useMutation(
+  const { mutate: writeConfig, isPending: isPosting } = api.site.writeSiteConfigToDisk.useMutation(
     {
       onSuccess: (ret) => {
         switch (ret) {
@@ -77,7 +77,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
         {data?.site.isDefault && (
           <Button
             variant="ghost"
-            disabled={data?.site.configChanged == false}
+            disabled={isPosting || data?.site.configChanged == false}
             onClick={() => {
               writeConfig({ id: data?.site.id });
             }}
