@@ -73,16 +73,19 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
-          <FormField label="Name">
+          <FormField
+            label="Name"
+            help="Recommending <username>-<device type> i.e. john-iphone, but can be anything"
+          >
             <Input type="text" {...register("name", { required: true })} />
           </FormField>
-          <FormField label="Email">
+          {/* <FormField label="Email">
             <>
               <Input type="email" {...register("email", { required: false })} />
               {errors.email && <span>{errors.email.message}</span>}
             </>
-          </FormField>
-          <FormField label="Private key" className="bg-red-300 p-4">
+          </FormField> */}
+          <FormField label="Private key">
             <>
               <Input
                 placeholder="optional, leave empty to autogenerate"
