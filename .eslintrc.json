@@ -5,13 +5,13 @@
     "es2021": true,
     "node": true
   },
+  "plugins": ["prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
+    "next/core-web-vitals",
     "plugin:tailwindcss/recommended",
-    "plugin:prettier/recommended",
-    "next"
+    "prettier"
   ],
   "rules": {
     "import/prefer-default-export": 0,
