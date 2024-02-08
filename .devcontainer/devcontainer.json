@@ -7,27 +7,28 @@
     // Update 'VARIANT' to pick an Ubuntu version: jammy / ubuntu-22.04, focal / ubuntu-20.04, bionic /ubuntu-18.04
     // Use ubuntu-22.04 or ubuntu-18.04 on local arm64/Apple Silicon.
     "args": {
-      "VARIANT": "ubuntu-22.04"
-    }
+      "VARIANT": "ubuntu-22.04",
+    },
   },
   "runArgs": [
     // mount docker socket to allow docker builds inside the container
     "-v",
-    "/var/run/docker.sock:/var/run/docker.sock"
+    "/var/run/docker.sock:/var/run/docker.sock",
   ],
   // Add the IDs of extensions you want installed when the container is created.
   "customizations": {
     "vscode": {
       "extensions": [
-        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "mhutchie.git-graph",
         "GitHub.copilot",
         "GitHub.copilot-chat",
         "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
         "dbaeumer.vscode-eslint",
-        "mhutchie.git-graph",
-        "Prisma.prisma"
-      ]
-    }
+      ],
+    },
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
@@ -38,6 +39,6 @@
   "remoteUser": "vscode",
   "features": {
     "git": "latest",
-    "node": "latest"
-  }
+    "node": "latest",
+  },
 }
