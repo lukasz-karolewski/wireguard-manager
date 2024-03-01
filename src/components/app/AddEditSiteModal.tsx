@@ -176,6 +176,7 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 <Select {...register("type", { required: false })}>
                   <option value={SiteType.NATIVE}>Native</option>
                   <option value={SiteType.EDGEROUTER}>EdgeRouter</option>
+                  <option value={SiteType.EDGEROUTER_CONFIGURE}>EdgeRouter configure</option>
                 </Select>
               </FormField>
 

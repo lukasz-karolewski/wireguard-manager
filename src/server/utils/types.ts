@@ -1,6 +1,7 @@
 export enum SiteType {
   NATIVE = "native",
   EDGEROUTER = "edgerouter",
+  EDGEROUTER_CONFIGURE = "EDGEROUTER_CONFIGURE",
 }
 
 export enum ActionType {

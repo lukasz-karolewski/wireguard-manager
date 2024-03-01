@@ -9,6 +9,7 @@ import {
   compute_hash,
   generateCIDR,
   generateWgServerConfig,
+  generateWgServerConfigCommandsEdgeRouter,
   generateWgServerConfigEdgeRouter,
 } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
@@ -32,7 +33,9 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
 
-        type: z.enum([SiteType.NATIVE, SiteType.EDGEROUTER]).optional(),
+        type: z
+          .enum([SiteType.NATIVE, SiteType.EDGEROUTER, SiteType.EDGEROUTER_CONFIGURE])
+          .optional(),
         config_path: z.string().optional(),
         markAsDefault: z.boolean().optional(),
       }),
@@ -171,7 +174,9 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
 
-        type: z.enum([SiteType.NATIVE, SiteType.EDGEROUTER]).optional(),
+        type: z
+          .enum([SiteType.NATIVE, SiteType.EDGEROUTER, SiteType.EDGEROUTER_CONFIGURE])
+          .optional(),
         config_path: z.string().optional(),
       }),
     )
@@ -317,6 +322,19 @@ async function getDefaultSiteId(ctx: TrpcContext) {
   return user?.defaultSiteId;
 }
 
+const mapping = (type: SiteType) => {
+  switch (type) {
+    case SiteType.NATIVE:
+      return generateWgServerConfig;
+    case SiteType.EDGEROUTER:
+      return generateWgServerConfigCommandsEdgeRouter;
+    case SiteType.EDGEROUTER_CONFIGURE:
+      return generateWgServerConfigEdgeRouter;
+    default:
+      throw new Error("Invalid site type");
+  }
+};
+
 async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   const settings = await ctx.db.settings.findMany();
 
@@ -334,8 +352,7 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
 
   const clients = await ctx.db.client.findMany({ where: { enabled: true } });
 
-  const configBuilder =
-    site.type == SiteType.NATIVE ? generateWgServerConfig : generateWgServerConfigEdgeRouter;
+  const configBuilder = mapping(site.type as SiteType);
 
   const config = configBuilder(settings, site, otherSites, clients);
   const hash = compute_hash(config);
