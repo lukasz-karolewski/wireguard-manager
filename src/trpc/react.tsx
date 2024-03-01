@@ -16,7 +16,6 @@ export function TRPCReactProvider(props: { children: React.ReactNode; cookies: s
 
   const [trpcClient] = useState(() =>
     api.createClient({
-      transformer,
       links: [
         loggerLink({
           enabled: (op) =>
@@ -24,6 +23,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode; cookies: s
             (op.direction === "down" && op.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({
+          transformer,
           url: getUrl(),
           headers() {
             return {
