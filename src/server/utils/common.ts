@@ -138,7 +138,8 @@ export function generateWgServerConfigCommandsEdgeRouter(
           return `peer ${s.publicKey} {
                     description ${s.name}      
                     endpoint ${s.endpointAddress}
-                     ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
+                     ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses.split(",")]
+                       .flat()
                        .filter((v) => v)
                        .map((v) => "allowed-ips " + v)
                        .join("\n ")}
