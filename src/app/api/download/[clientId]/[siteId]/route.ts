@@ -22,7 +22,7 @@ export async function POST(
 
   configsForRequestedSite.configs.forEach((config) => {
     archive.append(Buffer.from(config.value, "utf-8"), {
-      name: `${configsForRequestedSite.site.name}-${clientConfigToString(config.type)}.conf`,
+      name: `${configsForRequestedSite.site.name}-${clientConfigToString(config.type).replaceAll(" ", "_")}.conf`,
     });
   });
 
@@ -33,7 +33,7 @@ export async function POST(
   const headers = new Headers();
   headers.append(
     "Content-Disposition",
-    `attachment; filename=wg-${configsForRequestedSite.site.name}-${data.client.name}.zip`,
+    `attachment; filename=wg-config_${data.client.name}_at_${configsForRequestedSite.site.name}.zip`,
   );
   headers.append("Content-Type", "application/zip");
 

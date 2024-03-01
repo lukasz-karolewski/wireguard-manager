@@ -114,9 +114,9 @@ export function generateWgServerConfigCommandsEdgeRouter(
 
   const interfaceSection = [
     `
-    address = ${assignSiteCIRD(wg_network, site.id)}
-    listen-port = ${site.listenPort}
-    mtu = 1420
+    address ${assignSiteCIRD(wg_network, site.id)}
+    listen-port ${site.listenPort}
+    mtu 1420
     private-key /config/wireguard/wg.key
     route-allowed-ips true
     `,
@@ -189,11 +189,11 @@ export function generateWgServerConfigEdgeRouter(
     `
     configure
     
-
-    set interfaces wireguard wg0 address = ${assignSiteCIRD(wg_network, site.id)}
-    set interfaces wireguard wg0 listen-port = ${site.listenPort}
+    set interfaces wireguard wg0 address ${assignSiteCIRD(wg_network, site.id)}
     set interfaces wireguard wg0 private-key /config/wireguard/wg.key
     set interfaces wireguard wg0 route-allowed-ips true
+    
+    set interfaces wireguard wg0 listen-port ${site.listenPort}
     set interfaces wireguard wg0 mtu 1420
     `,
   ];
