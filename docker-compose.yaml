@@ -1,4 +1,3 @@
-version: "3"
 services:
   wireguard:
     image: lkarolewski/wg-manager:latest
