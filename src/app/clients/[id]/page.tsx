@@ -183,7 +183,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
                 actions={
                   <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
                     <span className="hidden md:inline">download all configs</span>{" "}
-                    <DocumentArrowDownIcon className="ml-2 h-5 w-5" />
+                    <DocumentArrowDownIcon className="ml-2 size-5" />
                   </Button>
                 }
                 isInitiallyOpen={site.isDefault}
@@ -202,7 +202,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
                                 download(data?.client.name, config.type, config.value)
                               }
                             >
-                              <DocumentArrowDownIcon className="h-5 w-5" />
+                              <DocumentArrowDownIcon className="size-5" />
                             </Button>
                           </div>
                           {show == "config" && <pre>{config.value}</pre>}
