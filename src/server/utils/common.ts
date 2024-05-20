@@ -66,6 +66,7 @@ export function generateWgServerConfig(
                   # site: ${s.name}
                   PublicKey = ${s.publicKey}
                   Endpoint = ${s.endpointAddress}
+                  PersistentKeepalive = 3600
                   AllowedIPs = ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
                     .filter((v) => v)
                     .join(", ")}
