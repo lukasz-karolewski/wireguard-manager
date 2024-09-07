@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; //TODO https://github.com/vercel/next.js/issues/49373
+
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
