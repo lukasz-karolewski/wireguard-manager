@@ -1,7 +1,7 @@
 "use client";
 import clsx from "clsx";
 import { QRCodeSVG } from "qrcode.react";
-import { FC, useState } from "react";
+import { FC, use, useState } from "react";
 import Accordion from "~/components/ui/accordion";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
@@ -15,11 +15,12 @@ import { Button } from "~/components/ui/button";
 import { clientConfigToString, type ClientConfigType } from "~/server/utils/types";
 
 type ClientDetailPageProps = {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-const ClientDetailPage: FC<ClientDetailPageProps> = ({ params }) => {
+const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
+  const params = use(props.params);
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
   const router = useRouter();
 

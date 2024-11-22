@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html>
       <body className="flex min-h-dvh flex-col">
-        <TRPCReactProvider cookies={cookies().toString()}>
+        <TRPCReactProvider cookies={(await cookies()).toString()}>
           <NiceModalProviderWrapper>
             <TopNav />
             <Container className="grow">

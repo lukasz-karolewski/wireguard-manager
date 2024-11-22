@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, use } from "react";
 
 import NiceModal from "@ebay/nice-modal-react";
 import Link from "next/link";
@@ -12,9 +12,10 @@ import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
-type SiteDetailPageProps = { params: { id: string } };
+type SiteDetailPageProps = { params: Promise<{ id: string }> };
 
-const SiteDetailPage: FC<SiteDetailPageProps> = ({ params }) => {
+const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
+  const params = use(props.params);
   const router = useRouter();
 
   const { data, refetch } = api.site.get.useQuery({

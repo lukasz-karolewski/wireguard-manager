@@ -57,7 +57,7 @@ export function generateWgServerConfig(
   }
   config.push(trimSection(interfaceSection));
 
-  otherSites.length &&
+  if (otherSites.length) {
     config.push(
       `### site to site Peers
       ${otherSites
@@ -75,8 +75,9 @@ export function generateWgServerConfig(
         .join("\n")}
       `,
     );
+  }
 
-  clients.length &&
+  if (clients.length) {
     config.push(
       `### Clients
       ${clients
@@ -90,6 +91,7 @@ export function generateWgServerConfig(
         .join("\n")}
       `,
     );
+  }
 
   return config
     .join("\n\n")
@@ -132,7 +134,7 @@ export function generateWgServerConfigCommandsEdgeRouter(
   // }
   config.push(trimSection(interfaceSection));
 
-  otherSites.length &&
+  if (otherSites.length) {
     config.push(
       `${otherSites
         .map((s) => {
@@ -150,8 +152,9 @@ export function generateWgServerConfigCommandsEdgeRouter(
         .join("\n")}
       `,
     );
+  }
 
-  clients.length &&
+  if (clients.length) {
     config.push(
       `${clients
         .map((c) => {
@@ -163,6 +166,7 @@ export function generateWgServerConfigCommandsEdgeRouter(
         .join("\n")}
       `,
     );
+  }
 
   return config
     .join("\n\n")
@@ -208,7 +212,7 @@ export function generateWgServerConfigEdgeRouter(
   // }
   config.push(trimSection(interfaceSection));
 
-  otherSites.length &&
+  if (otherSites.length) {
     config.push(
       `${otherSites
         .map((s) => {
@@ -228,8 +232,9 @@ export function generateWgServerConfigEdgeRouter(
         .join("\n")}
       `,
     );
+  }
 
-  clients.length &&
+  if (clients.length) {
     config.push(
       `${clients
         .map((c) => {
@@ -240,6 +245,7 @@ export function generateWgServerConfigEdgeRouter(
         .join("\n")}
       `,
     );
+  }
 
   config.push("commit");
   config.push("save");

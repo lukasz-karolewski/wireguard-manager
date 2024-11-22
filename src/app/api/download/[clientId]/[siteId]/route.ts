@@ -4,8 +4,9 @@ import { api } from "~/trpc/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: { clientId: string; siteId: string } },
+  props: { params: Promise<{ clientId: string; siteId: string }> }
 ) {
+  const params = await props.params;
   const clientId = Number(params.clientId);
   const siteId = Number(params.siteId);
 

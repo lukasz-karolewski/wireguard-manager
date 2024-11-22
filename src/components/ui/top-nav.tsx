@@ -21,6 +21,7 @@ const UserButtons: React.FC = async () => {
       ) : (
         <div className="inline-flex items-center gap-4">
           {session.user.image && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={session.user.image}
               alt="avatar"

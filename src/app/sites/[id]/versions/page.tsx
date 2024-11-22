@@ -1,15 +1,16 @@
 "use client";
 
-import { FC } from "react";
+import { FC, use } from "react";
 
 import { useRouter } from "next/navigation";
 import Accordion from "~/components/ui/accordion";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
-type SiteDetailPageProps = { params: { id: string } };
+type SiteDetailPageProps = { params: Promise<{ id: string }> };
 
-const SiteConfigVersionsPage: FC<SiteDetailPageProps> = ({ params }) => {
+const SiteConfigVersionsPage: FC<SiteDetailPageProps> = (props) => {
+  const params = use(props.params);
   const router = useRouter();
 
   const { data, refetch } = api.site.getVersions.useQuery({
