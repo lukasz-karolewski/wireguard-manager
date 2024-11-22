@@ -5,7 +5,6 @@ import { RouterInputs } from "~/trpc/shared";
 
 import { Site } from "@prisma/client";
 import toast from "react-hot-toast";
-import { SiteType } from "~/server/utils/types";
 import { api } from "~/trpc/react";
 import { zodErrorsToString } from "~/utils";
 import { Button } from "../ui/button";
@@ -35,7 +34,6 @@ export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
     postDown: site.postDown ?? undefined,
     private_key: site.privateKey ?? undefined,
     public_key: site.publicKey ?? undefined,
-    type: site.type as SiteType,
   };
 }
 
@@ -169,17 +167,6 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
           <div className="border border-gray-300">
             <h3 className="bg-accent p-4 text-white">App options</h3>
             <div className="p-4">
-              <FormField
-                label="Server Type"
-                help={`native wireguard config or EdgeRouter config file format`}
-              >
-                <Select {...register("type", { required: false })}>
-                  <option value={SiteType.NATIVE}>Native</option>
-                  <option value={SiteType.EDGEROUTER}>EdgeRouter</option>
-                  <option value={SiteType.EDGEROUTER_CONFIGURE}>EdgeRouter configure</option>
-                </Select>
-              </FormField>
-
               <FormField label="Config Path">
                 <Input {...register("config_path", { required: false })} />
               </FormField>
