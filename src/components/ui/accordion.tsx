@@ -2,20 +2,22 @@
 
 import React, { useState } from "react";
 
-type AccordionProps = {
-  title: React.ReactNode;
+interface AccordionProps extends React.ComponentPropsWithoutRef<"div"> {
+  header: string;
   actions?: React.ReactNode;
   isInitiallyOpen?: boolean;
   children: React.ReactNode;
-};
+}
 
 import { Transition } from "@headlessui/react";
+import clsx from "clsx";
 
 const Accordion: React.FC<AccordionProps> = ({
-  title,
+  header,
   actions,
   isInitiallyOpen = false,
   children,
+  className,
 }) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
 
@@ -25,9 +27,9 @@ const Accordion: React.FC<AccordionProps> = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between bg-gray-200 px-4 py-2">
+      <div className={clsx("flex items-center justify-between bg-gray-200 px-4 py-2", className)}>
         <button onClick={toggleAccordion} className="">
-          {title}
+          <h2>{header}</h2>
         </button>
         {actions}
       </div>

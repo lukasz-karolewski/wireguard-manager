@@ -1,18 +1,16 @@
 "use client";
-import clsx from "clsx";
-import { QRCodeSVG } from "qrcode.react";
-import { FC, use, useState } from "react";
-import Accordion from "~/components/ui/accordion";
-import PageHeader from "~/components/ui/page-header";
-import { api } from "~/trpc/react";
-
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
+import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { FC, use, useState } from "react";
 import { AddEditClientModal, mapClientForEdit } from "~/components/app/AddEditClientModal";
 import ConfirmModal from "~/components/app/ConfirmModal";
+import WgConfig from "~/components/app/WgConfig";
+import Accordion from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import { clientConfigToString, type ClientConfigType } from "~/server/utils/types";
+import PageHeader from "~/components/ui/page-header";
+import { api } from "~/trpc/react";
 
 type ClientDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -81,16 +79,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
       link.click();
       URL.revokeObjectURL(downloadUrl);
     }
-  }
-
-  function download(device_name: string, variant: ClientConfigType, text: string) {
-    const element = document.createElement("a");
-    element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
-    element.setAttribute("download", `${device_name}-${variant}.conf`);
-    element.style.display = "none";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
   }
 
   function onDisable() {
@@ -176,41 +164,26 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
             return (
               <Accordion
                 key={site.id}
-                title={
-                  <h2>
-                    {site.name} @ {site.endpointAddress}
-                  </h2>
-                }
+                header={`${site.name} @ ${site.endpointAddress}`}
                 actions={
                   <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
-                    <span className="hidden md:inline">download all configs</span>{" "}
+                    <span className="hidden md:inline">download all configs</span>
                     <DocumentArrowDownIcon className="ml-2 size-5" />
                   </Button>
                 }
+                className={clsx({ "bg-green-300": site.isDefault })}
                 isInitiallyOpen={site.isDefault}
               >
-                <div className={clsx("border", { "": site.isDefault })}>
+                <div className={clsx("border")}>
                   <div className="flex flex-wrap justify-around gap-4">
-                    {configs.map((config, index) => {
-                      return (
-                        <div key={index} className="p-8">
-                          <div className="flex items-center justify-between">
-                            <h3>{clientConfigToString(config.type)}</h3>
-                            <Button
-                              variant={"ghost"}
-                              size={"icon"}
-                              onClick={() =>
-                                download(data?.client.name, config.type, config.value)
-                              }
-                            >
-                              <DocumentArrowDownIcon className="size-5" />
-                            </Button>
-                          </div>
-                          {show == "config" && <pre>{config.value}</pre>}
-                          {show == "qr" && <QRCodeSVG value={config.value} size={256} />}
-                        </div>
-                      );
-                    })}
+                    {configs.map((config, index) => (
+                      <WgConfig
+                        key={index}
+                        config={config}
+                        clientName={data?.client.name}
+                        show={show}
+                      />
+                    ))}
                   </div>
                 </div>
               </Accordion>
