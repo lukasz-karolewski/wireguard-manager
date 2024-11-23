@@ -324,7 +324,10 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
     },
   });
 
-  const clients = await ctx.db.client.findMany({ where: { enabled: true } });
+  const clients = await ctx.db.client.findMany({
+    where: { enabled: true },
+    include: { sites: true },
+  });
 
   const config = generateWgServerConfig(settings, site, otherSites, clients);
   const hash = compute_hash(config);

@@ -8,6 +8,7 @@ import Modal from "~/components/ui/modal";
 import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
+import { Checkbox } from "../ui/checkbox";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 
@@ -30,10 +31,13 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
   const isAdd = !client;
 
+  const { data: sites, isPending, refetch } = api.site.getAll.useQuery();
+
   const {
     register,
     handleSubmit,
     formState: { errors, dirtyFields },
+    setValue,
   } = useForm<FormValues>({
     defaultValues: isAdd ? {} : { ...client },
   });
@@ -55,6 +59,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const { mutate: update } = api.client.update.useMutation(options);
 
   const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+    data.siteIds = data.siteIds?.map(Number);
     if (isAdd) {
       return create(data);
     } else {
@@ -93,6 +98,18 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
               />
               {errors.private_key && <span>{errors.private_key.message}</span>}
             </>
+          </FormField>
+        </div>
+        <div className="p-4">
+          <FormField label="Sites">
+            <div className="flex flex-col gap-2">
+              {sites?.map((site) => (
+                <label key={site.id} className="flex items-center gap-2">
+                  <Checkbox {...register("siteIds")} value={site.id} />
+                  {site.name}
+                </label>
+              ))}
+            </div>
           </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">

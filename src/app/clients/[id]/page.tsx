@@ -38,6 +38,16 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
       router.push("/");
     },
   });
+  const { mutate: addToSite } = api.client.addToSite.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+  const { mutate: removeFromSite } = api.client.removeFromSite.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
 
   async function downloadAllConfigsForSite(siteId: number) {
     //make a POST request to the server to download the zip file
@@ -113,9 +123,18 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   async function onEdit() {
     if (!data) return;
     await NiceModal.show(AddEditClientModal, {
-      client: mapClientForEdit(data?.client),
+      client: mapClientForEdit(data.client),
     });
     refetch();
+  }
+
+  function handleSiteToggle(siteId: number, isConnected: boolean) {
+    if (!data) return;
+    if (isConnected) {
+      removeFromSite({ clientId: data.client.id, siteId });
+    } else {
+      addToSite({ clientId: data.client.id, siteId });
+    }
   }
 
   return (
@@ -161,15 +180,21 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
         {data?.configs
           .sort((a, b) => (a.site.isDefault ? -1 : 1))
           .map(({ site, configs }) => {
+            const isConnected = data?.client.sites?.some((s) => s.id === site.id) ?? false;
             return (
               <Accordion
                 key={site.id}
                 header={`${site.name} @ ${site.endpointAddress}`}
                 actions={
-                  <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
-                    <span className="hidden md:inline">download all configs</span>
-                    <DocumentArrowDownIcon className="ml-2 size-5" />
-                  </Button>
+                  <>
+                    <Button variant="ghost" onClick={() => downloadAllConfigsForSite(site.id)}>
+                      <span className="hidden md:inline">download all configs</span>
+                      <DocumentArrowDownIcon className="ml-2 size-5" />
+                    </Button>
+                    <Button variant="ghost" onClick={() => handleSiteToggle(site.id, isConnected)}>
+                      {isConnected ? "Remove from site" : "Add to site"}
+                    </Button>
+                  </>
                 }
                 className={clsx({ "bg-green-300": site.isDefault })}
                 isInitiallyOpen={site.isDefault}

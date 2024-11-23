@@ -83,10 +83,10 @@ model Site {
   postDown       String?
 
   configPath String @default("/etc/wireguard/wg0.conf")
-  type       String @default("native")
 
   User    User[]
   Release Release[]
+  clients Client[]  @relation("ClientSites")
 }
 
 model Client {
@@ -100,6 +100,7 @@ model Client {
   privateKey  String
   createdById String
   createdBy   User     @relation(fields: [createdById], references: [id])
+  sites       Site[]   @relation("ClientSites")
 }
 
 model Release {
