@@ -4,7 +4,7 @@ import { api } from "~/trpc/server";
 
 export async function POST(
   req: Request,
-  props: { params: Promise<{ clientId: string; siteId: string }> }
+  props: { params: Promise<{ clientId: string; siteId: string }> },
 ) {
   const params = await props.params;
   const clientId = Number(params.clientId);
@@ -34,7 +34,7 @@ export async function POST(
   const headers = new Headers();
   headers.append(
     "Content-Disposition",
-    `attachment; filename=wg-config_${data.client.name}_at_${configsForRequestedSite.site.name}.zip`,
+    `attachment; filename=wg-config_${data?.client?.name}_at_${configsForRequestedSite.site.name}.zip`,
   );
   headers.append("Content-Type", "application/zip");
 
