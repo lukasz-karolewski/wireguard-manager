@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
+import forms_plugin from "@tailwindcss/forms";
 
 const config: Config = {
   content: ["./src/**/*.tsx"],
@@ -12,7 +13,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [forms_plugin],
 };
 
 export default config;
