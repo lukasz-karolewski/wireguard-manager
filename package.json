@@ -10,9 +10,10 @@
     "analyze": "ANALYZE=true npm run-script build",
     "build": "next build",
     "start": "prisma migrate deploy && node server.js",
-    "lint": "eslint './**/*.{js,jsx}'",
-    "lint.fix": "eslint --fix './**/*.{js,jsx}'",
+    "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
+    "lint.fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
     "lint.config": "eslint --print-config ./pages/index.jsx",
+    "lint2": "next lint",
     "test": "jest --watch"
   },
   "dependencies": {

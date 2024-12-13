@@ -22,7 +22,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   const [show, setShowConfig] = useState<"qr" | "config">("qr");
   const router = useRouter();
 
-  const { data, refetch } = api.client.get.useQuery({ id: Number(params.id) });
+  const { data: clients, refetch } = api.client.get.useQuery({ id: Number(params.id) });
   const { mutate: disableClient } = api.client.disable.useMutation({
     onSuccess: () => {
       refetch();
@@ -51,7 +51,9 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
 
   async function downloadAllConfigsForSite(siteId: number) {
     //make a POST request to the server to download the zip file
-    const response = await fetch(`/api/download/${data?.client.id}/${siteId}`, { method: "POST" });
+    const response = await fetch(`/api/download/${clients?.client?.id}/${siteId}`, {
+      method: "POST",
+    });
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("Content-Disposition");
@@ -92,23 +94,23 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   }
 
   function onDisable() {
-    if (!data) return;
-    disableClient({ id: data.client.id });
+    if (!clients) return;
+    disableClient({ id: clients.client!.id });
   }
 
   function onEnable() {
-    if (!data) return;
-    enableClient({ id: data.client.id });
+    if (!clients) return;
+    enableClient({ id: clients.client!.id });
   }
 
   async function onRemove() {
-    if (!data) return;
+    if (!clients) return;
     await NiceModal.show(ConfirmModal, {
       title: "Remove client",
       message: (
         <>
           <p>
-            You are about to remove the client <strong>{data.client.name}</strong>.
+            You are about to remove the client <strong>{clients.client?.name}</strong>.
           </p>
           <p>
             This action <strong>cannot</strong> be undone. Are you sure?
@@ -117,30 +119,30 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
       ),
       actionName: "Remove",
     });
-    removeClient({ id: data?.client.id });
+    removeClient({ id: clients.client!.id });
   }
 
   async function onEdit() {
-    if (!data) return;
+    if (!clients) return;
     await NiceModal.show(AddEditClientModal, {
-      client: mapClientForEdit(data.client),
+      client: mapClientForEdit(clients.client),
     });
     refetch();
   }
 
   function handleSiteToggle(siteId: number, isConnected: boolean) {
-    if (!data) return;
+    if (!clients) return;
     if (isConnected) {
-      removeFromSite({ clientId: data.client.id, siteId });
+      removeFromSite({ clientId: clients.client!.id, siteId });
     } else {
-      addToSite({ clientId: data.client.id, siteId });
+      addToSite({ clientId: clients.client!.id, siteId });
     }
   }
 
   return (
     <>
-      <PageHeader title={`${data?.client.name}`} parent="Clients" parentHref="/">
-        {data?.client.enabled && (
+      <PageHeader title={`${clients?.client?.name}`} parent="Clients" parentHref="/">
+        {clients?.client?.enabled && (
           <>
             <Button
               className="hidden md:block"
@@ -157,7 +159,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
             </Button>
           </>
         )}
-        {!data?.client.enabled && (
+        {!clients?.client?.enabled && (
           <>
             <Button className="hidden md:block" variant="default" onClick={onEnable}>
               Enable
@@ -168,19 +170,19 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
           Remove
         </Button>
       </PageHeader>
-      {data?.client.enabled && (
+      {clients?.client?.enabled && (
         <div className="hidden md:block">
-          <div>Created By: {data?.client.createdBy.name}</div>
-          <div>Created: {data?.client.createdAt.toISOString()}</div>
-          <div>Updated: {data?.client.updatedAt.toISOString()}</div>
-          <div>Email: {data?.client.email}</div>
+          <div>Created By: {clients?.client.createdBy.name}</div>
+          <div>Created: {clients?.client.createdAt.toISOString()}</div>
+          <div>Updated: {clients?.client.updatedAt.toISOString()}</div>
+          <div>Email: {clients?.client.email}</div>
         </div>
       )}
       <div className="flex flex-col gap-4">
-        {data?.configs
-          .sort((a, b) => (a.site.isDefault ? -1 : 1))
+        {clients?.configs
+          .sort((a, b) => (a.site.isDefault === b.site.isDefault ? 0 : a.site.isDefault ? -1 : 1))
           .map(({ site, configs }) => {
-            const isConnected = data?.client.sites?.some((s) => s.id === site.id) ?? false;
+            const isConnected = clients?.client?.sites.some((s) => s.id === site.id) ?? false;
             return (
               <Accordion
                 key={site.id}
@@ -205,7 +207,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                       <WgConfig
                         key={index}
                         config={config}
-                        clientName={data?.client.name}
+                        clientName={clients?.client!.name}
                         show={show}
                       />
                     ))}

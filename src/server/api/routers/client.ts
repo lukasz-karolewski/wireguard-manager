@@ -77,59 +77,53 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      let client = await ctx.db.client.findFirstOrThrow({
+      const client = await ctx.db.client.findFirstOrThrow({
         where: { id: input.id },
-        include: {
-          createdBy: true,
-          sites: true,
-        },
+        include: { createdBy: true },
       });
+      if (client.enabled === false) return { client, configs: [] };
 
       const user = await ctx.db.user.findFirst({
         where: { id: ctx.session.user.id },
         select: { defaultSiteId: true },
       });
       const settings = await ctx.db.settings.findMany();
-
-      // Add isDefault to sites
-      client.sites = client.sites.map((site) => {
+      const sites = await ctx.db.site.findMany();
+      const sitesWithDefault = sites.map((site) => {
         return {
           ...site,
           isDefault: site.id === user?.defaultSiteId,
         };
       });
 
-      // return empty config if client is disabled
-      if (client.enabled === false) {
-        return { client, configs: [] };
-      }
+      type Config = { type: ClientConfigType; value: string };
+      const configs: { site: (typeof sitesWithDefault)[number]; configs: Config[] }[] = [];
 
-      const configs = client.sites.map((site) => {
-        const siteConfigs = Object.entries(ClientConfigType)
-          .filter(([type]) => {
-            // Skip if DNS conditions are not met
-            if (
-              ((type === ClientConfigType.localOnlyDNS ||
-                type === ClientConfigType.allTrafficDNS) &&
-                !site.DNS) ||
-              ((type === ClientConfigType.localOnlyPiholeDNS ||
-                type === ClientConfigType.allTrafficPiholeDNS) &&
-                !site.piholeDNS)
-            ) {
-              return false;
-            }
-            return true;
-          })
-          .map(([type, label]) => ({
-            type: label,
+      sitesWithDefault.forEach((site) => {
+        const siteConfigs: Config[] = [];
+        Object.entries(ClientConfigType).forEach((entry) => {
+          const [type, description] = entry;
+          // Generate site configs only if PiholeDNS is not empty
+          if (
+            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
+              !site.DNS) ||
+            ((type === ClientConfigType.localOnlyPiholeDNS ||
+              type === ClientConfigType.allTrafficPiholeDNS) &&
+              !site.piholeDNS)
+          ) {
+            return;
+          }
+
+          siteConfigs.push({
+            type: description,
             value: generateClientConfig(settings, site, client, type as ClientConfigType),
-          }));
-
-        return { site, configs: siteConfigs };
+          });
+        });
+        configs.push({ site, configs: siteConfigs });
       });
 
       return {
-        client,
+        ...client,
         configs,
       };
     }),
