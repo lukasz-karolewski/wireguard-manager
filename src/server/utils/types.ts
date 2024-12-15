@@ -1,7 +1,7 @@
 export enum ActionType {
   CREATE = "create",
-  UPDATE = "update",
   DELETE = "delete",
+  UPDATE = "update",
 }
 
 export enum ClientConfigType {
@@ -16,17 +16,23 @@ export enum ClientConfigType {
 
 export function clientConfigToString(type: ClientConfigType): string {
   switch (type) {
-    case ClientConfigType.allTraffic:
+    case ClientConfigType.allTraffic: {
       return "redirect all";
-    case ClientConfigType.allTrafficDNS:
+    }
+    case ClientConfigType.allTrafficDNS: {
       return "redirect all, dns";
-    case ClientConfigType.allTrafficPiholeDNS:
+    }
+    case ClientConfigType.allTrafficPiholeDNS: {
       return "redirect all, pihole";
-    case ClientConfigType.localOnly:
+    }
+    case ClientConfigType.localOnly: {
       return "local only";
-    case ClientConfigType.localOnlyDNS:
+    }
+    case ClientConfigType.localOnlyDNS: {
       return "local only, dns";
-    case ClientConfigType.localOnlyPiholeDNS:
+    }
+    case ClientConfigType.localOnlyPiholeDNS: {
       return "local only, pihole";
+    }
   }
 }

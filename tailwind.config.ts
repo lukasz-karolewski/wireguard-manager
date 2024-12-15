@@ -1,10 +1,12 @@
 import type { Config } from "tailwindcss";
-import colors from "tailwindcss/colors";
+
 import forms_plugin from "@tailwindcss/forms";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   content: ["./src/**/*.tsx"],
   darkMode: "media",
+  plugins: [forms_plugin],
   theme: {
     extend: {
       colors: {
@@ -13,7 +15,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [forms_plugin],
 };
 
 export default config;

@@ -1,17 +1,18 @@
 import { unstable_noStore as noStore } from "next/cache";
+
 import { execShellCommand } from "~/server/utils/execShellCommand";
 
-export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promise<any[]> {
+export async function getAllClients(filename = "/etc/wireguard/wg0.conf") {
   const wgConfig = await execShellCommand(`cat ${filename}`);
 
   const clients = wgConfig.split(/\n(?=\[Peer\])/).map((clientConfig) => {
     const client = clientConfig.split("\n");
     const clientObject = {
+      AllowedIPs: getAttr(client, "AllowedIPs"),
+      Endpoint: getAttr(client, "Endpoint"),
       //   name: getComment(client),
       //   PrivateKey: getAttr(client, "PrivateKey"),
       PublicKey: getAttr(client, "PublicKey"),
-      AllowedIPs: getAttr(client, "AllowedIPs"),
-      Endpoint: getAttr(client, "Endpoint"),
       //   PersistentKeepalive: getAttr(client, "PersistentKeepalive"),
     };
     return clientObject;
@@ -21,15 +22,15 @@ export async function getAllClients(filename = "/etc/wireguard/wg0.conf"): Promi
   return clients;
 }
 
-function getComment(client: string[]): string {
-  return (
-    client
-      .find((line) => line.match(/^#\s*[^#\n]+$/))
-      ?.replace("#", "")
-      .trim() ?? ""
-  );
+function getAttr(client: string[], attrName: string): string {
+  return client.find((line) => new RegExp(`^${attrName}`).exec(line))?.split("=")[1] ?? "";
 }
 
-function getAttr(client: string[], attrName: string): string {
-  return client.find((line) => line.match(new RegExp(`^${attrName}`)))?.split("=")[1] ?? "";
-}
+// function getComment(client: string[]): string {
+//   return (
+//     client
+//       .find((line) => /^#\s*[^#\n]+$/.exec(line))
+//       ?.replace("#", "")
+//       .trim() ?? ""
+//   );
+// }

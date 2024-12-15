@@ -1,19 +1,19 @@
 "use client";
 
-import clsx from "clsx";
+import { clsx } from "clsx";
 import Link, { LinkProps } from "next/link";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren } from "react";
 
 type ActiveLinkProps = LinkProps & {
-  className?: string;
   activeClassName?: string;
+  className?: string;
 };
 
 const ActiveLink = ({
+  activeClassName = "border-b-2 border-b-highlight",
   children,
   className,
-  activeClassName = "border-b-2 border-b-highlight",
   ...props
 }: PropsWithChildren<ActiveLinkProps>) => {
   const pathname = usePathname();

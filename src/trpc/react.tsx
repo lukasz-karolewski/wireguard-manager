@@ -23,14 +23,14 @@ export function TRPCReactProvider(props: { children: React.ReactNode; cookies: s
             (op.direction === "down" && op.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({
-          transformer,
-          url: getUrl(),
           headers() {
             return {
               cookie: props.cookies,
               "x-trpc-source": "react",
             };
           },
+          transformer,
+          url: getUrl(),
         }),
       ],
     }),

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"; //TODO https://github.com/vercel/next.js
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 import { auth } from "~/auth";
 import NiceModalProviderWrapper from "~/components/providers";
@@ -10,8 +11,6 @@ import Container from "~/components/ui/container";
 import Footer from "~/components/ui/footer";
 import TopNav from "~/components/ui/top-nav";
 import { TRPCReactProvider } from "~/trpc/react";
-
-import { Toaster } from "react-hot-toast";
 import "~/app/styles.css";
 
 export const metadata: Metadata = {

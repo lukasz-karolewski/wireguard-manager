@@ -5,35 +5,35 @@ import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
 
 interface Props {
-  title: string;
-  message: React.ReactNode;
   actionName: string;
+  message: React.ReactNode;
+  title: string;
 }
 
-const ConfirmModal = NiceModal.create<Props>(({ title, message, actionName }) => {
+const ConfirmModal = NiceModal.create<Props>(({ actionName, message, title }) => {
   const modal = useModal();
 
   return (
     <Modal
-      open={modal.visible}
+      className="w-1/2"
       onClose={() => {
         modal.remove();
       }}
+      open={modal.visible}
       title={title}
-      className="w-1/2"
     >
       <div className="p-4">{message}</div>
       <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
         <Button
-          variant="destructive"
           onClick={() => {
             modal.resolve();
             modal.remove();
           }}
+          variant="destructive"
         >
           {actionName}
         </Button>
-        <Button variant="ghost" onClick={modal.remove} autoFocus={true}>
+        <Button autoFocus={true} onClick={modal.remove} variant="ghost">
           Cancel
         </Button>
       </div>

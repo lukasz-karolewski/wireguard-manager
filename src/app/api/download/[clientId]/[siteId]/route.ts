@@ -1,4 +1,5 @@
 import archiver from "archiver";
+
 import { clientConfigToString } from "~/server/utils/types";
 import { api } from "~/trpc/server";
 
@@ -11,7 +12,13 @@ export async function POST(
   const siteId = Number(params.siteId);
 
   const data = await api.client.get.query({ id: clientId });
-  const configsForRequestedSite = data.configs.filter((config) => config.site.id === siteId).pop();
+  const configsForRequestedSite = data.configs.findLast((config) => config.site.id === siteId);
+
+  if (!data.client?.name) {
+    return new Response("Client has no name", {
+      status: 500,
+    });
+  }
 
   if (!configsForRequestedSite) {
     return new Response("Not found", {
@@ -21,22 +28,20 @@ export async function POST(
 
   const archive = archiver("zip");
 
-  configsForRequestedSite.configs.forEach((config) => {
+  for (const config of configsForRequestedSite.configs) {
     archive.append(Buffer.from(config.value, "utf-8"), {
       name: `${configsForRequestedSite.site.name}-${clientConfigToString(config.type).replaceAll(" ", "_")}.conf`,
     });
-  });
-
-  // ...
+  }
 
   await archive.finalize();
 
   const headers = new Headers();
+  headers.append("Content-Type", "application/zip");
   headers.append(
     "Content-Disposition",
-    `attachment; filename=wg-config_${data?.client?.name}_at_${configsForRequestedSite.site.name}.zip`,
+    `attachment; filename=wg-config_${data.client.name}_at_${configsForRequestedSite.site.name}.zip`,
   );
-  headers.append("Content-Type", "application/zip");
 
   return new Response(archive as unknown as ReadableStream, {
     headers,

@@ -1,29 +1,30 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-
 import { Client } from "@prisma/client";
 import { SubmitHandler, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
+
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
 import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
+
 import { Checkbox } from "../ui/checkbox";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
+
+type FormValues = RouterInputs["client"]["create"];
 
 interface Props {
   client?: RouterInputs["client"]["update"];
 }
 
-type FormValues = RouterInputs["client"]["create"];
-
 export function mapClientForEdit(client: Client): RouterInputs["client"]["update"] {
   return {
-    id: client.id,
-    name: client.name ?? undefined,
     email: client.email ?? undefined,
-    private_key: client.privateKey ?? undefined,
+    id: client.id,
+    name: client.name,
+    private_key: client.privateKey,
   };
 }
 
@@ -31,56 +32,55 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
   const isAdd = !client;
 
-  const { data: sites, isPending, refetch } = api.site.getAll.useQuery();
+  const { data: sites } = api.site.getAll.useQuery();
 
   const {
-    register,
+    formState: { errors },
     handleSubmit,
-    formState: { errors, dirtyFields },
-    setValue,
+    register,
   } = useForm<FormValues>({
     defaultValues: isAdd ? {} : { ...client },
   });
 
   const options = {
-    onSuccess: (data: any) => {
-      toast.success("Saved");
-      modal.resolve();
-      modal.remove();
-    },
     onError: (error: any) => {
       const errorMessage = zodErrorsToString(error);
       if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");
+    },
+    onSuccess: (_data: any) => {
+      toast.success("Saved");
+      modal.resolve();
+      modal.remove();
     },
   };
 
   const { mutate: create } = api.client.create.useMutation(options);
   const { mutate: update } = api.client.update.useMutation(options);
 
-  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
     data.siteIds = data.siteIds?.map(Number);
     if (isAdd) {
-      return create(data);
+      create(data);
     } else {
-      return update({ id: client.id, ...data });
+      update({ id: client.id, ...data });
     }
   };
 
   return (
     <Modal
-      open={modal.visible}
+      className="md:w-1/2"
       onClose={() => {
         modal.remove();
       }}
+      open={modal.visible}
       title={isAdd ? "New Client" : "Edit Client"}
-      className="md:w-1/2"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
           <FormField
-            label="Name"
             help="Recommending <username>-<device type> i.e. john-iphone, but can be anything"
+            label="Name"
           >
             <Input type="text" {...register("name", { required: true })} />
           </FormField>
@@ -104,7 +104,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
           <FormField label="Sites">
             <div className="flex flex-col gap-2">
               {sites?.map((site) => (
-                <label key={site.id} className="flex items-center gap-2">
+                <label className="flex items-center gap-2" key={site.id}>
                   <Checkbox {...register("siteIds")} value={site.id} />
                   {site.name}
                 </label>
@@ -114,7 +114,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
           <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
-          <Button type="button" variant="secondary" onClick={modal.remove}>
+          <Button onClick={modal.remove} type="button" variant="secondary">
             Cancel
           </Button>
         </div>

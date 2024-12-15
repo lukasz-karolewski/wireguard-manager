@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import "server-only";
-
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateClientConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
@@ -9,11 +9,45 @@ import { ActionType, ClientConfigType } from "~/server/utils/types";
 import { emptyToNull } from "~/utils";
 
 export const clientRouter = createTRPCRouter({
+  addToSite: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.number(),
+        siteId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.$transaction(async (tx) => {
+        const updatedClient = await tx.client.update({
+          data: {
+            sites: {
+              connect: { id: input.siteId },
+            },
+          },
+          where: { id: input.clientId },
+        });
+
+        tx.auditLog.create({
+          data: {
+            actionType: ActionType.UPDATE,
+            changedModel: "client",
+            changedModelId: updatedClient.id,
+            createdById: ctx.session.user.id!,
+            data: JSON.stringify({
+              site: updatedClient,
+            }),
+          },
+        });
+
+        return updatedClient;
+      });
+    }),
+
   create: protectedProcedure
     .input(
       z.object({
-        name: z.string(),
         email: emptyToNull(z.string().email().optional()),
+        name: z.string(),
         private_key: emptyToNull(z.string().length(44).optional()),
         siteIds: z.array(z.number()).optional(),
       }),
@@ -29,11 +63,11 @@ export const clientRouter = createTRPCRouter({
 
         const newClient = await tx.client.create({
           data: {
-            name: input.name,
+            createdById: ctx.session.user.id!,
             email: input.email,
+            name: input.name,
             privateKey: private_key,
             publicKey: public_key,
-            createdById: ctx.session.user.id!,
             sites: {
               connect: siteIds.map((id) => ({ id })),
             },
@@ -55,6 +89,91 @@ export const clientRouter = createTRPCRouter({
       });
     }),
 
+  disable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.client.update({
+        data: { enabled: false },
+        where: { id: input.id },
+      });
+    }),
+
+  enable: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.client.update({
+        data: { enabled: true },
+        where: { id: input.id },
+      });
+    }),
+  get: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const client = await ctx.db.client.findFirstOrThrow({
+        include: { createdBy: true },
+        where: { id: input.id },
+      });
+      if (!client.enabled) return { client, configs: [] };
+
+      const user = await ctx.db.user.findFirst({
+        select: { defaultSiteId: true },
+        where: { id: ctx.session.user.id },
+      });
+      const settings = await ctx.db.settings.findMany();
+      const sites = await ctx.db.site.findMany();
+      const sitesWithDefault = sites.map((site) => {
+        return {
+          ...site,
+          isDefault: site.id === user?.defaultSiteId,
+        };
+      });
+
+      interface Config {
+        type: ClientConfigType;
+        value: string;
+      }
+      const configs: { configs: Config[]; site: (typeof sitesWithDefault)[number] }[] = [];
+
+      for (const site of sitesWithDefault) {
+        const siteConfigs: Config[] = [];
+        for (const entry of Object.entries(ClientConfigType)) {
+          const [_description, type] = entry;
+          // Generate site configs only if PiholeDNS is not empty
+          if (
+            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
+              !site.DNS) ||
+            ((type === ClientConfigType.localOnlyPiholeDNS ||
+              type === ClientConfigType.allTrafficPiholeDNS) &&
+              !site.piholeDNS)
+          ) {
+            continue;
+          }
+
+          siteConfigs.push({
+            type: type,
+            value: generateClientConfig(settings, site, client, type as ClientConfigType),
+          });
+        }
+        configs.push({ configs: siteConfigs, site });
+      }
+
+      return {
+        ...client,
+        configs,
+      };
+    }),
   getAll: protectedProcedure
     .input(
       z.object({
@@ -67,136 +186,6 @@ export const clientRouter = createTRPCRouter({
       return await ctx.db.client.findMany({
         ...condition,
         orderBy: { name: "asc" },
-      });
-    }),
-
-  get: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const client = await ctx.db.client.findFirstOrThrow({
-        where: { id: input.id },
-        include: { createdBy: true },
-      });
-      if (client.enabled === false) return { client, configs: [] };
-
-      const user = await ctx.db.user.findFirst({
-        where: { id: ctx.session.user.id },
-        select: { defaultSiteId: true },
-      });
-      const settings = await ctx.db.settings.findMany();
-      const sites = await ctx.db.site.findMany();
-      const sitesWithDefault = sites.map((site) => {
-        return {
-          ...site,
-          isDefault: site.id === user?.defaultSiteId,
-        };
-      });
-
-      type Config = { type: ClientConfigType; value: string };
-      const configs: { site: (typeof sitesWithDefault)[number]; configs: Config[] }[] = [];
-
-      sitesWithDefault.forEach((site) => {
-        const siteConfigs: Config[] = [];
-        Object.entries(ClientConfigType).forEach((entry) => {
-          const [type, description] = entry;
-          // Generate site configs only if PiholeDNS is not empty
-          if (
-            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
-              !site.DNS) ||
-            ((type === ClientConfigType.localOnlyPiholeDNS ||
-              type === ClientConfigType.allTrafficPiholeDNS) &&
-              !site.piholeDNS)
-          ) {
-            return;
-          }
-
-          siteConfigs.push({
-            type: description,
-            value: generateClientConfig(settings, site, client, type as ClientConfigType),
-          });
-        });
-        configs.push({ site, configs: siteConfigs });
-      });
-
-      return {
-        ...client,
-        configs,
-      };
-    }),
-
-  update: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string().min(2).optional(),
-        email: emptyToNull(z.string().email().optional()),
-        private_key: emptyToNull(z.string().length(44).optional()),
-        siteIds: z.array(z.number()).optional(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const { id, private_key } = input;
-
-      const data: Prisma.ClientUpdateInput = {
-        name: input.name,
-        email: input.email,
-        sites: {
-          set: input.siteIds?.map((id) => ({ id })),
-        },
-      };
-
-      if (private_key) {
-        data.privateKey = private_key;
-        data.publicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
-      }
-
-      return ctx.db.$transaction(async (tx) => {
-        const updatedClient = await tx.client.update({
-          where: { id },
-          data,
-        });
-
-        tx.auditLog.create({
-          data: {
-            actionType: ActionType.UPDATE,
-            changedModel: "client",
-            changedModelId: updatedClient.id,
-            createdById: ctx.session.user.id!,
-            data: JSON.stringify({
-              site: updatedClient,
-            }),
-          },
-        });
-
-        return updatedClient;
-      });
-    }),
-  disable: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.client.update({
-        where: { id: input.id },
-        data: { enabled: false },
-      });
-    }),
-  enable: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.client.update({
-        where: { id: input.id },
-        data: { enabled: true },
       });
     }),
   remove: protectedProcedure
@@ -223,7 +212,7 @@ export const clientRouter = createTRPCRouter({
       });
     }),
 
-  addToSite: protectedProcedure
+  removeFromSite: protectedProcedure
     .input(
       z.object({
         clientId: z.number(),
@@ -233,12 +222,12 @@ export const clientRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return ctx.db.$transaction(async (tx) => {
         const updatedClient = await tx.client.update({
-          where: { id: input.clientId },
           data: {
             sites: {
-              connect: { id: input.siteId },
+              disconnect: { id: input.siteId },
             },
           },
+          where: { id: input.clientId },
         });
 
         tx.auditLog.create({
@@ -257,22 +246,36 @@ export const clientRouter = createTRPCRouter({
       });
     }),
 
-  removeFromSite: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
-        clientId: z.number(),
-        siteId: z.number(),
+        email: emptyToNull(z.string().email().optional()),
+        id: z.number(),
+        name: z.string().min(2).optional(),
+        private_key: emptyToNull(z.string().length(44).optional()),
+        siteIds: z.array(z.number()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { id, private_key } = input;
+
+      const data: Prisma.ClientUpdateInput = {
+        email: input.email,
+        name: input.name,
+        sites: {
+          set: input.siteIds?.map((id) => ({ id })),
+        },
+      };
+
+      if (private_key) {
+        data.privateKey = private_key;
+        data.publicKey = await execShellCommand(`echo "${private_key}" | wg pubkey`);
+      }
+
       return ctx.db.$transaction(async (tx) => {
         const updatedClient = await tx.client.update({
-          where: { id: input.clientId },
-          data: {
-            sites: {
-              disconnect: { id: input.siteId },
-            },
-          },
+          data,
+          where: { id },
         });
 
         tx.auditLog.create({

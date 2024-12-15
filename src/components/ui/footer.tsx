@@ -3,7 +3,7 @@ function Footer() {
 
   return (
     <footer className="mx-auto py-8 text-center text-sm">
-      &copy; {new Date().getFullYear()} lk | {version || "development"}
+      &copy; {new Date().getFullYear()} lk | {version ?? "development"}
     </footer>
   );
 }

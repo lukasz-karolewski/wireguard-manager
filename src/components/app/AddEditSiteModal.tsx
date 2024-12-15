@@ -1,39 +1,39 @@
 "use client";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { RouterInputs } from "~/trpc/shared";
-
 import { Site } from "@prisma/client";
-import toast from "react-hot-toast";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+
 import { api } from "~/trpc/react";
+import { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
+
 import { Button } from "../ui/button";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 import Modal from "../ui/modal";
-import { Select } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+
+type FormValues = RouterInputs["site"]["create"];
 
 interface Props {
   site?: RouterInputs["site"]["update"];
 }
 
-type FormValues = RouterInputs["site"]["create"];
-
 export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
   return {
-    name: site.name ?? undefined,
-    id: site.id,
-    endpointAddress: site.endpointAddress ?? undefined,
-    localAddresses: site.localAddresses ?? undefined,
+    config_path: site.configPath,
     dns: site.DNS ?? undefined,
     dns_pihole: site.piholeDNS ?? undefined,
-    config_path: site.configPath ?? undefined,
-    listenPort: site.listenPort ?? undefined,
-    postUp: site.postUp ?? undefined,
+    endpointAddress: site.endpointAddress,
+    id: site.id,
+    listenPort: site.listenPort,
+    localAddresses: site.localAddresses,
+    name: site.name,
     postDown: site.postDown ?? undefined,
+    postUp: site.postUp ?? undefined,
     private_key: site.privateKey ?? undefined,
-    public_key: site.publicKey ?? undefined,
+    public_key: site.publicKey,
   };
 }
 
@@ -41,34 +41,30 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
   const modal = useModal();
   const isAdd = !site;
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { handleSubmit, register } = useForm<FormValues>({
     defaultValues: isAdd
-      ? { config_path: "/etc/wireguard/wg0.conf", listenPort: 51820 }
+      ? { config_path: "/etc/wireguard/wg0.conf", listenPort: 51_820 }
       : {
           ...site,
         },
   });
 
   const options = {
-    onSuccess: (data: any) => {
-      toast.success("saved");
-      modal.resolve();
-      modal.remove();
-    },
     onError: (error: any) => {
       const errorMessage = zodErrorsToString(error);
       if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");
     },
+    onSuccess: () => {
+      toast.success("saved");
+      modal.resolve();
+      modal.remove();
+    },
   };
   const { mutate: create } = api.site.create.useMutation(options);
   const { mutate: update } = api.site.update.useMutation(options);
 
-  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+  const onSubmit: SubmitHandler<FormValues> = (data, _event) => {
     if (isAdd) {
       create(data);
     } else {
@@ -78,12 +74,12 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
 
   return (
     <Modal
-      open={modal.visible}
+      className="w-2/3"
       onClose={() => {
         modal.remove();
       }}
+      open={modal.visible}
       title={isAdd ? "Add Site" : "Edit Site"}
-      className="w-2/3"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 p-4">
@@ -94,13 +90,13 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 <Input type="text" {...register("name", { required: true })} />
               </FormField>
 
-              <FormField label="Site Id" help="Used to assign a /24 network ">
+              <FormField help="Used to assign a /24 network " label="Site Id">
                 <Input
-                  type="number"
-                  min={1}
-                  max={255}
                   disabled={!isAdd}
-                  {...register("id", { required: true, valueAsNumber: true, min: 1, max: 255 })}
+                  max={255}
+                  min={1}
+                  type="number"
+                  {...register("id", { max: 255, min: 1, required: true, valueAsNumber: true })}
                 />
               </FormField>
 
@@ -108,9 +104,9 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 <Input
                   type="number"
                   {...register("listenPort", {
-                    required: false,
+                    max: 65_535,
                     min: 1024,
-                    max: 65535,
+                    required: false,
                     valueAsNumber: true,
                   })}
                 />
@@ -130,11 +126,11 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 />
               </FormField>
 
-              <FormField label="Post Up script" help="Each line will be separate PostUp command">
+              <FormField help="Each line will be separate PostUp command" label="Post Up script">
                 <Textarea {...register("postUp", { required: false })} />
               </FormField>
 
-              <FormField label="Post Down script" help="Each line will be separate PostUp command">
+              <FormField help="Each line will be separate PostUp command" label="Post Down script">
                 <Textarea {...register("postDown", { required: false })} />
               </FormField>
             </div>
@@ -143,23 +139,23 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
             <h3 className="bg-accent p-4 text-white">Peer options</h3>
             <div className="p-4">
               <FormField
-                label="Endpoint"
                 help="External IP or DNS with port where clients should connect"
+                label="Endpoint"
               >
                 <Input {...register("endpointAddress", { required: true })} />
               </FormField>
               <FormField
-                label="Local Networks"
                 help="Comma separated local networks in CIDR notation to expose to other sites, and clients"
+                label="Local Networks"
               >
                 <Input {...register("localAddresses", { required: false })} />
               </FormField>
 
-              <FormField label="DNS IP" help="local DNS server clients can use">
+              <FormField help="local DNS server clients can use" label="DNS IP">
                 <Input {...register("dns", { required: false })} />
               </FormField>
 
-              <FormField label="Pihole IP" help="local Pihole instance clients can use">
+              <FormField help="local Pihole instance clients can use" label="Pihole IP">
                 <Input {...register("dns_pihole", { required: false })} />
               </FormField>
             </div>
@@ -172,12 +168,12 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
               </FormField>
 
               <FormField
-                label="Mark as Default Site"
                 help="Clients will display config for this site by default"
+                label="Mark as Default Site"
               >
                 <Input
-                  type="checkbox"
                   className="w-4"
+                  type="checkbox"
                   {...register("markAsDefault", { required: false })}
                 />
               </FormField>
@@ -186,7 +182,7 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
           <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
-          <Button type="button" variant="secondary" onClick={modal.remove}>
+          <Button onClick={modal.remove} type="button" variant="secondary">
             Cancel
           </Button>
         </div>

@@ -3,6 +3,7 @@
 import NiceModal from "@ebay/nice-modal-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FC } from "react";
+
 import { AddEditClientModal } from "~/components/app/AddEditClientModal";
 import { ClientItem } from "~/components/app/ClientItem";
 import { Button } from "~/components/ui/button";
@@ -18,7 +19,7 @@ const ClientListPage: FC<ClientListPageParams> = () => {
   const searchParams = useSearchParams();
 
   const { data: clients, refetch } = api.client.getAll.useQuery({
-    search: searchParams?.get("search") ?? "",
+    search: searchParams.get("search") ?? "",
   });
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -46,11 +47,11 @@ const ClientListPage: FC<ClientListPageParams> = () => {
       <PageHeader title="Clients">
         <form onSubmit={onSubmit}>
           <Input
+            autoFocus={true}
+            defaultValue={searchParams.get("search") ?? ""}
             name="search"
             placeholder="Search"
-            autoFocus={true}
             type="text"
-            defaultValue={searchParams?.get("search") ?? ""}
           />
         </form>
         <div className="mx-4 h-full border-l border-gray-300"></div>
@@ -59,7 +60,7 @@ const ClientListPage: FC<ClientListPageParams> = () => {
 
       <div className="grid gap-4 md:grid-cols-3">
         {clients?.map((client) => {
-          return <ClientItem key={client.id} client={client} />;
+          return <ClientItem client={client} key={client.id} />;
         })}
       </div>
       {clients?.length == 0 && (

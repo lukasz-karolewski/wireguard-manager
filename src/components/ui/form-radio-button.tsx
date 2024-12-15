@@ -1,21 +1,21 @@
 import { useId } from "react";
 
 interface FormRadioButtonProps extends React.HTMLProps<HTMLInputElement> {
-  name: string;
-  value: string;
   label: string;
+  name: string;
   register: any;
+  value: string;
 }
 
-const FormRadioButton = ({ name, value, label, register }: FormRadioButtonProps) => {
+const FormRadioButton = ({ label, name, register, value }: FormRadioButtonProps) => {
   const id = useId();
 
   return (
     <label className="ml-6 inline-flex items-center">
       <input
+        className="form-radio"
         id={id}
         type="radio"
-        className="form-radio"
         value={value}
         {...register(name, { required: true })}
       />

@@ -5,26 +5,9 @@ import NextAuth from "next-auth";
 
 const prisma = new PrismaClient();
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  trustHost: true,
+export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  // pages: {
-  //   signIn: "/login",
-  // },
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-    }),
-  ],
   callbacks: {
-    session: async (params) => {
-      // By default, only exposes a name, email, image. Need to add back the id at minimum.
-      if ("user" in params) {
-        params.session.user!.id = params.user.id;
-      }
-      return params.session;
-    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
@@ -37,5 +20,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
+    session: (params) => {
+      // By default, only exposes a name, email, image. Need to add back the id at minimum.
+      if ("user" in params) {
+        params.session.user.id = params.user.id;
+      }
+      return params.session;
+    },
   },
+  // pages: {
+  //   signIn: "/login",
+  // },
+  providers: [
+    Google({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+    }),
+  ],
+  trustHost: true,
 });

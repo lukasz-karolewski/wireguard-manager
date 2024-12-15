@@ -2,19 +2,19 @@ import Link from "next/link";
 import React from "react";
 
 interface PageHeaderProps {
-  title: string;
+  children?: React.ReactNode;
   parent?: string | string[];
   parentHref?: string;
-  children?: React.ReactNode;
+  title: string;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, parent, parentHref, children }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ children, parent, parentHref, title }) => {
   return (
     <div className="mb-4 flex h-10 items-center justify-center gap-2">
       <h1>
         {parent && parentHref && (
           <>
-            <Link href={parentHref} className="hover:underline">
+            <Link className="hover:underline" href={parentHref}>
               {Array.isArray(parent) ? parent.join(" > ") : parent}
             </Link>
             <span className="mx-2">&gt;</span>

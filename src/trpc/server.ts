@@ -1,5 +1,4 @@
 import "server-only";
-
 import { createTRPCClient, loggerLink, TRPCClientError } from "@trpc/client";
 import { callTRPCProcedure } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
@@ -40,20 +39,20 @@ export const api = createTRPCClient<typeof appRouter>({
           createContext()
             .then((ctx) => {
               return callTRPCProcedure({
-                procedures: appRouter._def.procedures,
-                path: op.path,
-                getRawInput: async () => op.input,
                 ctx,
-                type: op.type,
+                getRawInput: async () => op.input,
+                path: op.path,
+                procedures: appRouter._def.procedures,
                 signal: undefined, //TODO check what is this about
+                type: op.type,
               });
             })
             .then((data) => {
               observer.next({ result: { data } });
               observer.complete();
             })
-            .catch((cause: TRPCErrorResponse) => {
-              observer.error(TRPCClientError.from(cause));
+            .catch((error: TRPCErrorResponse) => {
+              observer.error(TRPCClientError.from(error));
             });
         }),
   ],

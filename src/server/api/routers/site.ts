@@ -1,10 +1,10 @@
 import "server-only";
-
 import { Prisma } from "@prisma/client";
-import fs from "fs";
-import path from "path";
-import { z } from "zod";
-import { TrpcContext, createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import fs from "node:fs";
+import path from "node:path";
+import { unknown, z } from "zod";
+
+import { createTRPCRouter, protectedProcedure, TrpcContext } from "~/server/api/trpc";
 import { compute_hash, generateCIDR, generateWgServerConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ActionType } from "~/server/utils/types";
@@ -14,25 +14,25 @@ export const siteRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        name: z.string(),
-        id: z.number(),
-        listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: emptyToNull(z.string().length(44).optional()),
-        public_key: emptyToNull(z.string().length(44).optional()),
-        postUp: z.string().optional(),
-        postDown: z.string().optional(),
-
-        endpointAddress: z.string().ip().or(z.string()),
-        localAddresses: z.string().optional(),
+        config_path: z.string().optional(),
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
+        endpointAddress: z.string().ip().or(z.string()),
+        id: z.number(),
+        listenPort: z.number().min(1024).max(65_535).optional(),
+        localAddresses: z.string().optional(),
 
-        config_path: z.string().optional(),
         markAsDefault: z.boolean().optional(),
+        name: z.string(),
+        postDown: z.string().optional(),
+        postUp: z.string().optional(),
+
+        private_key: emptyToNull(z.string().length(44).optional()),
+        public_key: emptyToNull(z.string().length(44).optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      let private_key: string | null = null;
+      let private_key: null | string = null;
       let public_key = "";
 
       if (input.private_key) {
@@ -48,46 +48,73 @@ export const siteRouter = createTRPCRouter({
       return ctx.db.$transaction(async (tx) => {
         const createdSite = await tx.site.create({
           data: {
-            id: input.id,
-            name: input.name,
-            endpointAddress: input.endpointAddress,
-            DNS: input.dns,
-            piholeDNS: input.dns_pihole,
             configPath: input.config_path,
-            privateKey: private_key,
-            publicKey: public_key,
+            DNS: input.dns,
+            endpointAddress: input.endpointAddress,
+            id: input.id,
+            listenPort: input.listenPort,
             localAddresses:
               input.localAddresses
                 ?.split(",")
                 .map((v) => v.trim())
                 .join(", ") ?? "",
-            listenPort: input.listenPort,
-            postUp: input.postUp,
+            name: input.name,
+            piholeDNS: input.dns_pihole,
             postDown: input.postDown,
+            postUp: input.postUp,
+            privateKey: private_key,
+            publicKey: public_key,
           },
         });
 
         if (input.markAsDefault) {
-          tx.user.update({
-            where: { id: ctx.session.user.id },
-            data: { defaultSiteId: createdSite.id },
-          });
+          tx.user
+            .update({
+              data: { defaultSiteId: createdSite.id },
+              where: { id: ctx.session.user.id },
+            })
+            .catch((error: unknown) => {
+              console.error("Failed to set site as default", error);
+            });
         }
 
-        tx.auditLog.create({
-          data: {
-            actionType: ActionType.CREATE,
-            changedModel: "site",
-            changedModelId: createdSite.id,
-            createdById: ctx.session.user.id!,
-            data: JSON.stringify({
-              site: createdSite,
-            }),
-          },
-        });
+        tx.auditLog
+          .create({
+            data: {
+              actionType: ActionType.CREATE,
+              changedModel: "site",
+              changedModelId: createdSite.id,
+              createdById: ctx.session.user.id!,
+              data: JSON.stringify({
+                site: createdSite,
+              }),
+            },
+          })
+          .catch((error: unknown) => {
+            console.error("Failed to set site as default", error);
+          });
 
         return createdSite;
       });
+    }),
+
+  get: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { config, hash, site } = await getSiteConfig(ctx, input);
+      const defaultSiteId = await getDefaultSiteId(ctx);
+
+      const currentConfig = await getConfigFromDisk(site.configPath);
+      const configChanged = currentConfig ? hash !== compute_hash(currentConfig) : true;
+
+      return {
+        config: config,
+        site: { ...site, configChanged, isDefault: site.id === defaultSiteId },
+      };
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -101,32 +128,13 @@ export const siteRouter = createTRPCRouter({
     const sitesWithDefault = sites.map((site) => {
       return {
         ...site,
-        isDefault: site.id === defaultSiteId,
         assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
+        isDefault: site.id === defaultSiteId,
       };
     });
 
     return sitesWithDefault;
   }),
-
-  get: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { site, config, hash } = await getSiteConfig(ctx, input);
-      const defaultSiteId = await getDefaultSiteId(ctx);
-
-      const currentConfig = await getConfigFromDisk(site.configPath);
-      const configChanged = currentConfig ? hash !== compute_hash(currentConfig) : true;
-
-      return {
-        site: { ...site, isDefault: site.id === defaultSiteId, configChanged },
-        config: config,
-      };
-    }),
 
   getVersions: protectedProcedure
     .input(
@@ -140,51 +148,91 @@ export const siteRouter = createTRPCRouter({
       });
 
       const versions = await ctx.db.release.findMany({
-        where: { SiteId: input.id },
-        orderBy: { createdAt: "desc" },
         include: { createdBy: true },
+        orderBy: { createdAt: "desc" },
+        where: { SiteId: input.id },
       });
 
       return { site, versions };
     }),
 
-  update: protectedProcedure
+  remove: protectedProcedure
     .input(
       z.object({
         id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.$transaction(async (tx) => {
+        tx.auditLog
+          .create({
+            data: {
+              actionType: ActionType.DELETE,
+              changedModel: "site",
+              changedModelId: input.id,
+              createdById: ctx.session.user.id!,
+              data: "",
+            },
+          })
+          .catch((error: unknown) => {
+            console.error("Failed to create audit log when removing site", error);
+          });
+        return await tx.site.delete({
+          where: { id: input.id },
+        });
+      });
+    }),
 
-        name: z.string().optional(),
-        listenPort: z.number().min(1024).max(65535).optional(),
-        private_key: emptyToNull(z.string().length(44).optional()),
-        public_key: emptyToNull(z.string().length(44).optional()),
-        postUp: z.string().optional(),
-        postDown: z.string().optional(),
+  setAsDefault: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        data: { defaultSiteId: input.id },
+        where: { id: ctx.session.user.id },
+      });
+    }),
 
-        endpointAddress: z.string().ip().or(z.string()).optional(),
-        localAddresses: z.string().optional(),
+  update: protectedProcedure
+    .input(
+      z.object({
+        config_path: z.string().optional(),
+
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
+        endpointAddress: z.string().ip().or(z.string()).optional(),
+        id: z.number(),
+        listenPort: z.number().min(1024).max(65_535).optional(),
+        localAddresses: z.string().optional(),
 
-        config_path: z.string().optional(),
+        name: z.string().optional(),
+        postDown: z.string().optional(),
+        postUp: z.string().optional(),
+        private_key: emptyToNull(z.string().length(44).optional()),
+
+        public_key: emptyToNull(z.string().length(44).optional()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, private_key, public_key } = input;
 
       const data: Prisma.SiteUpdateInput = {
-        name: input.name,
-        endpointAddress: input.endpointAddress,
-        DNS: input.dns,
-        piholeDNS: input.dns_pihole,
         configPath: input.config_path,
+        DNS: input.dns,
+        endpointAddress: input.endpointAddress,
+        listenPort: input.listenPort,
         localAddresses:
           input.localAddresses
             ?.split(",")
             .map((v) => v.trim())
             .join(", ") ?? "",
-        listenPort: input.listenPort,
-        postUp: input.postUp,
+        name: input.name,
+        piholeDNS: input.dns_pihole,
         postDown: input.postDown,
+        postUp: input.postUp,
       };
 
       if (private_key) {
@@ -200,58 +248,26 @@ export const siteRouter = createTRPCRouter({
 
       return ctx.db.$transaction(async (tx) => {
         const updatedSite = await tx.site.update({
-          where: { id },
           data,
+          where: { id },
         });
 
-        tx.auditLog.create({
-          data: {
-            actionType: ActionType.UPDATE,
-            changedModel: "site",
-            changedModelId: updatedSite.id,
-            createdById: ctx.session.user.id!,
-            data: JSON.stringify({
-              site: updatedSite,
-            }),
-          },
-        });
+        tx.auditLog
+          .create({
+            data: {
+              actionType: ActionType.UPDATE,
+              changedModel: "site",
+              changedModelId: updatedSite.id,
+              createdById: ctx.session.user.id!,
+              data: JSON.stringify({
+                site: updatedSite,
+              }),
+            },
+          })
+          .catch((error: unknown) => {
+            console.error("Failed to create audit log when settting site as default", error);
+          });
         return updatedSite;
-      });
-    }),
-
-  setAsDefault: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.db.user.update({
-        where: { id: ctx.session.user.id },
-        data: { defaultSiteId: input.id },
-      });
-    }),
-
-  remove: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.$transaction(async (tx) => {
-        tx.auditLog.create({
-          data: {
-            actionType: ActionType.DELETE,
-            changedModel: "site",
-            changedModelId: input.id,
-            createdById: ctx.session.user.id!,
-            data: "",
-          },
-        });
-        return await tx.site.delete({
-          where: { id: input.id },
-        });
       });
     }),
 
@@ -262,7 +278,7 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { site, config, hash } = await getSiteConfig(ctx, input);
+      const { config, hash, site } = await getSiteConfig(ctx, input);
 
       const configDir = path.dirname(site.configPath);
       await fs.promises.mkdir(configDir, { recursive: true });
@@ -282,10 +298,10 @@ export const siteRouter = createTRPCRouter({
       // save new config to db for future reference
       await ctx.db.release.create({
         data: {
+          createdById: ctx.session.user.id!,
+          data: config,
           hash: hash,
           SiteId: site.id,
-          data: config,
-          createdById: ctx.session.user.id!,
         },
       });
 
@@ -302,8 +318,8 @@ async function getConfigFromDisk(configPath: string) {
 
 async function getDefaultSiteId(ctx: TrpcContext) {
   const user = await ctx.db.user.findFirst({
-    where: { id: ctx?.session?.user?.id },
     select: { defaultSiteId: true },
+    where: { id: ctx.session?.user?.id },
   });
 
   return user?.defaultSiteId;
@@ -325,12 +341,12 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   });
 
   const clients = await ctx.db.client.findMany({
-    where: { enabled: true },
     include: { sites: true },
+    where: { enabled: true },
   });
 
   const config = generateWgServerConfig(settings, site, otherSites, clients);
   const hash = compute_hash(config);
 
-  return { site, config, hash };
+  return { config, hash, site };
 }

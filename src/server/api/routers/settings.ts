@@ -41,15 +41,15 @@ export const settingsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const newSetting = await ctx.db.settings.upsert({
-        where: {
-          name: SettingsValues.Enum.wg_network,
-        },
         create: {
           name: SettingsValues.Enum.wg_network,
           value: input.value,
         },
         update: {
           value: input.value,
+        },
+        where: {
+          name: SettingsValues.Enum.wg_network,
         },
       });
 

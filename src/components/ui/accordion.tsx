@@ -1,23 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ComponentPropsWithoutRef, useState } from "react";
 
-interface AccordionProps extends React.ComponentPropsWithoutRef<"div"> {
-  header: string;
+interface AccordionProps extends ComponentPropsWithoutRef<"div"> {
   actions?: React.ReactNode;
-  isInitiallyOpen?: boolean;
   children: React.ReactNode;
+  header: string;
+  isInitiallyOpen?: boolean;
 }
 
 import { Transition } from "@headlessui/react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 const Accordion: React.FC<AccordionProps> = ({
-  header,
   actions,
-  isInitiallyOpen = false,
   children,
   className,
+  header,
+  isInitiallyOpen = false,
 }) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
 
@@ -28,19 +28,19 @@ const Accordion: React.FC<AccordionProps> = ({
   return (
     <div>
       <div className={clsx("flex items-center justify-between bg-gray-200 px-4 py-2", className)}>
-        <button onClick={toggleAccordion} className="">
+        <button className="" onClick={toggleAccordion}>
           <h2>{header}</h2>
         </button>
         {actions}
       </div>
       <Transition
-        show={isOpen}
         enter="transition-opacity duration-100"
         enterFrom="opacity-0"
         enterTo="opacity-100"
         leave="transition-opacity duration-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
+        show={isOpen}
       >
         <div>{children}</div>
       </Transition>

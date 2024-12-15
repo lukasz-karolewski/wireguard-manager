@@ -1,11 +1,11 @@
 "use client";
 
 import NiceModal from "@ebay/nice-modal-react";
+
 import { AddEditSiteModal } from "~/components/app/AddEditSiteModal";
 import { SiteItem } from "~/components/app/SiteItem";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
-
 import { api } from "~/trpc/react";
 
 export default function SiteListPage() {
@@ -26,7 +26,7 @@ export default function SiteListPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {sites
-          ?.sort((a, b) => (a.isDefault ? -1 : 1))
+          ?.sort((a, _b) => (a.isDefault ? -1 : 1))
           .map((site) => {
             return <SiteItem key={site.id} site={site} />;
           })}

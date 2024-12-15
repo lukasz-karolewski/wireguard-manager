@@ -1,20 +1,20 @@
-import React, { useId } from "react";
+import React, { forwardRef, InputHTMLAttributes, useId } from "react";
 
-interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {}
 
-export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
   const id = useId();
   return (
     <input
-      id={id}
-      ref={ref}
-      className=""
-      type="checkbox"
+      autoCapitalize="off"
       autoComplete="off"
       autoCorrect="off"
-      autoCapitalize="off"
-      spellCheck="false"
+      className=""
+      id={id}
+      ref={ref}
       role="presentation"
+      spellCheck="false"
+      type="checkbox"
       {...props}
     />
   );

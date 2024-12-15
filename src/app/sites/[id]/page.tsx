@@ -1,18 +1,20 @@
 "use client";
 
-import { FC, use } from "react";
-
 import NiceModal from "@ebay/nice-modal-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { FC, use } from "react";
+import { toast } from "react-hot-toast";
+
 import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteModal";
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
-type SiteDetailPageProps = { params: Promise<{ id: string }> };
+interface SiteDetailPageProps {
+  params: Promise<{ id: string }>;
+}
 
 const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
   const params = use(props.params);
@@ -22,20 +24,22 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
     id: +params.id,
   });
 
-  const { mutate: writeConfig, isPending: isPosting } = api.site.writeSiteConfigToDisk.useMutation(
+  const { isPending: isPosting, mutate: writeConfig } = api.site.writeSiteConfigToDisk.useMutation(
     {
-      onSuccess: (ret) => {
-        switch (ret) {
-          case "no_changes":
-            toast.success("Config is identical, no changes were made");
-            break;
-          case "written":
-            toast.success("Config written");
-            break;
-        }
-      },
       onError: (err) => {
         toast.error(err.message);
+      },
+      onSuccess: (ret) => {
+        switch (ret) {
+          case "no_changes": {
+            toast.success("Config is identical, no changes were made");
+            break;
+          }
+          case "written": {
+            toast.success("Config written");
+            break;
+          }
+        }
       },
     },
   );
@@ -56,7 +60,7 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
   async function onRemove() {
     if (!data) return;
     await NiceModal.show(ConfirmModal, {
-      title: "Remove Site",
+      actionName: "Remove",
       message: (
         <>
           <p>
@@ -67,43 +71,43 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
           </p>
         </>
       ),
-      actionName: "Remove",
+      title: "Remove Site",
     });
     removeSite({ id: data.site.id });
   }
 
   return (
     <>
-      <PageHeader title={`${data?.site.name}`} parent="Sites" parentHref={"/sites"}>
+      <PageHeader parent="Sites" parentHref={"/sites"} title={data?.site.name ?? ""}>
         {data?.site.isDefault && (
           <Button
-            variant="ghost"
-            disabled={isPosting || data?.site.configChanged == false}
+            disabled={isPosting || !data.site.configChanged}
             onClick={() => {
-              writeConfig({ id: data?.site.id });
+              writeConfig({ id: data.site.id });
             }}
+            variant="ghost"
           >
             Write config
           </Button>
         )}
         <Button
-          variant={"ghost"}
           className="hidden md:block"
           onClick={() => {
             //set data!.config to clipboard
-            navigator.clipboard.writeText(data!.config);
+            void navigator.clipboard.writeText(data!.config);
             toast.success("Copied to clipboard");
           }}
+          variant={"ghost"}
         >
           Copy to clipboard
         </Button>
         <Button
-          variant={"ghost"}
           onClick={async () => {
             if (!data) return;
             await NiceModal.show(AddEditSiteModal, { site: mapSiteForEdit(data.site) });
             refetch();
           }}
+          variant={"ghost"}
         >
           Edit
         </Button>
@@ -112,17 +116,17 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
         </Link>
         {!data?.site.isDefault && (
           <Button
-            variant={"ghost"}
             className="hidden md:block"
             onClick={() => {
               setAsDefault({ id: data!.site.id });
               refetch();
             }}
+            variant={"ghost"}
           >
             Mark As Default
           </Button>
         )}
-        <Button variant={"destructive"} onClick={onRemove} className="hidden md:block">
+        <Button className="hidden md:block" onClick={onRemove} variant={"destructive"}>
           Remove
         </Button>
       </PageHeader>

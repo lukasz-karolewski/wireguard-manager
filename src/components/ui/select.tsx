@@ -1,19 +1,19 @@
-import React, { useId } from "react";
+import React, { forwardRef, SelectHTMLAttributes, useId } from "react";
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {}
 
-export const Select = React.forwardRef<HTMLSelectElement, SelectProps>((props, ref) => {
+export const Select = forwardRef<HTMLSelectElement, SelectProps>((props, ref) => {
   const id = useId();
   return (
     <select
-      id={id}
-      ref={ref}
-      className="w-full rounded border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+      autoCapitalize="off"
       autoComplete="off"
       autoCorrect="off"
-      autoCapitalize="off"
-      spellCheck="false"
+      className="w-full rounded border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+      id={id}
+      ref={ref}
       role="presentation"
+      spellCheck="false"
       {...props}
     />
   );

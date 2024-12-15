@@ -21,17 +21,17 @@ describe("siteRouter", () => {
     };
 
     const input = {
-      name: "Site 1",
-      id: 1,
-      listenPort: 51820,
-      private_key: "private_key",
-      public_key: "public_key",
-      endpointAddress: "172.16.0.1",
-      localAddresses: "192.168.0.1",
+      config_path: "/path/to/config",
       dns: "8.8.8.8",
       dns_pihole: "192.168.0.2",
-      config_path: "/path/to/config",
+      endpointAddress: "172.16.0.1",
+      id: 1,
+      listenPort: 51_820,
+      localAddresses: "192.168.0.1",
       markAsDefault: true,
+      name: "Site 1",
+      private_key: "private_key",
+      public_key: "public_key",
     };
 
     // Call the create mutation
@@ -41,23 +41,23 @@ describe("siteRouter", () => {
     expect(ctx.db.$transaction).toHaveBeenCalledTimes(2);
     expect(ctx.db.site.create).toHaveBeenCalledWith({
       data: {
-        id: input.id,
-        name: input.name,
-        endpointAddress: input.endpointAddress,
-        DNS: input.dns,
-        PiholeDNS: input.dns_pihole,
         ConfigPath: input.config_path,
+        DNS: input.dns,
+        endpointAddress: input.endpointAddress,
+        id: input.id,
+        listenPort: input.listenPort,
+        localAddresses: input.localAddresses,
+        name: input.name,
+        PiholeDNS: input.dns_pihole,
+        postDown: undefined,
+        postUp: undefined,
         PrivateKey: input.private_key,
         PublicKey: input.public_key,
-        localAddresses: input.localAddresses,
-        listenPort: input.listenPort,
-        postUp: undefined,
-        postDown: undefined,
       },
     });
     expect(ctx.db.user.update).toHaveBeenCalledWith({
-      where: { id: ctx.session.user.id },
       data: { defaultSiteId: createdSite.id },
+      where: { id: ctx.session.user.id },
     });
     expect(createdSite).toEqual({ id: 1, name: "Site 1" });
   });
@@ -66,14 +66,14 @@ describe("siteRouter", () => {
     // Mock the necessary dependencies and context objects
     const ctx = {
       db: {
+        settings: {
+          findFirst: jest.fn().mockResolvedValue({ value: "172.16.0.0/24" }),
+        },
         site: {
           findMany: jest.fn().mockResolvedValue([
             { id: 1, name: "Site 1" },
             { id: 2, name: "Site 2" },
           ]),
-        },
-        settings: {
-          findFirst: jest.fn().mockResolvedValue({ value: "172.16.0.0/24" }),
         },
       },
     };
@@ -86,16 +86,16 @@ describe("siteRouter", () => {
     expect(ctx.db.settings.findFirst).toHaveBeenCalledWith({ where: { name: "wg_network" } });
     expect(sites).toEqual([
       {
-        id: 1,
-        name: "Site 1",
-        isDefault: false,
         assignedNetwork: "172.16.0.1/24",
+        id: 1,
+        isDefault: false,
+        name: "Site 1",
       },
       {
-        id: 2,
-        name: "Site 2",
-        isDefault: false,
         assignedNetwork: "172.16.0.2/24",
+        id: 2,
+        isDefault: false,
+        name: "Site 2",
       },
     ]);
   });
