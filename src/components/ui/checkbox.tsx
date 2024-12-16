@@ -1,8 +1,10 @@
-import React, { forwardRef, InputHTMLAttributes, useId } from "react";
+import React, { InputHTMLAttributes, useId } from "react";
 
-interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {}
+interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+  ref: React.RefObject<HTMLInputElement>;
+}
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref) => {
+export const Checkbox = ({ ref, ...props }: CheckboxProps) => {
   const id = useId();
   return (
     <input
@@ -18,6 +20,6 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>((props, ref)
       {...props}
     />
   );
-});
+};
 
 Checkbox.displayName = "Checkbox";

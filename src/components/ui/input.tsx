@@ -1,8 +1,10 @@
-import React, { forwardRef, InputHTMLAttributes, useId } from "react";
+import React, { InputHTMLAttributes, useId } from "react";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {}
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  ref: React.RefObject<HTMLInputElement>;
+}
 
-export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+export const Input = ({ ref, ...props }: InputProps) => {
   const id = useId();
   return (
     <input
@@ -18,6 +20,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       {...props}
     />
   );
-});
+};
 
 Input.displayName = "Input";

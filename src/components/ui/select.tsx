@@ -1,8 +1,10 @@
-import React, { forwardRef, SelectHTMLAttributes, useId } from "react";
+import React, { SelectHTMLAttributes, useId } from "react";
 
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {}
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  ref: React.RefObject<HTMLSelectElement>;
+}
 
-export const Select = forwardRef<HTMLSelectElement, SelectProps>((props, ref) => {
+export const Select = ({ ref, ...props }: SelectProps) => {
   const id = useId();
   return (
     <select
@@ -17,6 +19,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>((props, ref) =>
       {...props}
     />
   );
-});
+};
 
 Select.displayName = "Select";
