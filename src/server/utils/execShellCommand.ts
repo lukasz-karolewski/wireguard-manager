@@ -5,7 +5,7 @@ export function execShellCommand(cmd: string) {
   return new Promise<string>((resolve, reject) => {
     cp.exec(cmd, (error, stdout, stderr) => {
       if (error) {
-        console.log("error", error);
+        console.log("Error executing command:", error);
         reject(error);
         return;
       }
