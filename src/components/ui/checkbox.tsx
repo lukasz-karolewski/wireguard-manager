@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes, useId } from "react";
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
-  ref: React.RefObject<HTMLInputElement>;
+  ref: React.RefCallback<HTMLInputElement> | React.RefObject<HTMLInputElement>;
 }
 
 export const Checkbox = ({ ref, ...props }: CheckboxProps) => {

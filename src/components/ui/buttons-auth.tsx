@@ -12,7 +12,7 @@ export function SignIn({
     <form
       action={async () => {
         "use server";
-        const url = await signIn(provider, { redirect: false });
+        const url: string = await signIn(provider, { redirect: false });
         redirect(url);
       }}
     >

@@ -30,7 +30,16 @@ const GlobalSettingsPage: React.FC = () => {
       <PageHeader title={`Global settings`}></PageHeader>
       <form
         action={(formData: FormData) => {
-          mutate({ value: `${formData.get("wg_network")}` });
+          const wgNetwork = formData.get("wg_network");
+
+          // Type guard to ensure we have a string value
+          if (!wgNetwork || typeof wgNetwork !== "string") {
+            toast.error("Network value is required");
+            return;
+          }
+
+          // Now TypeScript knows wgNetwork is a string
+          mutate({ value: wgNetwork });
         }}
         className="bg-slate-200 p-4"
       >

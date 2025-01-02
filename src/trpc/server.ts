@@ -16,6 +16,7 @@ import { createTRPCContext } from "~/server/api/trpc";
 const createContext = cache(() => {
   return createTRPCContext({
     headers: new Headers({
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       cookie: cookies().toString(),
       "x-trpc-source": "rsc",
     }),
@@ -34,13 +35,14 @@ export const api = createTRPCClient<typeof appRouter>({
      * Components always run on the server, we can just call the procedure as a function.
      */
     () =>
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       ({ op }) =>
         observable((observer) => {
           createContext()
             .then((ctx) => {
               return callTRPCProcedure({
                 ctx,
-                getRawInput: async () => op.input,
+                getRawInput: async () => await op.input,
                 path: op.path,
                 procedures: appRouter._def.procedures,
                 signal: undefined, //TODO check what is this about
@@ -51,6 +53,7 @@ export const api = createTRPCClient<typeof appRouter>({
               observer.next({ result: { data } });
               observer.complete();
             })
+            // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
             .catch((error: TRPCErrorResponse) => {
               observer.error(TRPCClientError.from(error));
             });

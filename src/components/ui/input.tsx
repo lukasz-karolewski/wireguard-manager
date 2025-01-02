@@ -1,7 +1,7 @@
-import React, { InputHTMLAttributes, useId } from "react";
+import React, { type InputHTMLAttributes, useId } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  ref: React.RefObject<HTMLInputElement>;
+  ref?: React.RefCallback<HTMLInputElement> | React.RefObject<HTMLInputElement>;
 }
 
 export const Input = ({ ref, ...props }: InputProps) => {

@@ -1,4 +1,5 @@
 import { ReadonlyURLSearchParams } from "next/navigation";
+import { z } from "zod";
 
 export const createUrl = (pathname: string, params: ReadonlyURLSearchParams | URLSearchParams) => {
   const paramsString = params.toString();
@@ -7,31 +8,32 @@ export const createUrl = (pathname: string, params: ReadonlyURLSearchParams | UR
   return `${pathname}${queryString}`;
 };
 
-export function zodErrorsToString(error: any) {
-  const zodError = error.data?.zodError;
-  let errorMessage = "";
-
-  if (zodError) {
-    const { fieldErrors, formErrors } = zodError;
-
-    const flattenErrors = (errors: Record<string, string[]>) => {
-      for (const errorKey in errors) {
-        if (errors[errorKey]) {
-          errorMessage += errors[errorKey].join(", ") + ", ";
-        }
-      }
+interface ZodErrorData {
+  data?: {
+    zodError?: {
+      fieldErrors: Record<string, string[]>;
+      formErrors: Record<string, string[]>;
     };
-
-    flattenErrors(fieldErrors);
-    flattenErrors(formErrors);
-
-    // Remove trailing comma and space
-    errorMessage = errorMessage.slice(0, -2);
-  }
-  return errorMessage;
+  };
 }
 
-import { z } from "zod";
+const flattenErrorMessages = (errors: Record<string, string[]>): string[] => {
+  return Object.values(errors).filter(Boolean).flat();
+};
+
+export function zodErrorsToString(error: ZodErrorData): string {
+  const zodError = error.data?.zodError;
+
+  if (!zodError) {
+    return "";
+  }
+
+  const { fieldErrors, formErrors } = zodError;
+
+  const allErrors = [...flattenErrorMessages(fieldErrors), ...flattenErrorMessages(formErrors)];
+
+  return allErrors.join(", ");
+}
 
 const emptyStringToNull = z.literal("").transform(() => null);
 

@@ -21,10 +21,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await auth();
   if (!session?.user) redirect("/api/auth/signin");
 
+  const cookiesList = await cookies();
+  const cookiesString = cookiesList.toString();
+
   return (
     <html>
       <body className="flex min-h-dvh flex-col">
-        <TRPCReactProvider cookies={(await cookies()).toString()}>
+        <TRPCReactProvider cookies={cookiesString}>
           <NiceModalProviderWrapper>
             <TopNav />
             <Container className="grow">

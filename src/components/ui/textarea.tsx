@@ -1,7 +1,7 @@
 import React, { TextareaHTMLAttributes, useId } from "react";
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-  ref: React.RefObject<HTMLTextAreaElement>;
+  ref: React.RefCallback<HTMLTextAreaElement> | React.RefObject<HTMLTextAreaElement>;
 }
 
 export const Textarea = ({ ref, ...props }: TextareaProps) => {

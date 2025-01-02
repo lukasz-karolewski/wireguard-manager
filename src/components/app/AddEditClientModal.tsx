@@ -44,6 +44,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
 
   const options = {
     onError: (error: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const errorMessage = zodErrorsToString(error);
       if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");

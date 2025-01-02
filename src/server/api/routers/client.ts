@@ -27,7 +27,7 @@ export const clientRouter = createTRPCRouter({
           where: { id: input.clientId },
         });
 
-        tx.auditLog.create({
+        void tx.auditLog.create({
           data: {
             actionType: ActionType.UPDATE,
             changedModel: "client",
@@ -57,9 +57,11 @@ export const clientRouter = createTRPCRouter({
       const public_key = await execShellCommand(`echo "${private_key}" | wg pubkey`);
 
       return ctx.db.$transaction(async (tx) => {
-        const siteIds =
-          input.siteIds ??
-          (await ctx.db.site.findMany({ select: { id: true } })).map((site) => site.id);
+        let siteIds = input.siteIds;
+        if (!siteIds) {
+          const sites = await ctx.db.site.findMany({ select: { id: true } });
+          siteIds = sites.map((site) => site.id);
+        }
 
         const newClient = await tx.client.create({
           data: {
@@ -74,7 +76,7 @@ export const clientRouter = createTRPCRouter({
           },
         });
 
-        tx.auditLog.create({
+        void tx.auditLog.create({
           data: {
             actionType: ActionType.CREATE,
             changedModel: "client",
@@ -196,7 +198,7 @@ export const clientRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.$transaction(async (tx) => {
-        tx.auditLog.create({
+        void tx.auditLog.create({
           data: {
             actionType: ActionType.DELETE,
             changedModel: "client",
@@ -230,7 +232,7 @@ export const clientRouter = createTRPCRouter({
           where: { id: input.clientId },
         });
 
-        tx.auditLog.create({
+        void tx.auditLog.create({
           data: {
             actionType: ActionType.UPDATE,
             changedModel: "client",
@@ -278,7 +280,7 @@ export const clientRouter = createTRPCRouter({
           where: { id },
         });
 
-        tx.auditLog.create({
+        void tx.auditLog.create({
           data: {
             actionType: ActionType.UPDATE,
             changedModel: "client",

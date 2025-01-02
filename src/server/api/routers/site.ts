@@ -2,7 +2,7 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import fs from "node:fs";
 import path from "node:path";
-import { unknown, z } from "zod";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, TrpcContext } from "~/server/api/trpc";
 import { compute_hash, generateCIDR, generateWgServerConfig } from "~/server/utils/common";

@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "prisma migrate deploy && node server.js",
     "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
+    "lint.report": "eslint './**/*.{js,jsx,ts,tsx}' --format ./lint-formatter.js",
     "lint.fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
     "lint.config": "eslint --print-config ./pages/index.jsx",
     "lint2": "next lint",

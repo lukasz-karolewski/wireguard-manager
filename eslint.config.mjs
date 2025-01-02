@@ -25,7 +25,10 @@ const config = [
   importX.flatConfigs.recommended,
   importX.flatConfigs.typescript,
   {
-    rules: { "import/prefer-default-export": 0 }, // TODO check why this is useful
+    rules: {
+      "import-x/no-named-as-default-member": "off",
+      "import/prefer-default-export": "off"
+    },
   },
   //
   perfectionist.configs["recommended-natural"],
@@ -58,7 +61,12 @@ const config = [
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-misused-promises": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
