@@ -57,7 +57,9 @@ if [ ! -z "$changelog_entries" ]; then
     echo "Changes:" >> "$tmp_file"
     
     echo "$changelog_entries" >> "$tmp_file"
-    cat changelog.txt >> "$tmp_file"
+    if [ -f changelog.txt ]; then
+        cat changelog.txt >> "$tmp_file"
+    fi
     mv "$tmp_file" changelog.txt
     
     # Commit the changes
