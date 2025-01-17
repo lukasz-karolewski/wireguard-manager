@@ -10,10 +10,6 @@ else
     should_pop_stash=true
 fi
 
-# Switch to master branch
-echo "Switching to master branch"
-git checkout master
-
 # Generate changelog entries
 echo "Generating changelog entries"
 changelog_entries=$(git log master..dev --pretty=format:"* %s" --reverse)
@@ -66,6 +62,10 @@ if [ ! -z "$changelog_entries" ]; then
     git add changelog.txt
     git commit -m "Update changelog"
 fi
+
+# Switch to master branch
+echo "Switching to master branch"
+git checkout master
 
 # Merge dev into master
 echo "Merging dev into master"
