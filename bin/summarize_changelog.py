@@ -11,9 +11,14 @@ from langchain.prompts.chat import (
 )
 from dotenv import load_dotenv
 
+def check_env_vars():
+    required_vars = ["OPENAI_API_KEY"]
+    missing_vars = [var for var in required_vars if var not in os.environ]
+    if missing_vars:
+        print(f"Missing required environment variables: {', '.join(missing_vars)}")
+        sys.exit(1)
+
 def create_summary_chain():
-    load_dotenv()
-    
     system_template = """You are a technical changelog summarizer. 
     Given a list of changelog entries, create a concise summary that captures the main updates and changes."""
     
@@ -29,10 +34,13 @@ def create_summary_chain():
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
 
-    llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0, model_name="gpt-4o", max_tokens=100)
     return LLMChain(llm=llm, prompt=chat_prompt)
 
 def main():
+    load_dotenv()
+    check_env_vars()
+
     # Read the latest changelog section from stdin
     latest_entries = sys.stdin.read().strip()
     if not latest_entries:
