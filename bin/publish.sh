@@ -20,8 +20,47 @@ changelog_entries=$(git log master..dev --pretty=format:"* %s" --reverse)
 
 if [ ! -z "$changelog_entries" ]; then
     echo "Updating changelog.txt"
-    echo -e "\n## $(date +%Y-%m-%d)\n" >> changelog.txt
-    echo "$changelog_entries" >> changelog.txt
+    # Create new changelog content
+    tmp_file=$(mktemp)
+    echo -e "\n## $(date +%Y-%m-%d)\n" > "$tmp_file"
+    
+    # Try to generate summary
+    echo "Generating summary..."
+    if summary=$(echo "$changelog_entries" | ./bin/summarize_changelog.py); then
+        # Create a temporary file for review
+        summary_file=$(mktemp)
+        echo "Summary to be added:" > "$summary_file"
+        echo "$summary" >> "$summary_file"
+        echo -e "\nChangelog entries to be added:" >> "$summary_file"
+        echo "$changelog_entries" >> "$summary_file"
+        
+        # Open in VS Code and wait for user to review
+        code --wait "$summary_file"
+        
+        # Ask for confirmation
+        read -p "Proceed with these changes? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Aborting changelog update"
+            rm "$summary_file"
+            exit 1
+        fi
+        
+        # Clean up
+        rm "$summary_file"
+        
+        # Continue with changelog update
+        echo "Summary:" >> "$tmp_file"
+        echo "$summary" >> "$tmp_file"
+        echo -e "\n" >> "$tmp_file"
+    fi
+    echo "Changes:" >> "$tmp_file"
+    
+    echo "$changelog_entries" >> "$tmp_file"
+    cat changelog.txt >> "$tmp_file"
+    mv "$tmp_file" changelog.txt
+    
+    # Commit the changes
     git add changelog.txt
     git commit -m "Update changelog"
 fi
