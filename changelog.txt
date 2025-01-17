@@ -1,0 +1,5 @@
+
+## 2025-01-17
+
+Changes:
+* Reorder branch switch and changelog generation in publish script
