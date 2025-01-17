@@ -34,6 +34,12 @@ CREATE TABLE "new_Site" (
 INSERT INTO "new_Site" ("DNS", "configPath", "createdAt", "endpointAddress", "id", "listenPort", "localAddresses", "name", "piholeDNS", "postDown", "postUp", "privateKey", "publicKey", "updatedAt") SELECT "DNS", "configPath", "createdAt", "endpointAddress", "id", "listenPort", "localAddresses", "name", "piholeDNS", "postDown", "postUp", "privateKey", "publicKey", "updatedAt" FROM "Site";
 DROP TABLE "Site";
 ALTER TABLE "new_Site" RENAME TO "Site";
+
+-- Populate _ClientSites
+INSERT INTO "_ClientSites" (A, B)
+SELECT Client.id as A, Site.id as B
+FROM Client CROSS JOIN Site;
+
 PRAGMA foreign_keys=ON;
 PRAGMA defer_foreign_keys=OFF;
 

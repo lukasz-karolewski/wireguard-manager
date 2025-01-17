@@ -9,7 +9,6 @@ import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
 
-import { Checkbox } from "../ui/checkbox";
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
 
@@ -31,8 +30,6 @@ export function mapClientForEdit(client: Client): RouterInputs["client"]["update
 export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
   const isAdd = !client;
-
-  const { data: sites } = api.site.getAll.useQuery();
 
   const {
     formState: { errors },
@@ -99,18 +96,6 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
               />
               {errors.private_key && <span>{errors.private_key.message}</span>}
             </>
-          </FormField>
-        </div>
-        <div className="p-4">
-          <FormField label="Sites">
-            <div className="flex flex-col gap-2">
-              {sites?.map((site) => (
-                <label className="flex items-center gap-2" key={site.id}>
-                  <Checkbox {...register("siteIds")} value={site.id} />
-                  {site.name}
-                </label>
-              ))}
-            </div>
           </FormField>
         </div>
         <div className="flex justify-end gap-4 bg-slate-100 p-4 ">

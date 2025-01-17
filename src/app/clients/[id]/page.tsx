@@ -24,7 +24,9 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   const [show, setShowConfig] = useState<"config" | "qr">("qr");
   const router = useRouter();
 
-  const { data: clients, refetch } = api.client.get.useQuery({ id: Number(params.id) });
+  const { data: clientData, refetch } = api.client.get.useQuery({ id: Number(params.id) });
+  const { data: sites } = api.site.getAll.useQuery();
+
   const { mutate: disableClient } = api.client.disable.useMutation({
     onSuccess: () => {
       void refetch();
@@ -52,14 +54,14 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   });
 
   async function downloadAllConfigsForSite(siteId: number) {
-    if (!clients?.client?.id) {
+    if (!clientData?.client.id) {
       console.log("no id");
       return;
     }
 
     //make a POST request to the server to download the zip file
     const response = await fetch(
-      `/api/download/${clients.client.id.toString()}/${siteId.toString()}`,
+      `/api/download/${clientData.client.id.toString()}/${siteId.toString()}`,
       {
         method: "POST",
       },
@@ -104,23 +106,23 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   }
 
   function onDisable() {
-    if (!clients) return;
-    disableClient({ id: clients.client!.id });
+    if (!clientData) return;
+    disableClient({ id: clientData.client.id });
   }
 
   function onEnable() {
-    if (!clients) return;
-    enableClient({ id: clients.client!.id });
+    if (!clientData) return;
+    enableClient({ id: clientData.client.id });
   }
 
   async function onRemove() {
-    if (!clients) return;
+    if (!clientData) return;
     await NiceModal.show(ConfirmModal, {
       actionName: "Remove",
       message: (
         <>
           <p>
-            You are about to remove the client <strong>{clients.client?.name}</strong>.
+            You are about to remove the client <strong>{clientData.client.name}</strong>.
           </p>
           <p>
             This action <strong>cannot</strong> be undone. Are you sure?
@@ -129,30 +131,24 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
       ),
       title: "Remove client",
     });
-    removeClient({ id: clients.client!.id });
+    removeClient({ id: clientData.client.id });
   }
 
   async function onEdit() {
-    if (!clients) return;
+    if (!clientData) return;
     await NiceModal.show(AddEditClientModal, {
-      client: mapClientForEdit(clients.client),
+      client: mapClientForEdit(clientData.client),
     });
     void refetch();
   }
 
-  function handleSiteToggle(siteId: number, isConnected: boolean) {
-    if (!clients) return;
-    if (isConnected) {
-      removeFromSite({ clientId: clients.client!.id, siteId });
-    } else {
-      addToSite({ clientId: clients.client!.id, siteId });
-    }
-  }
+  if (!clientData) return null;
+  if (!sites) return null;
 
   return (
     <>
-      <PageHeader parent="Clients" parentHref="/" title={`${clients?.client?.name}`}>
-        {clients?.client?.enabled && (
+      <PageHeader parent="Clients" parentHref="/" title={clientData.client.name}>
+        {clientData.client.enabled && (
           <>
             <Button
               className="hidden md:block"
@@ -171,7 +167,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
             </Button>
           </>
         )}
-        {!clients?.client?.enabled && (
+        {!clientData.client.enabled && (
           <>
             <Button className="hidden md:block" onClick={onEnable} variant="default">
               Enable
@@ -182,20 +178,22 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
           Remove
         </Button>
       </PageHeader>
-      {clients?.client?.enabled && (
+      {clientData.client.enabled && (
         <div className="hidden md:block">
-          <div>Created By: {clients.client.createdBy.name}</div>
-          <div>Created: {clients.client.createdAt.toISOString()}</div>
-          <div>Updated: {clients.client.updatedAt.toISOString()}</div>
-          <div>Email: {clients.client.email}</div>
+          <div>
+            Created By: {clientData.client.createdBy.name} ({clientData.client.createdBy.email})
+          </div>
+          <div>Created: {clientData.client.createdAt.toISOString()}</div>
+          <div>Updated: {clientData.client.updatedAt.toISOString()}</div>
         </div>
       )}
       <div className="flex flex-col gap-4">
-        {clients?.configs
-          .sort((a, b) => (a.site.isDefault === b.site.isDefault ? 0 : a.site.isDefault ? -1 : 1))
-          .map(({ configs, site }) => {
-            const isConnected = clients.client?.sites.some((s) => s.id === site.id) ?? false;
-            return (
+        {sites
+          .sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1))
+          .map((site) => {
+            const siteConfigs = clientData.configs.find((c) => c.site.id === site.id);
+
+            return siteConfigs ? (
               <Accordion
                 actions={
                   <>
@@ -205,11 +203,11 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                     </Button>
                     <Button
                       onClick={() => {
-                        handleSiteToggle(site.id, isConnected);
+                        removeFromSite({ clientId: clientData.client.id, siteId: site.id });
                       }}
                       variant="ghost"
                     >
-                      {isConnected ? "Remove from site" : "Add to site"}
+                      Remove from site
                     </Button>
                   </>
                 }
@@ -220,9 +218,9 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
               >
                 <div className={clsx("border")}>
                   <div className="flex flex-wrap justify-around gap-4">
-                    {configs.map((config, index) => (
+                    {siteConfigs.configs.map((config, index) => (
                       <WgConfig
-                        clientName={clients.client!.name}
+                        clientName={clientData.client.name}
                         config={config}
                         key={index}
                         show={show}
@@ -231,6 +229,20 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                   </div>
                 </div>
               </Accordion>
+            ) : (
+              <Accordion
+                actions={
+                  <Button
+                    onClick={() => {
+                      addToSite({ clientId: clientData.client.id, siteId: site.id });
+                    }}
+                    variant="default"
+                  >
+                    Add to site
+                  </Button>
+                }
+                header={site.name + " - inactive"}
+              ></Accordion>
             );
           })}
       </div>

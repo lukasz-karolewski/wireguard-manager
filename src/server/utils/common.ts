@@ -122,11 +122,10 @@ export function generateWgServerConfig(
     );
   }
 
-  const siteClients = clients.filter((c) => c.siteId === site.id);
-  if (siteClients.length > 0) {
+  if (clients.length > 0) {
     config.push(
       `### Clients
-      ${siteClients
+      ${clients
         .map((c) => {
           return `[Peer]
                   # ${c.name}

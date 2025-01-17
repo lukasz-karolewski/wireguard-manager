@@ -325,10 +325,22 @@ async function getDefaultSiteId(ctx: TrpcContext) {
   return user?.defaultSiteId;
 }
 
+/**
+ * Retrieves the configuration for a specific site, including settings, other sites, and clients.
+ *
+ * @param ctx - The TRPC context containing the database connection.
+ * @param input - An object containing the site ID.
+ * @returns An object containing the generated WireGuard server configuration, its hash, and the site details.
+ *
+ * @throws Will throw an error if the site with the specified ID is not found.
+ */
 async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   const settings = await ctx.db.settings.findMany();
 
   const site = await ctx.db.site.findFirstOrThrow({
+    include: {
+      clients: true,
+    },
     where: { id: input.id },
   });
 
@@ -340,12 +352,7 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
     },
   });
 
-  const clients = await ctx.db.client.findMany({
-    include: { sites: true },
-    where: { enabled: true },
-  });
-
-  const config = generateWgServerConfig(settings, site, otherSites, clients);
+  const config = generateWgServerConfig(settings, site, otherSites, site.clients);
   const hash = compute_hash(config);
 
   return { config, hash, site };

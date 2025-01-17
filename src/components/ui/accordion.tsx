@@ -4,7 +4,7 @@ import React, { ComponentPropsWithoutRef, useState } from "react";
 
 interface AccordionProps extends ComponentPropsWithoutRef<"div"> {
   actions?: React.ReactNode;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   header: string;
   isInitiallyOpen?: boolean;
 }
@@ -27,7 +27,7 @@ const Accordion: React.FC<AccordionProps> = ({
 
   return (
     <div>
-      <div className={clsx("flex items-center justify-between bg-gray-200 px-4 py-2", className)}>
+      <div className={clsx("flex items-center justify-between bg-gray-200 p-4", className)}>
         <button className="" onClick={toggleAccordion}>
           <h2>{header}</h2>
         </button>

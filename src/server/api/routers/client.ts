@@ -8,6 +8,11 @@ import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ActionType, ClientConfigType } from "~/server/utils/types";
 import { emptyToNull } from "~/utils";
 
+interface Config {
+  type: ClientConfigType;
+  value: string;
+}
+
 export const clientRouter = createTRPCRouter({
   addToSite: protectedProcedure
     .input(
@@ -123,18 +128,19 @@ export const clientRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
+      // get the client
       const client = await ctx.db.client.findFirstOrThrow({
-        include: { createdBy: true },
+        include: { createdBy: true, sites: true },
         where: { id: input.id },
       });
       if (!client.enabled) return { client, configs: [] };
 
+      // get the sites for the client and mark the default site
       const user = await ctx.db.user.findFirst({
         select: { defaultSiteId: true },
         where: { id: ctx.session.user.id },
       });
-      const settings = await ctx.db.settings.findMany();
-      const sites = await ctx.db.site.findMany();
+      const sites = client.sites;
       const sitesWithDefault = sites.map((site) => {
         return {
           ...site,
@@ -142,10 +148,10 @@ export const clientRouter = createTRPCRouter({
         };
       });
 
-      interface Config {
-        type: ClientConfigType;
-        value: string;
-      }
+      // get the settings
+      const settings = await ctx.db.settings.findMany();
+
+      // Generate configs for each site
       const configs: { configs: Config[]; site: (typeof sitesWithDefault)[number] }[] = [];
 
       for (const site of sitesWithDefault) {
@@ -172,7 +178,7 @@ export const clientRouter = createTRPCRouter({
       }
 
       return {
-        ...client,
+        client,
         configs,
       };
     }),
