@@ -19,21 +19,22 @@ def check_env_vars():
 
 def create_summary_chain():
     system_template = """You are a technical changelog summarizer. 
-    Given a list of changelog entries, create a concise summary that captures the main updates and changes."""
+    Given a list of changelog entries, create a concise summary that captures the main updates and changes. 
+    Group simmilar changes together and provide a brief description of each group. Try to capture what changes mean for the user. and do not itemize every single change."""
     
     human_template = """Please summarize these changelog entries:
     {input}
     
-    Provide a brief, clear summary that highlights the most important changes.
+    Provide a brief, clear summary that highlights the most important changes. Call is Summary of Changes.
     
-    "bump" means update of libraries to the latest version
+    "bump" means update of libraries to the latest version, do not use that vernacular directly in the summary.
     """
 
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
 
-    llm = ChatOpenAI(temperature=0, model_name="gpt-4o", max_tokens=100)
+    llm = ChatOpenAI(temperature=0, model_name="gpt-4o", max_tokens=1000)
     chain = chat_prompt | llm
     return chain
 
