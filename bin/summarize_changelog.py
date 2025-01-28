@@ -2,8 +2,7 @@
 
 import os
 import sys
-from langchain import LLMChain
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
@@ -23,7 +22,7 @@ def create_summary_chain():
     Given a list of changelog entries, create a concise summary that captures the main updates and changes."""
     
     human_template = """Please summarize these changelog entries:
-    {changelog_entries}
+    {input}
     
     Provide a brief, clear summary that highlights the most important changes.
     
@@ -35,7 +34,8 @@ def create_summary_chain():
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
 
     llm = ChatOpenAI(temperature=0, model_name="gpt-4o", max_tokens=100)
-    return LLMChain(llm=llm, prompt=chat_prompt)
+    chain = chat_prompt | llm
+    return chain
 
 def main():
     load_dotenv()
@@ -49,10 +49,10 @@ def main():
 
     # Create and run the summary chain
     chain = create_summary_chain()
-    summary = chain.run(changelog_entries=latest_entries)
+    summary = chain.invoke({"input": latest_entries})
     
     # Print summary to stdout
-    print(summary.strip())
+    print(summary.content.strip())
 
 if __name__ == "__main__":
     main()
