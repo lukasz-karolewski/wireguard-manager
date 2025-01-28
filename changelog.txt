@@ -1,4 +1,13 @@
 
+## 2025-01-28
+
+Summary:
+The changelog includes updates to the Dockerfile and summarize_changelog.py to enhance environment setup and integrate Langchain. Additionally, there are library version bumps to ensure the latest versions are used.
+
+
+Changes:
+* Update Dockerfile and summarize_changelog.py for environment setup and langchain integration
+
 ## 2025-01-17
 
 Changes:
