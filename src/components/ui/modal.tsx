@@ -41,7 +41,7 @@ const Modal: FC<PropsWithChildren<PropsWithChildren<MyModalProps>>> = ({
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <DialogPanel
             className={clsx(
-              "grid max-h-screen grid-rows-[min-content,minmax(0,100%)] rounded bg-white shadow-xl",
+              "grid max-h-screen grid-rows-[min-content_minmax(0,100%)] rounded-sm bg-white shadow-xl",
               className,
             )}
           >
