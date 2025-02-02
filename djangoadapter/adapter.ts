@@ -1,14 +1,45 @@
 import { Adapter } from 'authjs';
 
 export class DjangoAdapter implements Adapter {
-    // Implement the required methods for the Auth.js adapter
     async createUser(user) {
-        // Logic to create a user in Django
+        const response = await fetch('/api/users/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+        return response.json();
     }
 
     async getUser(id) {
-        // Logic to get a user from Django
+        const response = await fetch(`/api/users/${id}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.json();
     }
 
-    // Implement other necessary methods
+    async updateUser(id, user) {
+        const response = await fetch(`/api/users/${id}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+        return response.json();
+    }
+
+    async deleteUser(id) {
+        const response = await fetch(`/api/users/${id}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.ok;
+    }
 }
