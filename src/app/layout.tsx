@@ -26,6 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html>
+      <head>{/* <script src="https://unpkg.com/react-scan/dist/auto.global.js"></script> */}</head>
       <body className="flex min-h-dvh flex-col">
         <TRPCReactProvider cookies={cookiesString}>
           <NiceModalProviderWrapper>
