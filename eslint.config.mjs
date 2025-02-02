@@ -4,7 +4,7 @@ import prettier from "eslint-config-prettier";
 import importX from "eslint-plugin-import-x";
 import n from "eslint-plugin-n";
 import perfectionist from "eslint-plugin-perfectionist";
-import tailwindcss from "eslint-plugin-tailwindcss";
+// import tailwindcss from "eslint-plugin-tailwindcss";
 import unicorn from "eslint-plugin-unicorn";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -95,7 +95,7 @@ const config = [
       "n/no-unsupported-features/node-builtins": "off",
     },
   },
-  ...tailwindcss.configs["flat/recommended"],
+  // ...tailwindcss.configs["flat/recommended"],
   { ignores: [".next/"] },
 ];
 
