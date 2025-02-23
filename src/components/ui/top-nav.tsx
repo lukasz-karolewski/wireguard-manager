@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import Image from "next/image";
 
 import { auth } from "~/auth";
 
@@ -20,11 +21,12 @@ const UserButtons: React.FC = async () => {
       {session?.user ? (
         <div className="inline-flex items-center gap-4">
           {session.user.image && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               alt="avatar"
-              className="hidden size-9 rounded-full ring-2 ring-white lg:block "
+              className="hidden size-9 rounded-full ring-2 ring-white lg:block"
+              height={36}
               src={session.user.image}
+              width={36}
             />
           )}
           <SignOut variant={"secondary"} />
