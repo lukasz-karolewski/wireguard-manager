@@ -3,6 +3,7 @@
 import { toast } from "react-hot-toast";
 
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import FormField from "~/components/ui/form-field";
 import { Input } from "~/components/ui/input";
 import PageHeader from "~/components/ui/page-header";
@@ -27,37 +28,37 @@ const GlobalSettingsPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader title={`Global settings`}></PageHeader>
-      <form
-        action={(formData: FormData) => {
-          const wgNetwork = formData.get("wg_network");
-
-          // Type guard to ensure we have a string value
-          if (!wgNetwork || typeof wgNetwork !== "string") {
-            toast.error("Network value is required");
-            return;
-          }
-
-          // Now TypeScript knows wgNetwork is a string
-          mutate({ value: wgNetwork });
-        }}
-        className="bg-slate-200 p-4"
-      >
-        <FormField
-          help="/16 network for all sites, each site will get a /24"
-          label="Wireguard network"
-        >
-          <Input
-            defaultValue={settings.wg_network}
-            id="wg_network"
-            name="wg_network"
-            type="text"
-          />
-        </FormField>
-        <Button disabled={isPosting} type="submit">
-          Save
-        </Button>
-      </form>
+      <PageHeader title="Global settings" />
+      <div className="container">
+        <Card>
+          <form
+            action={(formData: FormData) => {
+              const wgNetwork = formData.get("wg_network");
+              if (!wgNetwork || typeof wgNetwork !== "string") {
+                toast.error("Network value is required");
+                return;
+              }
+              mutate({ value: wgNetwork });
+            }}
+            className="space-y-4"
+          >
+            <FormField
+              help="/16 network for all sites, each site will get a /24"
+              label="Wireguard network"
+            >
+              <Input
+                defaultValue={settings.wg_network}
+                id="wg_network"
+                name="wg_network"
+                type="text"
+              />
+            </FormField>
+            <Button disabled={isPosting} type="submit">
+              Save
+            </Button>
+          </form>
+        </Card>
+      </div>
     </>
   );
 };
