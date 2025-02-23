@@ -45,7 +45,7 @@ export const api = createTRPCClient<typeof appRouter>({
                 getRawInput: async () => await op.input,
                 path: op.path,
                 router: appRouter,
-                signal: undefined, //TODO check what is this about
+                signal: undefined, // Optional AbortSignal for cancellation - not needed in RSC context
                 type: op.type,
               });
             })
