@@ -13,13 +13,10 @@ import { createTRPCContext } from "~/server/api/trpc";
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a tRPC call from a React Server Component.
  */
-const createContext = cache(() => {
+const createContext = cache(async () => {
+  const cookiesList = await cookies();
   return createTRPCContext({
-    headers: new Headers({
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      cookie: cookies().toString(),
-      "x-trpc-source": "rsc",
-    }),
+    headers: new Headers({ cookie: cookiesList.toString(), "x-trpc-source": "rsc" }),
   });
 });
 
