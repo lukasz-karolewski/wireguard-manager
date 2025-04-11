@@ -1,35 +1,29 @@
 # ---- Base Node ----
 FROM node:23-slim AS base
-WORKDIR /app
-RUN apk add --no-cache wireguard-tools
-# needed for runtime prisma migrate
-RUN npm install prisma 
 
 # ---- Dependencies, Copy Files/Build ----
-FROM base AS build  
-
-ENV NODE_ENV=production
-ENV SKIP_ENV_VALIDATION=1
+FROM base AS build
+RUN apt-get update -y && apt-get install -y openssl
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+ENV SKIP_ENV_VALIDATION=true
 RUN npx prisma generate && npm run build
-
 
 # ---- Release ----
 FROM base AS release  
 
+RUN apt-get update -y && apt-get install -y wireguard-tools
 ARG VERSION=development
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV VERSION=$VERSION
-
+ENV PORT=3000
 EXPOSE 3000
 
 WORKDIR /app
