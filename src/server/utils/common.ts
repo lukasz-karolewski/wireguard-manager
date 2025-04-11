@@ -1,5 +1,6 @@
-import { Client, Settings, Site } from "@prisma/client";
 import crypto from "node:crypto";
+
+import { Client, Settings, Site } from "~/generated/prisma/client";
 
 import { ClientConfigType } from "./types";
 

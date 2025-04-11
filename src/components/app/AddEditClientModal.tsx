@@ -1,10 +1,10 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Client } from "@prisma/client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
+import { Client } from "~/generated/prisma/client";
 import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";

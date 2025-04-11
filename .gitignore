@@ -24,3 +24,4 @@ prisma/*.db-journal
 #local testing files
 wg*
 .aider*
+src/generated/*

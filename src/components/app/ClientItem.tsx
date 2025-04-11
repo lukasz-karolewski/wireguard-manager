@@ -1,8 +1,8 @@
-import { Client } from "@prisma/client";
 import { clsx } from "clsx";
 import { FC } from "react";
 
 import Link from "~/components/ui/link";
+import { Client } from "~/generated/prisma/client";
 
 interface ClientConfigProps {
   client: Client;

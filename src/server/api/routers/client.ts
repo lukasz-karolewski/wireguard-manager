@@ -1,7 +1,7 @@
-import { Prisma } from "@prisma/client";
-import "server-only";
 import { z } from "zod";
+import "server-only";
 
+import { Prisma } from "~/generated/prisma/client";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateClientConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";

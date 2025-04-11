@@ -33,7 +33,7 @@ const config = [
   //
   perfectionist.configs["recommended-natural"],
   //
-  unicorn.configs["flat/recommended"],
+  unicorn.configs["recommended"],
   {
     rules: {
       "unicorn/expiring-todo-comments": "off",
@@ -96,7 +96,7 @@ const config = [
     },
   },
   // ...tailwindcss.configs["flat/recommended"],
-  { ignores: [".next/"] },
+  { ignores: [".next/", 'src/generated/'] },
 ];
 
 export default config;
