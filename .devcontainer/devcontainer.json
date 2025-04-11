@@ -39,6 +39,7 @@
   "remoteUser": "vscode",
   "features": {
     "git": "latest",
-    "node": "latest"
+    "node": "latest",
+    "docker-in-docker": "latest"
   }
 }

@@ -1,14 +1,14 @@
 # ---- Base Node ----
 FROM node:23-slim AS base
 
-# ---- Dependencies, Copy Files/Build ----
-FROM base AS build
 RUN apt-get update -y && apt-get install -y openssl wireguard-tools
-
-# needed for runtime prisma migrate
 RUN npm install -g prisma 
 
 WORKDIR /app
+
+# ---- Dependencies, Copy Files/Build ----
+FROM base AS build
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -28,7 +28,6 @@ ENV VERSION=$VERSION
 ENV PORT=3000
 EXPOSE 3000
 
-WORKDIR /app
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/prisma ./prisma
