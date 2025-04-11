@@ -1,5 +1,5 @@
 # ---- Base Node ----
-FROM node:21-alpine AS base
+FROM node:23-slim AS base
 WORKDIR /app
 RUN apk add --no-cache wireguard-tools
 # needed for runtime prisma migrate
@@ -25,9 +25,9 @@ FROM base AS release
 ARG VERSION=development
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 ENV VERSION=$VERSION
 
 EXPOSE 3000
