@@ -14,7 +14,7 @@ export async function POST(
   const data = await api.client.get.query({ id: clientId });
   const configsForRequestedSite = data.configs.findLast((config) => config.site.id === siteId);
 
-  if (!data.client?.name) {
+  if (!data.client.name) {
     return new Response("Client has no name", {
       status: 500,
     });

@@ -10,10 +10,7 @@ export const createUrl = (pathname: string, params: ReadonlyURLSearchParams | UR
 
 interface ZodErrorData {
   data?: {
-    zodError?: {
-      fieldErrors: Record<string, string[]>;
-      formErrors: Record<string, string[]>;
-    };
+    zodError?: { fieldErrors: Record<string, string[]>; formErrors: Record<string, string[]> };
   };
 }
 
