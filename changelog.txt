@@ -1,4 +1,42 @@
 
+## 2025-04-11
+
+Summary:
+**Summary of Changes**
+
+This update introduces several enhancements and new features aimed at improving user experience and developer efficiency. 
+
+1. **Development Environment Enhancements**: The VSCode settings have been updated to include a Dockerfile formatter and enable a chat agent, streamlining the development workflow. Additionally, compatibility with Next.js 15 has been ensured, allowing developers to leverage the latest features of the framework.
+
+2. **Styling and UI Improvements**: The migration to Tailwind CSS version 4 enhances styling capabilities, while the creation of a new Card component and updates to the users page, including the use of the Image component, improve the user interface and visual consistency.
+
+3. **Backend and API Development**: A new Django API has been implemented, complete with an Auth.js adapter, serializers, and views, providing a robust backend solution for authentication and data handling.
+
+4. **Bug Fixes and Debugging**: Several bugs have been addressed, including issues with trpc and cookie handling, ensuring smoother application performance. A debug script has also been added to assist in troubleshooting.
+
+5. **General Updates and Maintenance**: Various packages have been updated to their latest versions, ensuring security and performance improvements. Configuration updates and the removal of an accidental check-in contribute to a cleaner and more efficient codebase.
+
+These changes collectively enhance the functionality, performance, and maintainability of the application, providing a better experience for both developers and end-users.
+
+
+Changes:
+* Add Dockerfile formatter to VSCode settings
+* Enhance changelog summarization by grouping similar changes and improving user-focused descriptions
+* bump packages
+* migrated to tailwind  4
+* debug script
+* feat: Implement Django API and Auth.js adapter with serializers and views
+* config updates
+* removed accidentl checkin
+* fix a bug with trpc
+* added comment
+* created Card component
+* updated users page and using Image component
+* fixed issue with not awaiting cookies
+* bump
+* enable chat agent in VSCode settings
+* next 15 compatibile
+
 ## 2025-01-28
 
 Summary:
