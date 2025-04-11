@@ -3,7 +3,10 @@ FROM node:23-slim AS base
 
 # ---- Dependencies, Copy Files/Build ----
 FROM base AS build
-RUN apt-get update -y && apt-get install -y openssl
+RUN apt-get update -y && apt-get install -y openssl wireguard-tools
+
+# needed for runtime prisma migrate
+RUN npm install prisma 
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -16,7 +19,6 @@ RUN npx prisma generate && npm run build
 # ---- Release ----
 FROM base AS release  
 
-RUN apt-get update -y && apt-get install -y wireguard-tools
 ARG VERSION=development
 
 ENV NODE_ENV=production
