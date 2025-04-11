@@ -2,6 +2,17 @@
 ## 2025-04-11
 
 Summary:
+**Summary of Changes**
+
+This update primarily focuses on enhancing the system's stability and performance by updating several libraries to their latest versions. These updates ensure improved compatibility, security, and efficiency, providing users with a more reliable and seamless experience. Additionally, a missing dependency was added, which resolves potential issues related to application functionality and ensures smoother operation. Overall, these changes contribute to a more robust and efficient system environment.
+
+
+Changes:
+* adding missing dependency ...
+
+## 2025-04-11
+
+Summary:
 **Summary of Changes:**
 
 The latest update includes several key improvements and optimizations. The base Node version has been upgraded to 23-slim, which enhances performance and ensures compatibility with the latest features. Additionally, the environment variable syntax has been corrected, improving configuration accuracy. The Dockerfile has been refactored to streamline the build process, which now includes the installation of wireguard-tools, enhancing the overall efficiency and functionality of the application. Furthermore, Prisma's code generation process has been updated to prevent code from being generated in the node_modules directory, promoting a cleaner and more organized project structure. Lastly, all dependencies have been updated to their latest versions, ensuring improved security and performance.

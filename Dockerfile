@@ -6,7 +6,7 @@ FROM base AS build
 RUN apt-get update -y && apt-get install -y openssl wireguard-tools
 
 # needed for runtime prisma migrate
-RUN npm install prisma 
+RUN npm install -g prisma 
 
 WORKDIR /app
 COPY package.json package-lock.json ./
