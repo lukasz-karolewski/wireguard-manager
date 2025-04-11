@@ -2,6 +2,20 @@
 ## 2025-04-11
 
 Summary:
+**Summary of Changes:**
+
+The latest update includes several key improvements and optimizations. The base Node version has been upgraded to 23-slim, which enhances performance and ensures compatibility with the latest features. Additionally, the environment variable syntax has been corrected, improving configuration accuracy. The Dockerfile has been refactored to streamline the build process, which now includes the installation of wireguard-tools, enhancing the overall efficiency and functionality of the application. Furthermore, Prisma's code generation process has been updated to prevent code from being generated in the node_modules directory, promoting a cleaner and more organized project structure. Lastly, all dependencies have been updated to their latest versions, ensuring improved security and performance.
+
+
+Changes:
+* bump dependencies
+* Update base Node version to 23-slim and fix environment variable syntax
+* moving forward prisma won't generage code to node_modules. updating.
+* Refactor Dockerfile: streamline build process and ensure wireguard-tools installation
+
+## 2025-04-11
+
+Summary:
 **Summary of Changes**
 
 This update introduces several enhancements and new features aimed at improving user experience and developer efficiency. 
