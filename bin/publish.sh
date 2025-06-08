@@ -22,7 +22,7 @@ if [ ! -z "$changelog_entries" ]; then
     
     # Try to generate summary
     echo "Generating summary..."
-    if summary=$(echo "$changelog_entries" | ./bin/summarize_changelog.py); then
+    if summary=$(echo "$changelog_entries" | npm run summarize-changelog --silent); then
         # Create a temporary file for review
         summary_file=$(mktemp)
         echo "Summary to be added:" > "$summary_file"
