@@ -1,6 +1,18 @@
 
 ## 2025-06-08
 
+Summary:
+**Summary of Changes**
+
+The changelog has been migrated to TypeScript, enhancing code quality and maintainability by leveraging TypeScript's static typing and improved tooling support. Additionally, linting has been applied, ensuring code consistency and adherence to best practices, which contributes to a more reliable and readable codebase. These updates collectively improve the development experience and the overall stability of the project.
+
+
+Changes:
+* migrate changelog to typescript
+* lint
+
+## 2025-06-08
+
 Changes:
 * filter clients by owner and add a clear search button
 * add key prop to Accordion component for site mapping
