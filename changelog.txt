@@ -2,6 +2,11 @@
 ## 2025-06-08
 
 Changes:
+* hash should not be unique,
+
+## 2025-06-08
+
+Changes:
 * update SSH commands to use sudo
 
 ## 2025-06-08
