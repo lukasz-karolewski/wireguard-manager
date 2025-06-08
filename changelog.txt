@@ -1,6 +1,11 @@
 
 ## 2025-06-08
 
+Changes:
+* Add SSH connection testing functionality to SiteDetailPage and site router
+
+## 2025-06-08
+
 Summary:
 **Summary of Changes**
 
