@@ -18,16 +18,9 @@ async function createSummary(input: string): Promise<string> {
     apiKey: process.env.OPENAI_API_KEY!,
   });
 
-  const systemPrompt = `You are a technical changelog summarizer. 
-Given a list of changelog entries, create a concise summary that captures the main updates and changes. 
-Group similar changes together and provide a brief description of each group. Try to capture what changes mean for the user, and do not itemize every single change.`;
+  const systemPrompt = `You are a technical changelog summarizer. Summarize a list of changelog entries into a concise, user-focused summary. Group related changes, describe each group briefly, and highlight the impact for users. Avoid listing every change individually.`;
 
-  const humanPrompt = `Please summarize these changelog entries:
-${input}
-
-Provide a brief, clear summary that highlights the most important changes. Call it Summary of Changes.
-
-"bump" means update of libraries to the latest version, do not use that vernacular directly in the summary.`;
+  const humanPrompt = `Summarize the following changelog entries:\n\n${input}\n\nWrite a brief summary called \"Summary of Changes\" that highlights the most important updates. If an entry says \"bump\", interpret it as a library update and use clear language (e.g., \"Updated dependencies to latest versions\"). Do not use the word \"bump\" in the summary.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -36,7 +29,7 @@ Provide a brief, clear summary that highlights the most important changes. Call 
         { content: systemPrompt, role: "system" },
         { content: humanPrompt, role: "user" },
       ],
-      model: "gpt-4o",
+      model: "o4-mini",
       temperature: 0,
     });
 
