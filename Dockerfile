@@ -4,10 +4,6 @@ FROM node:23-slim AS base
 RUN apt-get update -y && apt-get install -y openssl wireguard-tools openssh-client
 RUN npm install -g prisma 
 
-# Create a non-root user for better security
-RUN groupadd --gid 1000 node \
-  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
-
 # Create .ssh directory with proper permissions
 RUN mkdir -p /home/node/.ssh && \
     chown -R node:node /home/node/.ssh && \
