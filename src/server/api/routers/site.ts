@@ -18,6 +18,7 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
         endpointAddress: z.string().ip().or(z.string()),
+        hostname: emptyToNull(z.string().optional()),
         id: z.number(),
         listenPort: z.number().min(1024).max(65_535).optional(),
         localAddresses: z.string().optional(),
@@ -51,6 +52,7 @@ export const siteRouter = createTRPCRouter({
             configPath: input.config_path,
             DNS: input.dns,
             endpointAddress: input.endpointAddress,
+            hostname: input.hostname,
             id: input.id,
             listenPort: input.listenPort,
             localAddresses:
@@ -204,6 +206,7 @@ export const siteRouter = createTRPCRouter({
         dns: emptyToNull(z.string().ip().optional()),
         dns_pihole: emptyToNull(z.string().ip().optional()),
         endpointAddress: z.string().ip().or(z.string()).optional(),
+        hostname: emptyToNull(z.string().optional()),
         id: z.number(),
         listenPort: z.number().min(1024).max(65_535).optional(),
         localAddresses: z.string().optional(),
@@ -223,6 +226,7 @@ export const siteRouter = createTRPCRouter({
         configPath: input.config_path,
         DNS: input.dns,
         endpointAddress: input.endpointAddress,
+        hostname: input.hostname,
         listenPort: input.listenPort,
         localAddresses:
           input.localAddresses
@@ -280,19 +284,27 @@ export const siteRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { config, hash, site } = await getSiteConfig(ctx, input);
 
-      const configDir = path.dirname(site.configPath);
-      await fs.promises.mkdir(configDir, { recursive: true });
+      let currentConfig: null | string = null;
 
-      //check if contents of config file are the same as the new config
-      const currentConfig = await getConfigFromDisk(site.configPath);
+      if (site.hostname) {
+        // Remote host - use SSH to read current config
+        try {
+          currentConfig = await execShellCommand(
+            `ssh ${site.hostname} 'cat ${site.configPath}' 2>/dev/null || echo ""`,
+          );
+          currentConfig = currentConfig.trim() || null;
+        } catch {
+          currentConfig = null;
+        }
+      } else {
+        // Local host - read directly from disk
+        const configDir = path.dirname(site.configPath);
+        await fs.promises.mkdir(configDir, { recursive: true });
+        currentConfig = await getConfigFromDisk(site.configPath);
+      }
 
       if (config === currentConfig) {
         return "no_changes";
-      }
-
-      // Backup old config if exists
-      if (currentConfig) {
-        await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
       }
 
       // save new config to db for future reference
@@ -305,8 +317,30 @@ export const siteRouter = createTRPCRouter({
         },
       });
 
-      // write new config to disk with correct permissions
-      await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
+      if (site.hostname) {
+        // Remote host - use SSH to write config
+        // First backup existing config if it exists
+        if (currentConfig) {
+          await execShellCommand(
+            `ssh ${site.hostname} 'cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
+          );
+        }
+
+        // Write config to remote host using SSH with proper escaping
+        const escapedConfig = config.replaceAll("'", "'\"'\"'");
+        await execShellCommand(
+          `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' > ${site.configPath} && chmod 600 ${site.configPath}'`,
+        );
+      } else {
+        // Local host - write directly to disk
+        // Backup old config if exists
+        if (currentConfig) {
+          await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
+        }
+
+        // write new config to disk with correct permissions
+        await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
+      }
 
       return "written";
     }),

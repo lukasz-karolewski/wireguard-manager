@@ -26,6 +26,7 @@ export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
     dns: site.DNS ?? undefined,
     dns_pihole: site.piholeDNS ?? undefined,
     endpointAddress: site.endpointAddress,
+    hostname: site.hostname ?? undefined,
     id: site.id,
     listenPort: site.listenPort,
     localAddresses: site.localAddresses,
@@ -85,7 +86,7 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 p-4">
           <div className="border border-gray-300">
-            <h3 className="bg-accent p-4 text-white">Interface</h3>
+            <h3 className="bg-accent p-4 text-white">App options</h3>
             <div className="p-4">
               <FormField label="Name">
                 <Input type="text" {...register("name", { required: true })} />
@@ -100,7 +101,35 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                   {...register("id", { max: 255, min: 1, required: true, valueAsNumber: true })}
                 />
               </FormField>
+              <FormField label="Config Path">
+                <Input {...register("config_path", { required: false })} />
+              </FormField>
 
+              <FormField
+                help="SSH hostname for remote config writing. Leave empty for local file system."
+                label="Hostname (SSH)"
+              >
+                <Input
+                  placeholder="e.g., server.example.com"
+                  {...register("hostname", { required: false })}
+                />
+              </FormField>
+
+              <FormField
+                help="Clients will display config for this site by default"
+                label="Mark as Default Site"
+              >
+                <Input
+                  className="w-4"
+                  type="checkbox"
+                  {...register("markAsDefault", { required: false })}
+                />
+              </FormField>
+            </div>
+          </div>
+          <div className="border border-gray-300">
+            <h3 className="bg-accent p-4 text-white">Interface</h3>
+            <div className="p-4">
               <FormField label="Listen Port">
                 <Input
                   type="number"
@@ -158,25 +187,6 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
 
               <FormField help="local Pihole instance clients can use" label="Pihole IP">
                 <Input {...register("dns_pihole", { required: false })} />
-              </FormField>
-            </div>
-          </div>
-          <div className="border border-gray-300">
-            <h3 className="bg-accent p-4 text-white">App options</h3>
-            <div className="p-4">
-              <FormField label="Config Path">
-                <Input {...register("config_path", { required: false })} />
-              </FormField>
-
-              <FormField
-                help="Clients will display config for this site by default"
-                label="Mark as Default Site"
-              >
-                <Input
-                  className="w-4"
-                  type="checkbox"
-                  {...register("markAsDefault", { required: false })}
-                />
               </FormField>
             </div>
           </div>

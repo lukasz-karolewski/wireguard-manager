@@ -111,7 +111,8 @@ model Site {
   postUp         String?
   postDown       String?
 
-  configPath String @default("/etc/wireguard/wg0.conf")
+  configPath String  @default("/etc/wireguard/wg0.conf")
+  hostname   String?
 
   User    User[]
   Release Release[]
