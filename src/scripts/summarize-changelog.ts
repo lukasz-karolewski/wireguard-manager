@@ -24,7 +24,7 @@ async function createSummary(input: string): Promise<string> {
 
   try {
     const completion = await openai.chat.completions.create({
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
       messages: [
         { content: systemPrompt, role: "system" },
         { content: humanPrompt, role: "user" },
