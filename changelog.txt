@@ -2,6 +2,11 @@
 ## 2025-06-08
 
 Changes:
+* node user already exists
+
+## 2025-06-08
+
+Changes:
 * Fix parameter name for OpenAI API call in summarize-changelog script
 * update docker and docker compose to use ssh
 
