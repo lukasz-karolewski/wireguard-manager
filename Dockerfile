@@ -1,8 +1,17 @@
 # ---- Base Node ----
 FROM node:23-slim AS base
 
-RUN apt-get update -y && apt-get install -y openssl wireguard-tools
+RUN apt-get update -y && apt-get install -y openssl wireguard-tools openssh-client
 RUN npm install -g prisma 
+
+# Create a non-root user for better security
+RUN groupadd --gid 1000 node \
+  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
+
+# Create .ssh directory with proper permissions
+RUN mkdir -p /home/node/.ssh && \
+    chown -R node:node /home/node/.ssh && \
+    chmod 700 /home/node/.ssh
 
 WORKDIR /app
 
@@ -28,9 +37,12 @@ ENV VERSION=$VERSION
 ENV PORT=3000
 EXPOSE 3000
 
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/prisma ./prisma
+# Switch to node user
+USER node
+
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/prisma ./prisma
 # COPY --from=build /app/public ./public
 
 CMD [ "npm", "run", "start"]

@@ -57,18 +57,19 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
     },
   });
 
-  const { isPending: isTesting, mutate: testSshConnection } = api.site.testSshConnection.useMutation({
-    onError: (error) => {
-      toast.error(error.message);
-    },
-    onSuccess: (result) => {
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
-    },
-  });
+  const { isPending: isTesting, mutate: testSshConnection } =
+    api.site.testSshConnection.useMutation({
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSuccess: (result) => {
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
+      },
+    });
 
   async function onRemove() {
     if (!data) return;

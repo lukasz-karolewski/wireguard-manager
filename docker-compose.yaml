@@ -8,6 +8,7 @@ services:
     volumes:
       - /etc/wireguard:/etc/wireguard
       - ./db:/app/prisma/db
+      - ~/.ssh:/home/node/.ssh:ro
     ports:
       - "8888:3000"
     environment:
