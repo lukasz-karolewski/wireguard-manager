@@ -60,6 +60,7 @@ model User {
   defaultSiteId Int?
   defaultSite   Site?      @relation(fields: [defaultSiteId], references: [id])
   Client        Client[]
+  ownedClients  Client[]   @relation("ClientOwner")
   Release       Release[]
   AuditLog      AuditLog[]
 }
@@ -128,6 +129,8 @@ model Client {
   privateKey  String
   createdById String
   createdBy   User     @relation(fields: [createdById], references: [id])
+  ownerId     String
+  owner       User     @relation("ClientOwner", fields: [ownerId], references: [id])
   sites       Site[]   @relation("ClientSites")
 }
 

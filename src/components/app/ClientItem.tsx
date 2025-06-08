@@ -25,7 +25,7 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
               {client.enabled ? "" : " - Disabled"}
             </span>
             <span className="text-sm text-gray-600">
-              Created by {client.createdBy.name ?? client.createdBy.email ?? "Unknown"}
+              Owner: {client.owner.name ?? client.owner.email ?? "Unknown"}
             </span>
           </div>
         </div>

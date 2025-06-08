@@ -53,6 +53,7 @@ export const clientRouter = createTRPCRouter({
       z.object({
         email: emptyToNull(z.string().email().optional()),
         name: z.string(),
+        ownerId: emptyToNull(z.string().optional()),
         private_key: emptyToNull(z.string().length(44).optional()),
         siteIds: z.array(z.number()).optional(),
       }),
@@ -73,6 +74,7 @@ export const clientRouter = createTRPCRouter({
             createdById: ctx.session.user.id!,
             email: input.email,
             name: input.name,
+            ownerId: input.ownerId ?? ctx.session.user.id!,
             privateKey: private_key,
             publicKey: public_key,
             sites: {
@@ -130,7 +132,7 @@ export const clientRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       // get the client
       const client = await ctx.db.client.findFirstOrThrow({
-        include: { createdBy: true, sites: true },
+        include: { createdBy: true, owner: true, sites: true },
         where: { id: input.id },
       });
       if (!client.enabled) return { client, configs: [] };
@@ -197,12 +199,19 @@ export const clientRouter = createTRPCRouter({
       }
 
       if (input.showOnlyMine) {
-        whereConditions.createdById = ctx.session.user.id;
+        whereConditions.ownerId = ctx.session.user.id;
       }
 
       return await ctx.db.client.findMany({
         include: {
           createdBy: {
+            select: {
+              email: true,
+              id: true,
+              name: true,
+            },
+          },
+          owner: {
             select: {
               email: true,
               id: true,
@@ -278,6 +287,7 @@ export const clientRouter = createTRPCRouter({
         email: emptyToNull(z.string().email().optional()),
         id: z.number(),
         name: z.string().min(2).optional(),
+        ownerId: emptyToNull(z.string().optional()),
         private_key: emptyToNull(z.string().length(44).optional()),
         siteIds: z.array(z.number()).optional(),
       }),
@@ -288,6 +298,7 @@ export const clientRouter = createTRPCRouter({
       const data: Prisma.ClientUpdateInput = {
         email: input.email,
         name: input.name,
+        owner: input.ownerId ? { connect: { id: input.ownerId } } : undefined,
         sites: {
           set: input.siteIds?.map((id) => ({ id })),
         },

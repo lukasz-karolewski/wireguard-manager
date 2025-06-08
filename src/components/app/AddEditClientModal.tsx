@@ -1,4 +1,5 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
+import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
@@ -11,6 +12,7 @@ import { zodErrorsToString } from "~/utils";
 
 import FormField from "../ui/form-field";
 import { Input } from "../ui/input";
+import { Select } from "../ui/select";
 
 type FormValues = RouterInputs["client"]["create"];
 
@@ -23,6 +25,7 @@ export function mapClientForEdit(client: Client): RouterInputs["client"]["update
     email: client.email ?? undefined,
     id: client.id,
     name: client.name,
+    ownerId: client.ownerId ?? undefined,
     private_key: client.privateKey,
   };
 }
@@ -30,6 +33,9 @@ export function mapClientForEdit(client: Client): RouterInputs["client"]["update
 export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
   const modal = useModal();
   const isAdd = !client;
+
+  // Fetch all users for owner selection
+  const { data: users } = api.user.getAllUsers.useQuery();
 
   const {
     formState: { errors },
@@ -82,12 +88,16 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
           >
             <Input type="text" {...register("name", { required: true })} />
           </FormField>
-          {/* <FormField label="Email">
-            <>
-              <Input type="email" {...register("email", { required: false })} />
-              {errors.email && <span>{errors.email.message}</span>}
-            </>
-          </FormField> */}
+          <FormField help="Select the user who will own this client" label="Owner">
+            <Select {...register("ownerId")}>
+              <option value="">Default (Current User)</option>
+              {users?.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name ?? user.email}
+                </option>
+              ))}
+            </Select>
+          </FormField>
           <FormField label="Private key">
             <>
               <Input
