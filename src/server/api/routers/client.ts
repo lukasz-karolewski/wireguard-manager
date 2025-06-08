@@ -186,14 +186,32 @@ export const clientRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
+        showOnlyMine: z.boolean().optional().default(true),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const condition = input.search ? { where: { name: { contains: input.search } } } : undefined;
+      const whereConditions: Prisma.ClientWhereInput = {};
+
+      if (input.search) {
+        whereConditions.name = { contains: input.search };
+      }
+
+      if (input.showOnlyMine) {
+        whereConditions.createdById = ctx.session.user.id;
+      }
 
       return await ctx.db.client.findMany({
-        ...condition,
+        include: {
+          createdBy: {
+            select: {
+              email: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
         orderBy: { name: "asc" },
+        where: whereConditions,
       });
     }),
   remove: protectedProcedure
