@@ -2,6 +2,11 @@
 ## 2025-06-08
 
 Changes:
+* update SSH commands to use sudo
+
+## 2025-06-08
+
+Changes:
 * updated workflow
 
 ## 2025-06-08
