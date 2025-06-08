@@ -242,6 +242,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                   </Button>
                 }
                 header={site.name + " - inactive"}
+                key={site.id}
               ></Accordion>
             );
           })}
