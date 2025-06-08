@@ -25,7 +25,7 @@ export function mapClientForEdit(client: Client): RouterInputs["client"]["update
     email: client.email ?? undefined,
     id: client.id,
     name: client.name,
-    ownerId: client.ownerId ?? undefined,
+    ownerId: client.ownerId,
     private_key: client.privateKey,
   };
 }
