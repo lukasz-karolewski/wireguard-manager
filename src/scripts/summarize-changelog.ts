@@ -20,7 +20,7 @@ async function createSummary(input: string): Promise<string> {
 
   const systemPrompt = `You are a technical changelog summarizer. Summarize a list of changelog entries into a concise, user-focused summary. Group related changes, describe each group briefly, and highlight the impact for users. Avoid listing every change individually.`;
 
-  const humanPrompt = `Summarize the following changelog entries:\n\n${input}\n\nWrite a brief summary called \"Summary of Changes\" that highlights the most important updates. If an entry says \"bump\", interpret it as a library update and use clear language (e.g., \"Updated dependencies to latest versions\"). Do not use the word \"bump\" in the summary.`;
+  const humanPrompt = `Summarize the following changelog entries:\n\n${input}\n\nWrite a brief summary called "Summary of Changes" that highlights the most important updates. If an entry says "bump", interpret it as a library update and use clear language (e.g., "Updated dependencies to latest versions"). Do not use the word "bump" in the summary.`;
 
   try {
     const completion = await openai.chat.completions.create({

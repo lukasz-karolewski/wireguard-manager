@@ -198,6 +198,33 @@ export const siteRouter = createTRPCRouter({
       });
     }),
 
+  testSshConnection: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const site = await ctx.db.site.findFirstOrThrow({
+        where: { id: input.id },
+      });
+
+      if (!site.hostname) {
+        throw new Error("No hostname configured for this site");
+      }
+
+      try {
+        // Test SSH connection with a simple command
+        const result = await execShellCommand(
+          `ssh -o ConnectTimeout=10 -o BatchMode=yes ${site.hostname} 'echo "SSH connection successful"'`,
+        );
+        return { message: result.trim(), success: true };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return { message: `SSH connection failed: ${errorMessage}`, success: false };
+      }
+    }),
+
   update: protectedProcedure
     .input(
       z.object({

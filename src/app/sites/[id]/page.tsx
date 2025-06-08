@@ -57,6 +57,19 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
     },
   });
 
+  const { isPending: isTesting, mutate: testSshConnection } = api.site.testSshConnection.useMutation({
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    },
+  });
+
   async function onRemove() {
     if (!data) return;
     await NiceModal.show(ConfirmModal, {
@@ -88,6 +101,18 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
             variant="ghost"
           >
             Write config
+          </Button>
+        )}
+        {data?.site.hostname && (
+          <Button
+            className="hidden md:block"
+            disabled={isTesting}
+            onClick={() => {
+              testSshConnection({ id: data.site.id });
+            }}
+            variant="ghost"
+          >
+            {isTesting ? "Testing..." : "Test SSH"}
           </Button>
         )}
         <Button
