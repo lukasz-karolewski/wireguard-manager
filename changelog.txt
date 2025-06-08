@@ -1,4 +1,12 @@
 
+## 2025-06-08
+
+Changes:
+* filter clients by owner and add a clear search button
+* add key prop to Accordion component for site mapping
+* add owner field
+* write to remote host
+
 ## 2025-04-11
 
 Summary:
