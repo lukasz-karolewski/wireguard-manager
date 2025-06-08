@@ -2,6 +2,12 @@
 ## 2025-06-08
 
 Changes:
+* Fix parameter name for OpenAI API call in summarize-changelog script
+* update docker and docker compose to use ssh
+
+## 2025-06-08
+
+Changes:
 * Add SSH connection testing functionality to SiteDetailPage and site router
 
 ## 2025-06-08
