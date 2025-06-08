@@ -317,7 +317,7 @@ export const siteRouter = createTRPCRouter({
         // Remote host - use SSH to read current config
         try {
           currentConfig = await execShellCommand(
-            `ssh ${site.hostname} 'cat ${site.configPath}' 2>/dev/null || echo ""`,
+            `ssh ${site.hostname} 'sudo cat ${site.configPath}' 2>/dev/null || echo ""`,
           );
           currentConfig = currentConfig.trim() || null;
         } catch {
@@ -349,14 +349,14 @@ export const siteRouter = createTRPCRouter({
         // First backup existing config if it exists
         if (currentConfig) {
           await execShellCommand(
-            `ssh ${site.hostname} 'cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
+            `ssh ${site.hostname} 'sudo cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
           );
         }
 
         // Write config to remote host using SSH with proper escaping
         const escapedConfig = config.replaceAll("'", "'\"'\"'");
         await execShellCommand(
-          `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' > ${site.configPath} && chmod 600 ${site.configPath}'`,
+          `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' | sudo tee ${site.configPath} > /dev/null && sudo chmod 600 ${site.configPath}'`,
         );
       } else {
         // Local host - write directly to disk

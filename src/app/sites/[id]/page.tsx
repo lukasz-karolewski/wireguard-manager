@@ -93,17 +93,16 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
   return (
     <>
       <PageHeader parent="Sites" parentHref={"/sites"} title={data?.site.name ?? ""}>
-        {data?.site.isDefault && (
-          <Button
-            disabled={isPosting || !data.site.configChanged}
-            onClick={() => {
-              writeConfig({ id: data.site.id });
-            }}
-            variant="ghost"
-          >
-            Write config
-          </Button>
-        )}
+        <Button
+          disabled={isPosting || !data?.site.configChanged}
+          onClick={() => {
+            writeConfig({ id: data!.site.id });
+          }}
+          variant="ghost"
+        >
+          Write config
+        </Button>
+
         {data?.site.hostname && (
           <Button
             className="hidden md:block"
