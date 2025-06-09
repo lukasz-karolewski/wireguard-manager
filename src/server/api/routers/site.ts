@@ -336,19 +336,9 @@ export const siteRouter = createTRPCRouter({
 
       // Perform the file write operation first
       if (site.hostname) {
-        // Remote host - use SSH to write config
-        // First backup existing config if it exists
-        if (currentConfig) {
-          await execShellCommand(
-            `ssh ${site.hostname} 'sudo cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
-          );
-        }
-
-        // Write config to remote host using SSH with proper escaping
-        const escapedConfig = config.replaceAll("'", "'\"'\"'");
-        await execShellCommand(
-          `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' | sudo tee ${site.configPath} > /dev/null && sudo chmod 600 ${site.configPath}'`,
-        );
+        // Remote host - use optimized SSH approach with single connection
+        const hostname = site.hostname; // TypeScript type narrowing
+        await writeRemoteConfig(hostname, site.configPath, config, currentConfig);
       } else {
         // Local host - write directly to disk
         // Backup old config if exists
@@ -419,4 +409,53 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   const hash = compute_hash(config);
 
   return { config, hash, site };
+}
+
+/**
+ * Optimized function to write config to remote host using a single SSH connection
+ * and temporary files to avoid complex shell escaping issues.
+ */
+async function writeRemoteConfig(
+  hostname: string,
+  configPath: string,
+  config: string,
+  _currentConfig: null | string,
+) {
+  // Create a temporary file locally to avoid shell escaping issues
+  const tempFile = `/tmp/wg-config-${Date.now()}-${Math.random().toString(36).slice(7)}.conf`;
+
+  try {
+    // Write config to local temp file
+    await fs.promises.writeFile(tempFile, config, { encoding: "utf8", mode: 0o600 });
+
+    // Use a single SSH command to:
+    // 1. Backup existing config (if it exists)
+    // 2. Copy new config from temp file
+    // 3. Set proper permissions
+    // 4. Clean up temp file
+    const sshScript = `
+      # Backup existing config if it exists
+      if [ -f "${configPath}" ]; then
+        sudo cp "${configPath}" "${configPath}.bak" 2>/dev/null || true
+      fi
+
+      # Copy new config and set permissions
+      sudo cp /tmp/wg-remote-config.conf "${configPath}" && \\
+      sudo chmod 600 "${configPath}" && \\
+      rm -f /tmp/wg-remote-config.conf
+    `.trim();
+
+    // Transfer file and execute script in single SSH session
+    await execShellCommand(
+      `scp -o ConnectTimeout=10 "${tempFile}" "${hostname}:/tmp/wg-remote-config.conf" && ` +
+        `ssh -o ConnectTimeout=10 "${hostname}" '${sshScript}'`,
+    );
+  } finally {
+    // Clean up local temp file
+    try {
+      await fs.promises.unlink(tempFile);
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
 }

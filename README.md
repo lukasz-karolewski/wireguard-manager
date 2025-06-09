@@ -162,7 +162,7 @@ Now the user can SSH into the server without a password and can only use SCP to 
         sudo visudo
 
         # Add this line (replace 'username' with actual SSH user):
-        username ALL=(ALL) NOPASSWD: /bin/cat /etc/wireguard/*, /bin/cp /etc/wireguard/* /etc/wireguard/*.bak, /usr/bin/tee, /bin/chmod
+        username ALL=(ALL) NOPASSWD: /bin/cp /etc/wireguard/* /etc/wireguard/*.bak, /bin/cp /tmp/wg-remote-config.conf /etc/wireguard/*, /bin/chmod 600 /etc/wireguard/*
 
 ## Persistance/backup
 
