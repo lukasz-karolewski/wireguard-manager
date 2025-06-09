@@ -55,16 +55,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-${{ steps.platform.outputs.platform }}-
 
-      - name: Build Docker image
+      - name: Build and push Docker image to cache
         run: |
           docker buildx build \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --cache-from "type=registry,ref=lkarolewski/wg-manager:latest" \
+            --cache-from "type=registry,ref=lkarolewski/wg-manager:cache-${{ steps.platform.outputs.platform }}" \
             --cache-to "type=local,dest=/tmp/.buildx-cache-new,mode=max" \
+            --cache-to "type=registry,ref=lkarolewski/wg-manager:cache-${{ steps.platform.outputs.platform }},mode=max" \
             --platform ${{ matrix.platform }} \
             --build-arg VERSION=${{ needs.prepare.outputs.version }} \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
-            --output "type=image,push=false,name=lkarolewski/wg-manager:${{ steps.platform.outputs.platform }}-${{ needs.prepare.outputs.version }}" \
+            --push \
+            --tag lkarolewski/wg-manager:build-${{ steps.platform.outputs.platform }}-${{ needs.prepare.outputs.version }} \
             --file ./Dockerfile ./
 
       - name: Move cache
@@ -76,14 +78,6 @@ jobs:
     needs: [prepare, build]
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -93,17 +87,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push multi-platform image
+      - name: Create and push multi-platform manifest
         run: |
-          docker buildx build \
-            --cache-from "type=registry,ref=lkarolewski/wg-manager:latest" \
-            --platform linux/amd64,linux/arm64 \
-            --build-arg VERSION=${{ needs.prepare.outputs.version }} \
-            --build-arg BUILDKIT_INLINE_CACHE=1 \
-            --push \
+          docker buildx imagetools create \
             --tag lkarolewski/wg-manager:latest \
             --tag lkarolewski/wg-manager:${{ needs.prepare.outputs.version }} \
-            --file ./Dockerfile ./
+            lkarolewski/wg-manager:build-linux-amd64-${{ needs.prepare.outputs.version }} \
+            lkarolewski/wg-manager:build-linux-arm64-${{ needs.prepare.outputs.version }}
 
       - name: Inspect image
         run: |
