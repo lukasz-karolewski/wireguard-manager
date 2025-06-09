@@ -1,0 +1,2 @@
+- make sure project builds using `npm run build`. Never start dev server.
+- to resolve linting issues, use `npm run lint.fix`.

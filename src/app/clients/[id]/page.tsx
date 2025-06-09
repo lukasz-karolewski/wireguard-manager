@@ -13,6 +13,7 @@ import Accordion from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
+import { downloadAllConfigsForSite } from "~/utils";
 
 interface ClientDetailPageProps {
   params: Promise<{ id: string }>;
@@ -52,58 +53,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
       void refetch();
     },
   });
-
-  async function downloadAllConfigsForSite(siteId: number) {
-    if (!clientData?.client.id) {
-      console.log("no id");
-      return;
-    }
-
-    //make a POST request to the server to download the zip file
-    const response = await fetch(
-      `/api/download/${clientData.client.id.toString()}/${siteId.toString()}`,
-      {
-        method: "POST",
-      },
-    );
-
-    const blob = await response.blob();
-    const contentDisposition = response.headers.get("Content-Disposition");
-    const suggestedName = contentDisposition?.split("filename=")[1] ?? "config.zip";
-
-    // Use File System Access API to save the file
-
-    if ("showSaveFilePicker" in globalThis) {
-      try {
-        // TODO pending fix https://github.com/microsoft/vscode/issues/141908
-        const handle = await (globalThis as any).showSaveFilePicker({
-          suggestedName,
-          types: [
-            {
-              accept: {
-                "application/zip": [".zip"],
-              },
-              description: "Zip Files",
-            },
-          ],
-        });
-
-        const writable = await handle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      // Fallback for browsers that do not support the File System Access API
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = suggestedName;
-      link.click();
-      URL.revokeObjectURL(downloadUrl);
-    }
-  }
 
   function onDisable() {
     if (!clientData) return;
@@ -197,7 +146,12 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
               <Accordion
                 actions={
                   <>
-                    <Button onClick={() => downloadAllConfigsForSite(site.id)} variant="ghost">
+                    <Button
+                      onClick={() => {
+                        downloadAllConfigsForSite(clientData.client.id, site.id);
+                      }}
+                      variant="ghost"
+                    >
                       <span className="hidden md:inline">download all configs</span>
                       <DocumentArrowDownIcon className="ml-2 size-5" />
                     </Button>
