@@ -28,7 +28,6 @@ const WgConfig: FC<WgConfigProps> = ({ clientName, config, show }) => {
       <div className="flex items-center justify-between p-4 bg-gray-50/50 border-b border-gray-100">
         <h4 className="font-medium text-gray-900">{clientConfigToString(config.type)}</h4>
         <Button
-          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           onClick={() => {
             download(filename, config.value);
           }}

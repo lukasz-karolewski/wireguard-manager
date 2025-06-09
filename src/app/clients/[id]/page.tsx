@@ -176,7 +176,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                 actions={
                   <div className="flex items-center gap-2">
                     <Button
-                      className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                       onClick={() => {
                         downloadAllConfigsForSite(clientData.client.id, site.id);
                       }}
@@ -187,12 +186,11 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                       <DocumentArrowDownIcon className="ml-1 size-4" />
                     </Button>
                     <Button
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => {
                         removeFromSite({ clientId: clientData.client.id, siteId: site.id });
                       }}
                       size="sm"
-                      variant="ghost"
+                      variant="destructive"
                     >
                       <span className="hidden sm:inline">Remove</span>
                       <span className="sm:hidden">×</span>

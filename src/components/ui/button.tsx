@@ -18,12 +18,13 @@ const buttonVariants = cva(
         sm: "h-6 px-2 text-sm",
       },
       variant: {
-        default: "bg-blue-500 text-white hover:bg-blue-500/90",
+        default: "bg-blue-500 text-white hover:bg-blue-600",
         destructive: "bg-red-500 text-white hover:bg-red-600",
-        ghost: "hover:bg-accent hover:text-white",
+        ghost: "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
         link: "text-blue-600 underline-offset-4 hover:underline",
-        outline: "border bg-white hover:border-black",
-        secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300 ",
+        outline:
+          "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400",
+        secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
       },
     },
   },
@@ -39,7 +40,6 @@ export const Button: FC<ButtonProps> = ({ children, className, size, variant, ..
   return (
     <button className={clsx(buttonVariants({ className, size, variant }))} {...props}>
       {children}
-      <p className="h-10"></p>
     </button>
   );
 };

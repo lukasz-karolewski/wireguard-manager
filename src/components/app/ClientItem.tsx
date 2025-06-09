@@ -7,6 +7,7 @@ import { FC } from "react";
 import type { RouterOutputs } from "~/trpc/shared";
 
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
 import { StatusDot } from "~/components/ui/status-dot";
 import { StatusIndicator } from "~/components/ui/status-indicator";
@@ -64,14 +65,14 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
               </div>
 
               {client.enabled && defaultSite && (
-                <button
-                  className="ml-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                <Button
                   onClick={handleDownload}
+                  size="icon"
                   title={`Download configs for site "${defaultSite.name}"`}
-                  type="button"
+                  variant="ghost"
                 >
                   <DocumentArrowDownIcon className="w-5 h-5" />
-                </button>
+                </Button>
               )}
             </div>
 
