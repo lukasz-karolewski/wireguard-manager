@@ -131,6 +131,8 @@ ssh-copy-id <username>@<server>
 ssh <username>@<server>
 ```
 
+#### Option 1 - Allow only SCP to overwrite wg0.conf
+
 6. Edit the `/etc/ssh/sshd_config` file:
 
 ```
@@ -154,7 +156,7 @@ sudo systemctl restart sshd
 
 Now the user can SSH into the server without a password and can only use SCP to overwrite `/etc/wireguard/wg0.conf`.
 
-### Option 2
+#### Option 2 - Allow user to run specific commands without password
 
         # On the remote host, edit sudoers file
         sudo visudo
