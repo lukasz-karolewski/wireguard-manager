@@ -334,46 +334,44 @@ export const siteRouter = createTRPCRouter({
         return "no_changes";
       }
 
-      return ctx.db.$transaction(async (tx) => {
-        // Create release record in transaction
-        await tx.release.create({
-          data: {
-            createdById: ctx.session.user.id!,
-            data: config,
-            hash: hash,
-            pathWritten: [site.hostname ?? "disk", site.configPath].join(":"),
-            SiteId: site.id,
-          },
-        });
-
-        // Perform the file write operation
-        if (site.hostname) {
-          // Remote host - use SSH to write config
-          // First backup existing config if it exists
-          if (currentConfig) {
-            await execShellCommand(
-              `ssh ${site.hostname} 'sudo cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
-            );
-          }
-
-          // Write config to remote host using SSH with proper escaping
-          const escapedConfig = config.replaceAll("'", "'\"'\"'");
+      // Perform the file write operation first
+      if (site.hostname) {
+        // Remote host - use SSH to write config
+        // First backup existing config if it exists
+        if (currentConfig) {
           await execShellCommand(
-            `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' | sudo tee ${site.configPath} > /dev/null && sudo chmod 600 ${site.configPath}'`,
+            `ssh ${site.hostname} 'sudo cp ${site.configPath} ${site.configPath}.bak' 2>/dev/null || true`,
           );
-        } else {
-          // Local host - write directly to disk
-          // Backup old config if exists
-          if (currentConfig) {
-            await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
-          }
-
-          // write new config to disk with correct permissions
-          await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
         }
 
-        return "written";
+        // Write config to remote host using SSH with proper escaping
+        const escapedConfig = config.replaceAll("'", "'\"'\"'");
+        await execShellCommand(
+          `ssh ${site.hostname} 'echo '"'"'${escapedConfig}'"'"' | sudo tee ${site.configPath} > /dev/null && sudo chmod 600 ${site.configPath}'`,
+        );
+      } else {
+        // Local host - write directly to disk
+        // Backup old config if exists
+        if (currentConfig) {
+          await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
+        }
+
+        // write new config to disk with correct permissions
+        await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
+      }
+
+      // Only create release record after successful file write
+      await ctx.db.release.create({
+        data: {
+          createdById: ctx.session.user.id!,
+          data: config,
+          hash: hash,
+          pathWritten: [site.hostname ?? "disk", site.configPath].join(":"),
+          SiteId: site.id,
+        },
       });
+
+      return "written";
     }),
 });
 

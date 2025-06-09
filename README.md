@@ -154,17 +154,13 @@ sudo systemctl restart sshd
 
 Now the user can SSH into the server without a password and can only use SCP to overwrite `/etc/wireguard/wg0.conf`.
 
-lukasz-karolewski: update all scripts to use username wgmanager
+### Option 2
 
-GitHub Copilot: To update all scripts to use the username `wgmanager`, you can use the following command in the terminal:
+        # On the remote host, edit sudoers file
+        sudo visudo
 
-```
-find /path/to/scripts -type f -exec sed -i 's/<old_username>/wgmanager/g' {} +
-```
-
-Replace `/path/to/scripts` with the path to the directory containing your scripts, and `<old_username>` with the current username that you want to replace.
-
-This command will find all files in the specified directory and its subdirectories, and replace all occurrences of `<old_username>` with `wgmanager`. The changes will be made in-place, so make sure to back up your files before running this command.
+        # Add this line (replace 'username' with actual SSH user):
+        username ALL=(ALL) NOPASSWD: /bin/cat /etc/wireguard/*, /bin/cp /etc/wireguard/* /etc/wireguard/*.bak, /usr/bin/tee, /bin/chmod
 
 ## Persistance/backup
 
