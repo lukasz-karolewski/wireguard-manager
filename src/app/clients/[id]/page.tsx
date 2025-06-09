@@ -2,15 +2,15 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
-import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
 import { FC, use, useState } from "react";
 
 import { AddEditClientModal, mapClientForEdit } from "~/components/app/AddEditClientModal";
+import { ConfigGrid } from "~/components/app/ConfigGrid";
 import ConfirmModal from "~/components/app/ConfirmModal";
-import WgConfig from "~/components/app/WgConfig";
-import Accordion from "~/components/ui/accordion";
+import { SiteCard } from "~/components/app/SiteCard";
 import { Button } from "~/components/ui/button";
+import { InfoCard } from "~/components/ui/info-card";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 import { downloadAllConfigsForSite } from "~/utils";
@@ -127,77 +127,107 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
           Remove
         </Button>
       </PageHeader>
+
       {clientData.client.enabled && (
-        <div className="hidden md:block">
-          <div>
-            Created By: {clientData.client.createdBy.name} ({clientData.client.createdBy.email})
-          </div>
-          <div>Created: {clientData.client.createdAt.toISOString()}</div>
-          <div>Updated: {clientData.client.updatedAt.toISOString()}</div>
+        <div className="mb-8">
+          <InfoCard
+            items={[
+              {
+                color: "blue",
+                label: "Created By",
+                value: `${clientData.client.createdBy.name} (${clientData.client.createdBy.email})`,
+              },
+              {
+                color: "green",
+                label: "Created",
+                value: new Date(clientData.client.createdAt).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }),
+              },
+              {
+                color: "purple",
+                label: "Last Updated",
+                value: new Date(clientData.client.updatedAt).toLocaleDateString("en-US", {
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }),
+              },
+            ]}
+            title="Client Information"
+          />
         </div>
       )}
-      <div className="flex flex-col gap-4">
+
+      <div className="space-y-6">
         {sites
           .sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1))
           .map((site) => {
             const siteConfigs = clientData.configs.find((c) => c.site.id === site.id);
 
             return siteConfigs ? (
-              <Accordion
+              <SiteCard
                 actions={
-                  <>
+                  <div className="flex items-center gap-2">
                     <Button
+                      className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                       onClick={() => {
                         downloadAllConfigsForSite(clientData.client.id, site.id);
                       }}
+                      size="sm"
                       variant="ghost"
                     >
-                      <span className="hidden md:inline">download all configs</span>
-                      <DocumentArrowDownIcon className="ml-2 size-5" />
+                      <span className="hidden sm:inline">Download</span>
+                      <DocumentArrowDownIcon className="ml-1 size-4" />
                     </Button>
                     <Button
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => {
                         removeFromSite({ clientId: clientData.client.id, siteId: site.id });
                       }}
+                      size="sm"
                       variant="ghost"
                     >
-                      Remove from site
+                      <span className="hidden sm:inline">Remove</span>
+                      <span className="sm:hidden">×</span>
                     </Button>
-                  </>
+                  </div>
                 }
-                className={clsx({ "bg-green-300": site.isDefault })}
-                header={`${site.name} @ ${site.endpointAddress}`}
+                isActive={true}
                 isInitiallyOpen={site.isDefault}
                 key={site.id}
+                site={site}
               >
-                <div className={clsx("border")}>
-                  <div className="flex flex-wrap justify-around gap-4">
-                    {siteConfigs.configs.map((config, index) => (
-                      <WgConfig
-                        clientName={clientData.client.name}
-                        config={config}
-                        key={index}
-                        show={show}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </Accordion>
+                <ConfigGrid
+                  clientName={clientData.client.name}
+                  configs={siteConfigs.configs}
+                  show={show}
+                />
+              </SiteCard>
             ) : (
-              <Accordion
+              <SiteCard
                 actions={
                   <Button
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
                     onClick={() => {
                       addToSite({ clientId: clientData.client.id, siteId: site.id });
                     }}
-                    variant="default"
+                    size="sm"
+                    variant="ghost"
                   >
                     Add to site
                   </Button>
                 }
-                header={site.name + " - inactive"}
+                isActive={false}
                 key={site.id}
-              ></Accordion>
+                site={site}
+              />
             );
           })}
       </div>

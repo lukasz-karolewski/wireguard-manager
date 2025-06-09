@@ -5,12 +5,11 @@ import React, { ComponentPropsWithoutRef, useState } from "react";
 interface AccordionProps extends ComponentPropsWithoutRef<"div"> {
   actions?: React.ReactNode;
   children?: React.ReactNode;
-  header: string;
+  header: React.ReactNode | string;
   isInitiallyOpen?: boolean;
 }
 
 import { Transition } from "@headlessui/react";
-import { clsx } from "clsx";
 
 const Accordion: React.FC<AccordionProps> = ({
   actions,
@@ -26,23 +25,30 @@ const Accordion: React.FC<AccordionProps> = ({
   };
 
   return (
-    <div>
-      <div className={clsx("flex items-center justify-between bg-gray-200 p-4", className)}>
-        <button className="" onClick={toggleAccordion}>
-          <h2>{header}</h2>
+    <div className={className}>
+      <div className="flex items-center justify-between p-6">
+        <button
+          className="flex-1 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+          onClick={toggleAccordion}
+        >
+          {typeof header === "string" ? (
+            <h2 className="font-semibold text-gray-900">{header}</h2>
+          ) : (
+            header
+          )}
         </button>
-        {actions}
+        {actions && <div className="ml-4">{actions}</div>}
       </div>
       <Transition
-        enter="transition-opacity duration-100"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-100"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
+        enter="transition-all duration-200 ease-out"
+        enterFrom="max-h-0 opacity-0"
+        enterTo="max-h-screen opacity-100"
+        leave="transition-all duration-200 ease-in"
+        leaveFrom="max-h-screen opacity-100"
+        leaveTo="max-h-0 opacity-0"
         show={isOpen}
       >
-        <div>{children}</div>
+        <div className="overflow-hidden">{children}</div>
       </Transition>
     </div>
   );

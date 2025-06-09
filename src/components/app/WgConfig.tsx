@@ -24,21 +24,32 @@ function download(filename: string, text: string) {
 const WgConfig: FC<WgConfigProps> = ({ clientName, config, show }) => {
   const filename = `${clientName}-${config.type}.conf`;
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between">
-        <h3>{clientConfigToString(config.type)}</h3>
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between p-4 bg-gray-50/50 border-b border-gray-100">
+        <h4 className="font-medium text-gray-900">{clientConfigToString(config.type)}</h4>
         <Button
+          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           onClick={() => {
             download(filename, config.value);
           }}
-          size={"icon"}
-          variant={"ghost"}
+          size="sm"
+          variant="ghost"
         >
-          <DocumentArrowDownIcon className="size-5" />
+          <DocumentArrowDownIcon className="size-4" />
         </Button>
       </div>
-      {show == "config" && <pre>{config.value}</pre>}
-      {show == "qr" && <QRCodeSVG size={256} value={config.value} />}
+      <div className="p-4 flex items-center justify-center min-h-[200px]">
+        {show === "config" && (
+          <pre className="text-xs text-gray-700 bg-gray-50 p-3 rounded border overflow-x-auto w-full">
+            {config.value}
+          </pre>
+        )}
+        {show === "qr" && (
+          <div className="p-4">
+            <QRCodeSVG size={180} value={config.value} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

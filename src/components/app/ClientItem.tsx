@@ -6,7 +6,10 @@ import { FC } from "react";
 
 import type { RouterOutputs } from "~/trpc/shared";
 
+import { Badge } from "~/components/ui/badge";
 import Link from "~/components/ui/link";
+import { StatusDot } from "~/components/ui/status-dot";
+import { StatusIndicator } from "~/components/ui/status-indicator";
 import { api } from "~/trpc/react";
 import { downloadAllConfigsForSite } from "~/utils";
 
@@ -46,23 +49,14 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
           )}
         >
           {/* Status indicator */}
-          <div
-            className={clsx("absolute top-0 left-0 w-full h-1", {
-              "bg-gradient-to-r from-green-400 to-emerald-500": client.enabled,
-              "bg-gray-300": !client.enabled,
-            })}
-          />
+          <StatusIndicator type={client.enabled ? "active" : "inactive"} />
 
           <div className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="font-semibold text-gray-900 truncate">{client.name}</h3>
-                  {!client.enabled && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      Disabled
-                    </span>
-                  )}
+                  {!client.enabled && <Badge variant="disabled">Disabled</Badge>}
                 </div>
                 <p className="text-sm text-gray-600 truncate">
                   {client.owner.name ?? client.owner.email ?? "Unknown owner"}
@@ -83,8 +77,8 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
 
             {client.enabled && (
               <div className="mt-4 flex items-center text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2" />
-                Active
+                <StatusDot color="green" />
+                <span className="ml-2">Active</span>
               </div>
             )}
           </div>
