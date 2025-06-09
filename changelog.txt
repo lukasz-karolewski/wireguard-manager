@@ -2,6 +2,14 @@
 ## 2025-06-09
 
 Changes:
+* redesigned site items and client items
+* ui refactor redesign
+* refactor: update button styles and replace HTML buttons with Button component
+* optimize remote deployment perf
+
+## 2025-06-09
+
+Changes:
 * another attempt at speeding up build
 
 ## 2025-06-09
