@@ -1,4 +1,9 @@
 
+## 2025-06-09
+
+Changes:
+* added a button to dwonload confgs on the client item
+
 ## 2025-06-08
 
 Changes:
