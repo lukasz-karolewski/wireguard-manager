@@ -2,6 +2,11 @@
 ## 2025-06-09
 
 Changes:
+* another attempt at speeding up build
+
+## 2025-06-09
+
+Changes:
 * native builds
 
 ## 2025-06-09
