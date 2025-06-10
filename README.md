@@ -2,14 +2,6 @@
 
 Helps to setup multi-way site-to-site and manage client configs. Works well for single site too.
 
-## roadmap
-
-- check for ip conflicts, right now clients start getting assigned with a x.x.x.1 address which is the same as for the site server
-
-- ipv6 subnets
-  - https://simpledns.plus/private-ipv6
-  - https://computering.tastytea.de/posts/wireguard-vpn-with-2-or-more-subnets/
-
 ## Network architecture
 
 - each site has to have unique private address space ideally from 192.168.0.0/16 range
@@ -99,76 +91,74 @@ That's it! Now whenever the wg0.conf file changes, the WireGuard service will be
 
 ### Step 3 - optional - Configure remote sites
 
-This is done by creating dedicated user, ssh keys to remote sites and allowing that user to scp new wg config
+Configure SSH access to remote sites to allow automatic WireGuard config deployment.
 
-1. Create a new user account:
+#### Option 1 - Use existing user with sudo permissions
 
-```
-sudo adduser <username>
-```
+1. Generate SSH key pair and copy to remote host:
 
-2. Switch to the new user account:
-
-```
-su - <username>
-```
-
-3. Generate an SSH key pair:
-
-```
+```bash
 ssh-keygen -t rsa
+ssh-copy-id username@remote-host
 ```
 
-4. Copy the public key to the server:
+2. On the remote host, edit sudoers file:
 
-```
-ssh-copy-id <username>@<server>
-```
-
-5. Test the SSH connection:
-
-```
-ssh <username>@<server>
+```bash
+sudo visudo
 ```
 
-#### Option 1 - Allow only SCP to overwrite wg0.conf
-
-6. Edit the `/etc/ssh/sshd_config` file:
+3. Add this line (replace 'username' with actual SSH user):
 
 ```
+username ALL=(ALL) NOPASSWD: /bin/cp /etc/wireguard/* /etc/wireguard/*.bak, /bin/cp /tmp/wg-remote-config.conf /etc/wireguard/*, /bin/chmod 600 /etc/wireguard/*
+```
+
+#### Option 2 - Create dedicated limited user
+
+1. Create dedicated user for config deployment:
+
+```bash
+sudo adduser wg-deploy
+su - wg-deploy
+ssh-keygen -t rsa
+ssh-copy-id wg-deploy@remote-host
+```
+
+2. On the remote host, restrict user to config deployment only:
+
+```bash
 sudo nano /etc/ssh/sshd_config
 ```
 
-7. Add the following lines to the end of the file:
+Add these lines:
 
 ```
-Match User <username>
-    ForceCommand scp /etc/wireguard/wg0.conf
+Match User wg-deploy
+    ForceCommand /bin/bash -c 'while read line; do eval "$line"; done'
+    PermitTTY no
+    X11Forwarding no
+    AllowAgentForwarding no
+    AllowTcpForwarding no
 ```
 
-8. Save and close the file.
+3. Restart SSH service:
 
-9. Restart the SSH service:
-
-```
+```bash
 sudo systemctl restart sshd
 ```
-
-Now the user can SSH into the server without a password and can only use SCP to overwrite `/etc/wireguard/wg0.conf`.
-
-#### Option 2 - Allow user to run specific commands without password
-
-        # On the remote host, edit sudoers file
-        sudo visudo
-
-        # Add this line (replace 'username' with actual SSH user):
-        username ALL=(ALL) NOPASSWD: /bin/cp /etc/wireguard/* /etc/wireguard/*.bak, /bin/cp /tmp/wg-remote-config.conf /etc/wireguard/*, /bin/chmod 600 /etc/wireguard/*
 
 ## Persistance/backup
 
 sql lite db is stored in prod.db file
 
-# status
+## roadmap
 
-https://github.com/vx3r/wg-gen-web
-https://github.com/jamescun/wg-api
+- check for ip conflicts, right now clients start getting assigned with a x.x.x.1 address which is the same as for the site server
+
+- ipv6 subnets
+  - https://simpledns.plus/private-ipv6
+  - https://computering.tastytea.de/posts/wireguard-vpn-with-2-or-more-subnets/
+- wg status integration
+  https://github.com/vx3r/wg-gen-web
+  https://github.com/jamescun/wg-api
