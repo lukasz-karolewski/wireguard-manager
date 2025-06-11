@@ -25,9 +25,7 @@ const ClientListPage: FC<ClientListPageProps> = async ({ searchParams }) => {
     <>
       <PageHeader title="Clients">
         <ClientFilter />
-        <div className="mx-4 h-full border-l border-gray-300"></div>
         <ClientSearch defaultValue={searchValue} />
-        <div className="mx-4 h-full border-l border-gray-300"></div>
         <AddClientButton />
       </PageHeader>
 

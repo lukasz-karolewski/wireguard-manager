@@ -10,7 +10,7 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ children, parent, parentHref, title }) => {
   return (
-    <div className="mb-4 flex h-10 items-center justify-center gap-2">
+    <div className="mb-4 flex items-center h-10 gap-2">
       <h1>
         {parent && parentHref && (
           <>

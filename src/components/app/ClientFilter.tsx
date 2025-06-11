@@ -28,7 +28,7 @@ export function ClientFilter() {
     <div className="flex items-center space-x-3">
       <div className="flex rounded-md border bg-gray-50">
         <button
-          className={`px-3 py-2 text-sm font-medium transition-colors ${
+          className={`px-3 py-2 font-medium transition-colors ${
             showOnlyMine ? "bg-blue-500 text-white" : "text-gray-700 hover:bg-gray-100"
           } rounded-l-md border-r`}
           onClick={() => {
@@ -39,7 +39,7 @@ export function ClientFilter() {
           My Clients
         </button>
         <button
-          className={`px-3 py-2 text-sm font-medium transition-colors ${
+          className={`px-3 py-2 font-medium transition-colors ${
             showOnlyMine ? "text-gray-700 hover:bg-gray-100" : "bg-blue-500 text-white"
           } rounded-r-md`}
           onClick={() => {

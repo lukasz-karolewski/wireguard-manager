@@ -25,3 +25,4 @@ prisma/*.db-journal
 wg*
 .aider*
 src/generated/*
+db/
