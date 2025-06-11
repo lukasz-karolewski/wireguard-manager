@@ -1,4 +1,12 @@
 
+## 2025-06-11
+
+Changes:
+* fix: update Dockerfile formatter to use vscode-containers
+* refactor: update README to streamline SSH configuration instructions and move roadmap section
+* redesign user page
+* refactoring remote code
+
 ## 2025-06-09
 
 Changes:
