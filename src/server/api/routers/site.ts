@@ -1,5 +1,6 @@
 import "server-only";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 
@@ -158,6 +159,19 @@ export const siteRouter = createTRPCRouter({
       return { site, versions };
     }),
 
+  needsWrite: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
+      const { currentConfig, hash: currentHash } = await getCurrentConfig(site);
+
+      return { config, currentConfig, needsWrite: newHash !== currentHash };
+    }),
+
   remove: protectedProcedure
     .input(
       z.object({
@@ -224,7 +238,6 @@ export const siteRouter = createTRPCRouter({
         return { message: `SSH connection failed: ${errorMessage}`, success: false };
       }
     }),
-
   update: protectedProcedure
     .input(
       z.object({
@@ -301,7 +314,6 @@ export const siteRouter = createTRPCRouter({
         return updatedSite;
       });
     }),
-
   writeSiteConfigToDisk: protectedProcedure
     .input(
       z.object({
@@ -309,53 +321,18 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { config, hash, site } = await getSiteConfig(ctx, input);
+      const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
 
-      let currentConfig: null | string = null;
-
-      if (site.hostname) {
-        // Remote host - use SSH to read current config
-        try {
-          currentConfig = await execShellCommand(
-            `ssh ${site.hostname} 'sudo cat ${site.configPath}' 2>/dev/null || echo ""`,
-          );
-          currentConfig = currentConfig.trim() || null;
-        } catch {
-          currentConfig = null;
-        }
-      } else {
-        // Local host - read directly from disk
-        const configDir = path.dirname(site.configPath);
-        await fs.promises.mkdir(configDir, { recursive: true });
-        currentConfig = await getConfigFromDisk(site.configPath);
-      }
-
-      if (config === currentConfig) {
-        return "no_changes";
-      }
-
-      // Perform the file write operation first
-      if (site.hostname) {
-        // Remote host - use optimized SSH approach with single connection
-        const hostname = site.hostname; // TypeScript type narrowing
-        await writeRemoteConfig(hostname, site.configPath, config, currentConfig);
-      } else {
-        // Local host - write directly to disk
-        // Backup old config if exists
-        if (currentConfig) {
-          await fs.promises.copyFile(site.configPath, `${site.configPath}.bak`);
-        }
-
-        // write new config to disk with correct permissions
-        await fs.promises.writeFile(site.configPath, config, { encoding: "utf8", mode: 0o600 });
-      }
+      await (site.hostname
+        ? writeRemoteConfig(site.hostname, site.configPath, config)
+        : writeLocalConfig(site.configPath, config));
 
       // Only create release record after successful file write
       await ctx.db.release.create({
         data: {
           createdById: ctx.session.user.id!,
           data: config,
-          hash: hash,
+          hash: newHash,
           pathWritten: [site.hostname ?? "disk", site.configPath].join(":"),
           SiteId: site.id,
         },
@@ -366,7 +343,23 @@ export const siteRouter = createTRPCRouter({
 });
 
 async function getConfigFromDisk(configPath: string) {
-  return fs.existsSync(configPath) ? await fs.promises.readFile(configPath, "utf8") : null;
+  return fs.existsSync(configPath) ? await fs.promises.readFile(configPath, "utf8") : "";
+}
+
+/**
+ * Reads the current configuration from either a remote host via SSH or from local disk.
+ *
+ * @param site - The site object containing hostname and configPath
+ * @returns The current configuration as a string, or null if not found or on error
+ */
+async function getCurrentConfig(site: { configPath: string; hostname: null | string }) {
+  let currentConfig = await (site.hostname
+    ? execShellCommand(`ssh ${site.hostname} 'sudo cat ${site.configPath}' 2>/dev/null || echo ""`)
+    : getConfigFromDisk(site.configPath));
+
+  currentConfig = currentConfig.trim();
+  const hash = compute_hash(currentConfig);
+  return { currentConfig, hash };
 }
 
 async function getDefaultSiteId(ctx: TrpcContext) {
@@ -411,18 +404,19 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   return { config, hash, site };
 }
 
-/**
- * Optimized function to write config to remote host using a single SSH connection
- * and temporary files to avoid complex shell escaping issues.
- */
-async function writeRemoteConfig(
-  hostname: string,
-  configPath: string,
-  config: string,
-  _currentConfig: null | string,
-) {
-  // Create a temporary file locally to avoid shell escaping issues
-  const tempFile = `/tmp/wg-config-${Date.now()}-${Math.random().toString(36).slice(7)}.conf`;
+async function writeLocalConfig(configPath: string, config: string) {
+  if (fs.existsSync(configPath)) {
+    await fs.promises.copyFile(configPath, `${configPath}.bak`);
+  }
+
+  // write new config to disk with correct permissions
+  await fs.promises.writeFile(configPath, config, { encoding: "utf8", mode: 0o600 });
+}
+
+async function writeRemoteConfig(hostname: string, configPath: string, config: string) {
+  // Create a unique temporary directory for this operation
+  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "wg-config-"));
+  const tempFile = path.join(tempDir, "config.conf");
 
   try {
     // Write config to local temp file
@@ -445,15 +439,15 @@ async function writeRemoteConfig(
       rm -f /tmp/wg-remote-config.conf
     `.trim();
 
-    // Transfer file and execute script in single SSH session
+    // Transfer file via SCP then execute script via SSH (two separate connections)
     await execShellCommand(
       `scp -o ConnectTimeout=10 "${tempFile}" "${hostname}:/tmp/wg-remote-config.conf" && ` +
         `ssh -o ConnectTimeout=10 "${hostname}" '${sshScript}'`,
     );
   } finally {
-    // Clean up local temp file
+    // Clean up local temp file and directory
     try {
-      await fs.promises.unlink(tempFile);
+      await fs.promises.rm(tempDir, { force: true, recursive: true });
     } catch {
       // Ignore cleanup errors
     }
