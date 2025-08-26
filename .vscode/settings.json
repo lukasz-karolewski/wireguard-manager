@@ -1,5 +1,5 @@
 {
-  "files.autoSave": "onFocusChange",
+  "files.autoSave": "off",
   "eslint.format.enable": true,
   "eslint.probe": [
     "javascript",

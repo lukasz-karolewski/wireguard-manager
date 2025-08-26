@@ -14,9 +14,7 @@ const GlobalSettingsPage: React.FC = () => {
 
   const { isPending: isPosting, mutate } = api.settings.set_wg_network.useMutation({
     onError: (error) => {
-      const errorMessage = error.data?.zodError?.fieldErrors.value;
-      if (errorMessage) toast.error(errorMessage.join(", "));
-      else toast.error("Failed to save");
+      toast.error(error.message);
     },
     onSuccess: (_data) => {
       refetch();

@@ -16,9 +16,9 @@ export const siteRouter = createTRPCRouter({
     .input(
       z.object({
         config_path: z.string().optional(),
-        dns: emptyToNull(z.string().ip().optional()),
-        dns_pihole: emptyToNull(z.string().ip().optional()),
-        endpointAddress: z.string().ip().or(z.string()),
+        dns: emptyToNull(z.union([z.ipv4().optional(), z.ipv6().optional()])),
+        dns_pihole: emptyToNull(z.union([z.ipv4().optional(), z.ipv6().optional()])),
+        endpointAddress: z.union([z.ipv4(), z.ipv6()]).or(z.string()),
         hostname: emptyToNull(z.string().optional()),
         id: z.number(),
         listenPort: z.number().min(1024).max(65_535).optional(),
@@ -243,9 +243,9 @@ export const siteRouter = createTRPCRouter({
       z.object({
         config_path: z.string().optional(),
 
-        dns: emptyToNull(z.string().ip().optional()),
-        dns_pihole: emptyToNull(z.string().ip().optional()),
-        endpointAddress: z.string().ip().or(z.string()).optional(),
+        dns: emptyToNull(z.union([z.ipv4().optional(), z.ipv6().optional()])),
+        dns_pihole: emptyToNull(z.union([z.ipv4().optional(), z.ipv6().optional()])),
+        endpointAddress: z.union([z.ipv4(), z.ipv6()]).or(z.string()).optional(),
         hostname: emptyToNull(z.string().optional()),
         id: z.number(),
         listenPort: z.number().min(1024).max(65_535).optional(),

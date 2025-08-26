@@ -16,8 +16,8 @@ const ipWithCidrSchema = z.string().refine(
     return isIpValid && isCidrValid;
   },
   {
-    message: "Invalid IP address with CIDR notation",
-  },
+      error: "Invalid IP address with CIDR notation"
+},
 );
 
 export const settingsRouter = createTRPCRouter({
@@ -25,7 +25,7 @@ export const settingsRouter = createTRPCRouter({
     const settingsArray = await ctx.db.settings.findMany();
 
     const settingsObject = Object.fromEntries(
-      Object.entries(SettingsValues.Enum).map(([key, value]) => {
+      Object.entries(SettingsValues.enum).map(([key, value]) => {
         return [key, settingsArray.find((setting) => setting.name === value)?.value];
       }),
     );
@@ -42,14 +42,14 @@ export const settingsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const newSetting = await ctx.db.settings.upsert({
         create: {
-          name: SettingsValues.Enum.wg_network,
+          name: SettingsValues.enum.wg_network,
           value: input.value,
         },
         update: {
           value: input.value,
         },
         where: {
-          name: SettingsValues.Enum.wg_network,
+          name: SettingsValues.enum.wg_network,
         },
       });
 

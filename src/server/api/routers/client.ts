@@ -51,7 +51,7 @@ export const clientRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        email: emptyToNull(z.string().email().optional()),
+        email: emptyToNull(z.email().optional()),
         name: z.string(),
         ownerId: emptyToNull(z.string().optional()),
         private_key: emptyToNull(z.string().length(44).optional()),
@@ -188,7 +188,7 @@ export const clientRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().optional(),
-        showOnlyMine: z.boolean().optional().default(true),
+        showOnlyMine: z.boolean().optional().prefault(true),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -284,7 +284,7 @@ export const clientRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        email: emptyToNull(z.string().email().optional()),
+        email: emptyToNull(z.email().optional()),
         id: z.number(),
         name: z.string().min(2).optional(),
         ownerId: emptyToNull(z.string().optional()),

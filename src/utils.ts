@@ -77,6 +77,6 @@ export async function downloadAllConfigsForSite(clientId: number, siteId: number
   }
 }
 
-export function emptyToNull<T extends z.ZodTypeAny>(schema: T) {
+export function emptyToNull<T extends z.ZodType>(schema: T) {
   return schema.nullable().or(emptyStringToNull);
 }

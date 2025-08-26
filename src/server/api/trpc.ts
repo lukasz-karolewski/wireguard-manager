@@ -7,9 +7,9 @@
  * need to use are documented accordingly near the end.
  */
 
-import { inferAsyncReturnType, initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import * as z from "zod";
 
 import { auth } from "~/auth";
 import { db } from "~/server/db";
@@ -35,7 +35,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   };
 };
 
-export type TrpcContext = inferAsyncReturnType<typeof createTRPCContext>;
+export type TrpcContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
  * 2. INITIALIZATION
@@ -50,7 +50,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof z.ZodError ? z.treeifyError(error.cause) : null,
       },
     };
   },

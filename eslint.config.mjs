@@ -1,7 +1,7 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import prettier from "eslint-config-prettier";
-import importX from "eslint-plugin-import-x";
+import { importX } from "eslint-plugin-import-x";
 import n from "eslint-plugin-n";
 import perfectionist from "eslint-plugin-perfectionist";
 // import tailwindcss from "eslint-plugin-tailwindcss";
@@ -27,7 +27,7 @@ const config = [
   {
     rules: {
       "import-x/no-named-as-default-member": "off",
-      "import/prefer-default-export": "off"
+      "import/prefer-default-export": "off",
     },
   },
   //
@@ -96,7 +96,7 @@ const config = [
     },
   },
   // ...tailwindcss.configs["flat/recommended"],
-  { ignores: [".next/", 'src/generated/'] },
+  { ignores: [".next/", "src/generated/", "next-env.d.ts"] },
 ];
 
 export default config;
