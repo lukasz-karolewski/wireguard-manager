@@ -2,6 +2,12 @@
 ## 2025-08-26
 
 Changes:
+* Update ConfigDiff section layout and labels
+* updated error reporting
+
+## 2025-08-26
+
+Changes:
 * remove unused page
 * bumped to latest versions and migrade code
 * added remote config detection
