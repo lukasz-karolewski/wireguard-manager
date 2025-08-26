@@ -128,13 +128,50 @@ export const siteRouter = createTRPCRouter({
       where: { name: "wg_network" },
     });
 
-    const sitesWithDefault = sites.map((site) => {
-      return {
-        ...site,
-        assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
-        isDefault: site.id === defaultSiteId,
-      };
-    });
+    const sitesWithDefault = await Promise.all(
+      sites.map(async (site) => {
+        let remoteHash = site.remoteConfigHash ?? undefined;
+        let remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
+
+        // Refresh remote cache if TTL expired (1h) or missing
+        if (site.hostname) {
+          const now = Date.now();
+          const ttlMs = 60 * 60 * 1000;
+          const needsRefresh = !remoteCheckedAt || now - new Date(remoteCheckedAt).getTime() > ttlMs;
+          if (needsRefresh) {
+            try {
+              const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
+              const updated = await ctx.db.site.update({
+                data: {
+                  remoteConfig: currentConfig,
+                  remoteConfigCheckedAt: new Date(),
+                  remoteConfigHash: hash,
+                },
+                where: { id: site.id },
+              });
+              remoteHash = updated.remoteConfigHash ?? undefined;
+              remoteCheckedAt = updated.remoteConfigCheckedAt ?? undefined;
+            } catch {
+              // swallow refresh errors for listing
+            }
+          }
+        }
+
+        let needsUpdate: boolean | undefined;
+        if (site.hostname) {
+          const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
+          needsUpdate = remoteHash ? generatedHash !== remoteHash : undefined;
+        }
+        return {
+          ...site,
+          assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
+          isDefault: site.id === defaultSiteId,
+          needsUpdate,
+          remoteConfigCheckedAt: remoteCheckedAt,
+          remoteConfigHash: remoteHash,
+        };
+      }),
+    );
 
     return sitesWithDefault;
   }),
@@ -170,6 +207,51 @@ export const siteRouter = createTRPCRouter({
       const { currentConfig, hash: currentHash } = await getCurrentConfig(site);
 
       return { config, currentConfig, needsWrite: newHash !== currentHash };
+    }),
+
+  // Refresh remote config cache for a site (TTL 1h unless force)
+  refreshRemoteConfig: protectedProcedure
+    .input(
+      z.object({ force: z.boolean().optional(), id: z.number() })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const site = await ctx.db.site.findFirstOrThrow({ where: { id: input.id } });
+      if (!site.hostname) {
+        return { reason: "No hostname configured", skipped: true };
+      }
+
+      const now = new Date();
+      const oneHourMs = 60 * 60 * 1000;
+      if (!input.force && site.remoteConfigCheckedAt && now.getTime() - site.remoteConfigCheckedAt.getTime() < oneHourMs) {
+        return {
+          reason: "TTL not expired",
+          remoteConfigCheckedAt: site.remoteConfigCheckedAt,
+          remoteConfigHash: site.remoteConfigHash ?? undefined,
+          skipped: true,
+        };
+      }
+
+      const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
+
+      const updated = await ctx.db.site.update({
+        data: {
+          remoteConfig: currentConfig,
+          remoteConfigCheckedAt: new Date(),
+          remoteConfigHash: hash,
+        },
+        where: { id: site.id },
+      });
+
+      // Also compute current generated config hash for comparison
+      const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
+      const needsUpdate = generatedHash !== hash;
+
+      return {
+        needsUpdate,
+        remoteConfigCheckedAt: updated.remoteConfigCheckedAt,
+        remoteConfigHash: updated.remoteConfigHash ?? undefined,
+        skipped: false,
+      };
     }),
 
   remove: protectedProcedure

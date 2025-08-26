@@ -1,18 +1,40 @@
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
-import { FC } from "react";
+import { FC, useState } from "react";
 
+import { api } from "~/trpc/react";
 import { RouterOutputs } from "~/trpc/shared";
 
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import Link from "../ui/link";
 import { StatusDot } from "../ui/status-dot";
 import { StatusIndicator } from "../ui/status-indicator";
 
 interface SiteConfigProps {
-  site: NonNullable<RouterOutputs["site"]["getAll"][number]>;
+  site: NonNullable<RouterOutputs["site"]["getAll"][number]> & {
+    needsUpdate?: boolean;
+    remoteConfigCheckedAt?: Date | null;
+    remoteConfigHash?: null | string;
+  };
 }
 
 export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
+  const [localNeedsUpdate, setLocalNeedsUpdate] = useState(site.needsUpdate);
+  const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(
+    site.remoteConfigCheckedAt ?? null,
+  );
+
+  const refresh = api.site.refreshRemoteConfig.useMutation({
+    onSuccess: (data) => {
+      setLocalNeedsUpdate(data.needsUpdate);
+      setLocalCheckedAt(data.remoteConfigCheckedAt ?? null);
+    },
+  });
+
+  const canCheck = Boolean(site.hostname);
+  const lastChecked = localCheckedAt ? new Date(localCheckedAt).toLocaleString() : null;
+  const needsUpdate = localNeedsUpdate;
   return (
     <div className="group relative">
       <Link
@@ -57,6 +79,45 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                     <div className="flex items-center text-sm text-gray-600">
                       <StatusDot color="purple" />
                       <span className="ml-2 truncate">Host: {site.hostname}</span>
+                    </div>
+                  )}
+
+                  {canCheck && (
+                    <div className="text-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <StatusDot
+                            color={
+                              needsUpdate === undefined ? "gray" : needsUpdate ? "red" : "green"
+                            }
+                          />
+                          <span className="truncate">
+                            {needsUpdate === undefined
+                              ? "Remote status unknown"
+                              : needsUpdate
+                                ? "Remote config differs"
+                                : "Remote config up to date"}
+                          </span>
+                        </div>
+                        <Button
+                          aria-label="Refresh remote status"
+                          disabled={refresh.isPending}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            refresh.mutate({ force: true, id: site.id });
+                          }}
+                          size="icon"
+                          variant="outline"
+                        >
+                          <ArrowPathIcon
+                            className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })}
+                          />
+                        </Button>
+                      </div>
+                      {lastChecked && (
+                        <div className="mt-1 text-xs text-gray-400">Checked: {lastChecked}</div>
+                      )}
                     </div>
                   )}
                 </div>

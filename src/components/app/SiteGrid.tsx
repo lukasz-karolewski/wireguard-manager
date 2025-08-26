@@ -5,7 +5,11 @@ import type { RouterOutputs } from "~/trpc/shared";
 import { SiteItem } from "./SiteItem";
 
 interface SiteGridProps {
-  sites: RouterOutputs["site"]["getAll"];
+  sites: (RouterOutputs["site"]["getAll"][number] & {
+    needsUpdate?: boolean;
+    remoteConfigCheckedAt?: Date | null;
+    remoteConfigHash?: null | string;
+  })[];
 }
 
 export const SiteGrid: FC<SiteGridProps> = ({ sites }) => {

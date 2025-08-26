@@ -114,6 +114,11 @@ model Site {
   configPath String  @default("/etc/wireguard/wg0.conf")
   hostname   String?
 
+  // Cached remote config info (for hosts with SSH configured)
+  remoteConfig          String?
+  remoteConfigHash      String?
+  remoteConfigCheckedAt DateTime?
+
   User    User[]
   Release Release[]
   clients Client[]  @relation("ClientSites")
