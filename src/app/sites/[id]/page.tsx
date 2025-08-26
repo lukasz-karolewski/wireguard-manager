@@ -158,20 +158,15 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
           Remove
         </Button>
       </PageHeader>
-      {data?.site.hostname && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700">Config diff</h3>
-          <ConfigDiff
-            leftLabel="Remote"
-            newValue={writeCheck?.config ?? ""}
-            oldValue={writeCheck?.currentConfig ?? ""}
-            rightLabel="Generated"
-          />
-        </div>
-      )}
-
-      <h3 className="mt-6 text-sm font-semibold text-gray-700">Generated config</h3>
-      <pre className="overflow-auto bg-slate-200 p-4">{data?.config}</pre>
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-gray-700">Config diff</h3>
+        <ConfigDiff
+          leftLabel="Current"
+          newValue={writeCheck?.config ?? ""}
+          oldValue={writeCheck?.currentConfig ?? ""}
+          rightLabel="Generated"
+        />
+      </div>
     </>
   );
 };
