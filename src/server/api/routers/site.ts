@@ -128,10 +128,11 @@ export const siteRouter = createTRPCRouter({
       where: { name: "wg_network" },
     });
 
-    const sitesWithDefault = await Promise.all(
+  const sitesWithDefault = await Promise.all(
       sites.map(async (site) => {
         let remoteHash = site.remoteConfigHash ?? undefined;
         let remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
+    let remoteRefreshError: string | undefined;
 
         // Refresh remote cache if TTL expired (1h) or missing
         if (site.hostname) {
@@ -151,8 +152,9 @@ export const siteRouter = createTRPCRouter({
               });
               remoteHash = updated.remoteConfigHash ?? undefined;
               remoteCheckedAt = updated.remoteConfigCheckedAt ?? undefined;
-            } catch {
-              // swallow refresh errors for listing
+            } catch (error) {
+              // capture error for UI and continue
+              remoteRefreshError = error instanceof Error ? error.message : "Unknown error";
             }
           }
         }
@@ -169,6 +171,7 @@ export const siteRouter = createTRPCRouter({
           needsUpdate,
           remoteConfigCheckedAt: remoteCheckedAt,
           remoteConfigHash: remoteHash,
+          remoteRefreshError,
         };
       }),
     );
@@ -203,10 +206,10 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
-      const { currentConfig, hash: currentHash } = await getCurrentConfig(site);
+  const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
+  const { currentConfig, errorMessage, hash: currentHash } = await tryGetCurrentConfig(site);
 
-      return { config, currentConfig, needsWrite: newHash !== currentHash };
+  return { config, currentConfig, errorMessage, needsWrite: newHash !== currentHash };
     }),
 
   // Refresh remote config cache for a site (TTL 1h unless force)
@@ -214,7 +217,7 @@ export const siteRouter = createTRPCRouter({
     .input(
       z.object({ force: z.boolean().optional(), id: z.number() })
     )
-    .mutation(async ({ ctx, input }) => {
+  .mutation(async ({ ctx, input }) => {
       const site = await ctx.db.site.findFirstOrThrow({ where: { id: input.id } });
       if (!site.hostname) {
         return { reason: "No hostname configured", skipped: true };
@@ -231,27 +234,35 @@ export const siteRouter = createTRPCRouter({
         };
       }
 
-      const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
+      try {
+  const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
 
-      const updated = await ctx.db.site.update({
-        data: {
-          remoteConfig: currentConfig,
-          remoteConfigCheckedAt: new Date(),
-          remoteConfigHash: hash,
-        },
-        where: { id: site.id },
-      });
+        const updated = await ctx.db.site.update({
+          data: {
+            remoteConfig: currentConfig,
+            remoteConfigCheckedAt: new Date(),
+            remoteConfigHash: hash,
+          },
+          where: { id: site.id },
+        });
 
-      // Also compute current generated config hash for comparison
-      const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
-      const needsUpdate = generatedHash !== hash;
+        // Also compute current generated config hash for comparison
+        const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
+        const needsUpdate = generatedHash !== hash;
 
-      return {
-        needsUpdate,
-        remoteConfigCheckedAt: updated.remoteConfigCheckedAt,
-        remoteConfigHash: updated.remoteConfigHash ?? undefined,
-        skipped: false,
-      };
+        return {
+          needsUpdate,
+          remoteConfigCheckedAt: updated.remoteConfigCheckedAt,
+          remoteConfigHash: updated.remoteConfigHash ?? undefined,
+          skipped: false,
+        };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        return {
+          errorMessage: message,
+          skipped: false,
+        };
+      }
     }),
 
   remove: protectedProcedure
@@ -435,11 +446,10 @@ async function getConfigFromDisk(configPath: string) {
  * @returns The current configuration as a string, or null if not found or on error
  */
 async function getCurrentConfig(site: { configPath: string; hostname: null | string }) {
-  let currentConfig = await (site.hostname
-    ? execShellCommand(`ssh ${site.hostname} 'sudo cat ${site.configPath}' 2>/dev/null || echo ""`)
+  const raw = await (site.hostname
+    ? execShellCommand(`ssh -o ConnectTimeout=10 ${site.hostname} 'sudo cat ${site.configPath}'`)
     : getConfigFromDisk(site.configPath));
-
-  currentConfig = currentConfig.trim();
+  const currentConfig = raw.trim();
   const hash = compute_hash(currentConfig);
   return { currentConfig, hash };
 }
@@ -452,6 +462,7 @@ async function getDefaultSiteId(ctx: TrpcContext) {
 
   return user?.defaultSiteId;
 }
+
 
 /**
  * Retrieves the configuration for a specific site, including settings, other sites, and clients.
@@ -484,6 +495,20 @@ async function getSiteConfig(ctx: TrpcContext, input: { id: number }) {
   const hash = compute_hash(config);
 
   return { config, hash, site };
+}
+
+/** Returns current config and captures any error message instead of throwing. */
+async function tryGetCurrentConfig(site: { configPath: string; hostname: null | string }) {
+  try {
+    const { currentConfig, hash } = await getCurrentConfig(site);
+    return { currentConfig, errorMessage: undefined as string | undefined, hash };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    // On error, surface the message and return empty config/hash
+    const currentConfig = "";
+    const hash = compute_hash(currentConfig);
+    return { currentConfig, errorMessage: message, hash };
+  }
 }
 
 async function writeLocalConfig(configPath: string, config: string) {

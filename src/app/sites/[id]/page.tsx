@@ -10,6 +10,7 @@ import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteMo
 import { ConfigDiff } from "~/components/app/ConfigDiff";
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
+import { InfoCard } from "~/components/ui/info-card";
 import PageHeader from "~/components/ui/page-header";
 import { api } from "~/trpc/react";
 
@@ -159,6 +160,13 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
         </Button>
       </PageHeader>
       <div className="space-y-3">
+        {!!writeCheck?.errorMessage && (
+          <InfoCard
+            className="border-red-200"
+            items={[{ color: "red", label: "Remote read error", value: writeCheck.errorMessage }]}
+            title="Warnings"
+          />
+        )}
         <h3 className="text-sm font-semibold text-gray-700">Config diff</h3>
         <ConfigDiff
           leftLabel="Current"

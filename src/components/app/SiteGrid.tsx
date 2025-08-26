@@ -9,6 +9,7 @@ interface SiteGridProps {
     needsUpdate?: boolean;
     remoteConfigCheckedAt?: Date | null;
     remoteConfigHash?: null | string;
+    remoteRefreshError?: string;
   })[];
 }
 

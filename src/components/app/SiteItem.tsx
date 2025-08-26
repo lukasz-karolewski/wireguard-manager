@@ -1,4 +1,4 @@
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
 import { FC, useState } from "react";
 
@@ -16,6 +16,7 @@ interface SiteConfigProps {
     needsUpdate?: boolean;
     remoteConfigCheckedAt?: Date | null;
     remoteConfigHash?: null | string;
+    remoteRefreshError?: string;
   };
 }
 
@@ -24,11 +25,18 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
   const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(
     site.remoteConfigCheckedAt ?? null,
   );
+  const [localRefreshError, setLocalRefreshError] = useState<string | undefined>(
+    site.remoteRefreshError,
+  );
 
   const refresh = api.site.refreshRemoteConfig.useMutation({
+    onError: (err) => {
+      setLocalRefreshError(err.message);
+    },
     onSuccess: (data) => {
       setLocalNeedsUpdate(data.needsUpdate);
       setLocalCheckedAt(data.remoteConfigCheckedAt ?? null);
+      setLocalRefreshError(data.errorMessage);
     },
   });
 
@@ -88,16 +96,30 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                         <div className="flex items-center gap-2 text-gray-600">
                           <StatusDot
                             color={
-                              needsUpdate === undefined ? "gray" : needsUpdate ? "red" : "green"
+                              localRefreshError
+                                ? "red"
+                                : needsUpdate === undefined
+                                  ? "gray"
+                                  : needsUpdate
+                                    ? "red"
+                                    : "green"
                             }
                           />
                           <span className="truncate">
-                            {needsUpdate === undefined
-                              ? "Remote status unknown"
-                              : needsUpdate
-                                ? "Remote config differs"
-                                : "Remote config up to date"}
+                            {localRefreshError
+                              ? "Remote status error"
+                              : needsUpdate === undefined
+                                ? "Remote status unknown"
+                                : needsUpdate
+                                  ? "Remote config differs"
+                                  : "Remote config up to date"}
                           </span>
+                          {(localRefreshError ?? site.remoteRefreshError) && (
+                            <ExclamationTriangleIcon
+                              className="h-4 w-4 text-red-500 flex-shrink-0"
+                              title={localRefreshError ?? site.remoteRefreshError}
+                            />
+                          )}
                         </div>
                         <Button
                           aria-label="Refresh remote status"
@@ -118,6 +140,7 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                       {lastChecked && (
                         <div className="mt-1 text-xs text-gray-400">Checked: {lastChecked}</div>
                       )}
+                      {/* error message moved to tooltip icon above */}
                     </div>
                   )}
                 </div>
