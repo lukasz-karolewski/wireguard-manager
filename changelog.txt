@@ -2,6 +2,11 @@
 ## 2025-08-26
 
 Changes:
+* moved buttons into the modals
+
+## 2025-08-26
+
+Changes:
 * updated required permissions on ssh host
 * updated how status is loaded
 * ui updates
