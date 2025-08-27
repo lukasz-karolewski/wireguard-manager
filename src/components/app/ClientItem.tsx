@@ -9,7 +9,6 @@ import type { RouterOutputs } from "~/trpc/shared";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
-import { StatusDot } from "~/components/ui/status-dot";
 import { StatusIndicator } from "~/components/ui/status-indicator";
 import { api } from "~/trpc/react";
 import { downloadAllConfigsForSite } from "~/utils";
@@ -33,15 +32,15 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
   };
 
   return (
-    <div className="group relative">
+    <div className="group relative w-full min-w-0">
       <Link
-        className="block cursor-pointer"
+        className="block w-full cursor-pointer"
         href={`/clients/${client.id}#${client.name}`}
         key={client.name}
       >
         <div
           className={clsx(
-            "relative overflow-hidden rounded-xl border transition-all duration-200 ease-out",
+            "relative w-full overflow-hidden rounded-xl border transition-all duration-200 ease-out",
             {
               "border-gray-100 bg-gray-50/50 opacity-75": !client.enabled,
               "border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300":
@@ -53,13 +52,13 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
           <StatusIndicator type={client.enabled ? "active" : "inactive"} />
 
           <div className="p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-semibold text-gray-900 truncate">{client.name}</h3>
+            <div className="flex items-start">
+              <div className="flex-1">
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="truncate font-semibold text-gray-900">{client.name}</h3>
                   {!client.enabled && <Badge variant="disabled">Disabled</Badge>}
                 </div>
-                <p className="text-sm text-gray-600 truncate">
+                <p className="truncate text-sm text-gray-600">
                   {client.owner.name ?? client.owner.email ?? "Unknown owner"}
                 </p>
               </div>
@@ -71,23 +70,11 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
                   title={`Download configs for site "${defaultSite.name}"`}
                   variant="ghost"
                 >
-                  <DocumentArrowDownIcon className="w-5 h-5" />
+                  <DocumentArrowDownIcon className="h-5 w-5" />
                 </Button>
               )}
             </div>
-
-            {client.enabled && (
-              <div className="mt-4 flex items-center text-xs text-gray-500">
-                <StatusDot color="green" />
-                <span className="ml-2">Active</span>
-              </div>
-            )}
           </div>
-
-          {/* Hover overlay */}
-          {client.enabled && (
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-          )}
         </div>
       </Link>
     </div>

@@ -2,8 +2,6 @@ import { clsx } from "clsx";
 import { FC, ReactNode } from "react";
 
 import Accordion from "~/components/ui/accordion";
-import { Badge } from "~/components/ui/badge";
-import { StatusDot } from "~/components/ui/status-dot";
 import { StatusIndicator } from "~/components/ui/status-indicator";
 
 interface SiteCardProps {
@@ -42,7 +40,6 @@ export const SiteCard: FC<SiteCardProps> = ({
         className="border-0 bg-transparent"
         header={
           <div className="flex items-center gap-3">
-            <StatusDot color={isActive ? (site.isDefault ? "amber" : "blue") : "gray"} />
             <div>
               <h3
                 className={clsx("font-semibold", {
@@ -58,10 +55,9 @@ export const SiteCard: FC<SiteCardProps> = ({
                   "text-gray-600": isActive,
                 })}
               >
-                {isActive ? site.endpointAddress : "Inactive"}
+                {isActive ? `Endpoint: ${site.endpointAddress}` : "Inactive"}
               </p>
             </div>
-            {site.isDefault && isActive && <Badge variant="default">Default</Badge>}
           </div>
         }
         isInitiallyOpen={isInitiallyOpen}

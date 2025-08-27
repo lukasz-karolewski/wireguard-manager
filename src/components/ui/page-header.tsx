@@ -10,8 +10,8 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ children, parent, parentHref, title }) => {
   return (
-    <div className="mb-4 flex items-center h-10 gap-2">
-      <h1>
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <h1 className="min-w-0">
         {parent && parentHref && (
           <>
             <Link className="hover:underline" href={parentHref}>

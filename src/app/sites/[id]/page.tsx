@@ -163,11 +163,9 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
         {!!writeCheck?.errorMessage && (
           <InfoCard
             className="border-red-200"
-            items={[{ color: "red", label: "Remote read error", value: writeCheck.errorMessage }]}
-            title="Warnings"
+            items={[{ label: "Remote read error", value: writeCheck.errorMessage }]}
           />
         )}
-        <h3 className="text-sm font-semibold text-gray-700">Config diff</h3>
         <ConfigDiff
           leftLabel="Current"
           newValue={writeCheck?.config ?? ""}

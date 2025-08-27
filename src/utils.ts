@@ -80,3 +80,19 @@ export async function downloadAllConfigsForSite(clientId: number, siteId: number
 export function emptyToNull<T extends z.ZodType>(schema: T) {
   return schema.nullable().or(emptyStringToNull);
 }
+
+// Formats a date with day, short month, year and 2-digit hour/minute.
+// Keep parity with existing usage (toLocaleDateString with time options).
+export function formatDateWithTime(
+  date: Date | number | string,
+  locale = "en-US",
+): string {
+  const d = new Date(date);
+  return d.toLocaleDateString(locale, {
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}

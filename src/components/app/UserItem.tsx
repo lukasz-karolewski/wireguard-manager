@@ -4,7 +4,6 @@ import { FC } from "react";
 import type { RouterOutputs } from "~/trpc/shared";
 
 import { Badge } from "../ui/badge";
-import { StatusDot } from "../ui/status-dot";
 import { StatusIndicator } from "../ui/status-indicator";
 
 interface UserItemProps {
@@ -12,7 +11,6 @@ interface UserItemProps {
 }
 
 export const UserItem: FC<UserItemProps> = ({ user }) => {
-  const hasClients = user.clientCount > 0;
   const hasDevices = user.deviceCount > 0;
   const hasDefaultSite = !!user.defaultSite;
 
@@ -66,22 +64,13 @@ export const UserItem: FC<UserItemProps> = ({ user }) => {
 
               {/* User Details */}
               <div className="space-y-2">
-                {user.defaultSite && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <StatusDot color="amber" />
-                    <span className="ml-2 truncate">Default Site: {user.defaultSite.name}</span>
-                  </div>
-                )}
-
                 <div className="flex items-center text-sm text-gray-600">
-                  <StatusDot color={hasDevices ? "green" : "gray"} />
                   <span className="ml-2">
                     {user.deviceCount} {user.deviceCount === 1 ? "device" : "devices"} owned
                   </span>
                 </div>
 
                 <div className="flex items-center text-sm text-gray-600">
-                  <StatusDot color={hasClients ? "blue" : "gray"} />
                   <span className="ml-2">
                     {user.clientCount} {user.clientCount === 1 ? "client" : "clients"} created
                   </span>

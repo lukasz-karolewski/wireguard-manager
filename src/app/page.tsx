@@ -24,9 +24,13 @@ const ClientListPage: FC<ClientListPageProps> = async ({ searchParams }) => {
   return (
     <>
       <PageHeader title="Clients">
-        <ClientFilter />
-        <ClientSearch defaultValue={searchValue} />
-        <AddClientButton />
+        <div className="ml-auto flex items-center gap-2">
+          <ClientFilter />
+        </div>
+        <div className="basis-full md:basis-0 flex items-center gap-2">
+          <ClientSearch defaultValue={searchValue} />
+          <AddClientButton />
+        </div>
       </PageHeader>
 
       <ClientGrid clients={clients} />

@@ -42,11 +42,11 @@ export function ClientSearch({ defaultValue }: ClientSearchProps) {
   }
 
   return (
-    <form action={(formData) => searchAction(formData)} ref={formRef}>
-      <div className="relative">
+    <form action={(formData) => searchAction(formData)} className="w-full" ref={formRef}>
+      <div className="relative w-full">
         <input
           autoFocus
-          className="rounded border px-3 py-2 pr-10"
+          className="w-full rounded border px-3 py-2 pr-10 md:w-64"
           defaultValue={defaultValue ?? ""}
           name="search"
           onInput={handleInput}

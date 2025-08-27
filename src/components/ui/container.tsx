@@ -16,7 +16,7 @@ const Container: FC<PropsWithChildren<ContainerProps>> = ({
   return (
     <div
       className={clsx(className, {
-        "mx-auto max-w-6xl px-6 min-w-min w-full": !is_full_width,
+        "mx-auto w-full max-w-6xl px-6 min-w-0": !is_full_width,
       })}
       {...props}
     >

@@ -9,6 +9,11 @@ interface ConfigDiffProps {
   newValue: string;
   oldValue: string;
   rightLabel?: string;
+  /**
+   * When false, unchanged lines are hidden and only additions/removals are shown.
+   * Defaults to true to preserve existing behavior.
+   */
+  showUnchanged?: boolean;
 }
 
 export const ConfigDiff: FC<ConfigDiffProps> = ({
@@ -16,8 +21,10 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
   newValue,
   oldValue,
   rightLabel = "Proposed",
+  showUnchanged = true,
 }) => {
   const parts = useMemo(() => diffLines(oldValue, newValue), [newValue, oldValue]);
+  const hasChanges = useMemo(() => parts.some((p) => p.added || p.removed), [parts]);
 
   return (
     <div className="overflow-hidden rounded-md border">
@@ -25,27 +32,35 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
         Inline diff: {leftLabel} → {rightLabel}
       </div>
       <div className="font-mono text-sm">
-        {parts.map((part, pIdx) => {
-          const symbol = part.added ? "+" : part.removed ? "-" : " ";
-          const cls = clsx("whitespace-pre-wrap px-3 py-0.5", {
-            "bg-green-50 text-green-700": part.added,
-            "bg-red-50 text-red-700": part.removed,
-          });
+        {!showUnchanged && !hasChanges ? (
+          <div className="px-3 py-2 text-gray-500">No changes</div>
+        ) : (
+          parts.map((part, pIdx) => {
+            if (!showUnchanged && !(part.added || part.removed)) {
+              return null;
+            }
 
-          // Split into individual lines to render nicely
-          const lines = part.value.split("\n");
-          // Remove trailing empty line to avoid extra blank row at the end
-          if (lines.length > 0 && lines.at(-1) === "") {
-            lines.pop();
-          }
+            const symbol = part.added ? "+" : part.removed ? "-" : " ";
+            const cls = clsx("whitespace-pre-wrap px-3 py-0.5", {
+              "bg-green-50 text-green-700": part.added,
+              "bg-red-50 text-red-700": part.removed,
+            });
 
-          return lines.map((line, lIdx) => (
-            <div className={cls} key={`diff-${pIdx}-${lIdx}`}>
-              <span className="mr-2 opacity-60">{symbol}</span>
-              <span>{line}</span>
-            </div>
-          ));
-        })}
+            // Split into individual lines to render nicely
+            const lines = part.value.split("\n");
+            // Remove trailing empty line to avoid extra blank row at the end
+            if (lines.length > 0 && lines.at(-1) === "") {
+              lines.pop();
+            }
+
+            return lines.map((line, lIdx) => (
+              <div className={cls} key={`diff-${pIdx}-${lIdx}`}>
+                <span className="mr-2 opacity-60">{symbol}</span>
+                <span>{line}</span>
+              </div>
+            ));
+          })
+        )}
       </div>
     </div>
   );

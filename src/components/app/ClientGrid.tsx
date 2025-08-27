@@ -11,9 +11,11 @@ interface ClientGridProps {
 export const ClientGrid: FC<ClientGridProps> = ({ clients }) => {
   return (
     <>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid w-full min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {clients.map((client) => (
-          <ClientItem client={client} key={client.id} />
+          <div className="min-w-0" key={client.id}>
+            <ClientItem client={client} />
+          </div>
         ))}
       </div>
       {clients.length === 0 && (
