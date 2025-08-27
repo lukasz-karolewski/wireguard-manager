@@ -2,12 +2,10 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/navigation";
 import { FC, use, useState } from "react";
 
 import { AddEditClientModal, mapClientForEdit } from "~/components/app/AddEditClientModal";
 import { ConfigGrid } from "~/components/app/ConfigGrid";
-import ConfirmModal from "~/components/app/ConfirmModal";
 import { SiteCard } from "~/components/app/SiteCard";
 import { Button } from "~/components/ui/button";
 import { InfoCard } from "~/components/ui/info-card";
@@ -23,7 +21,6 @@ interface ClientDetailPageProps {
 const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   const params = use(props.params);
   const [show, setShowConfig] = useState<"config" | "qr">("qr");
-  const router = useRouter();
 
   const { data: clientData, refetch } = api.client.get.useQuery({ id: Number(params.id) });
   const { data: sites } = api.site.getAll.useQuery();
@@ -36,11 +33,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   const { mutate: enableClient } = api.client.enable.useMutation({
     onSuccess: () => {
       void refetch();
-    },
-  });
-  const { mutate: removeClient } = api.client.remove.useMutation({
-    onSuccess: () => {
-      router.push("/");
     },
   });
   const { mutate: addToSite } = api.client.addToSite.useMutation({
@@ -62,25 +54,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
   function onEnable() {
     if (!clientData) return;
     enableClient({ id: clientData.client.id });
-  }
-
-  async function onRemove() {
-    if (!clientData) return;
-    await NiceModal.show(ConfirmModal, {
-      actionName: "Remove",
-      message: (
-        <>
-          <p>
-            You are about to remove the client <strong>{clientData.client.name}</strong>.
-          </p>
-          <p>
-            This action <strong>cannot</strong> be undone. Are you sure?
-          </p>
-        </>
-      ),
-      title: "Remove client",
-    });
-    removeClient({ id: clientData.client.id });
   }
 
   async function onEdit() {
@@ -121,9 +94,6 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
             Enable
           </Button>
         )}
-        <Button className="hidden md:block" onClick={onRemove} variant="destructive">
-          Remove
-        </Button>
       </PageHeader>
 
       <div className="mb-8">

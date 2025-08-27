@@ -2,13 +2,11 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FC, use } from "react";
 import { toast } from "react-hot-toast";
 
 import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteModal";
 import { ConfigDiff } from "~/components/app/ConfigDiff";
-import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import { InfoCard } from "~/components/ui/info-card";
 import PageHeader from "~/components/ui/page-header";
@@ -20,7 +18,6 @@ interface SiteDetailPageProps {
 
 const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
   const params = use(props.params);
-  const router = useRouter();
 
   const { data, refetch } = api.site.get.useQuery({
     id: +params.id,
@@ -48,13 +45,6 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
     },
   );
 
-  const { mutate: removeSite } = api.site.remove.useMutation({
-    onSuccess: () => {
-      toast.success("Deleted");
-      router.push("/sites");
-    },
-  });
-
   const { mutate: setAsDefault } = api.site.setAsDefault.useMutation({
     onSuccess: () => {
       toast.success(`${data?.site.name} is now the default site`);
@@ -74,25 +64,6 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
         }
       },
     });
-
-  async function onRemove() {
-    if (!data) return;
-    await NiceModal.show(ConfirmModal, {
-      actionName: "Remove",
-      message: (
-        <>
-          <p>
-            You are about to remove the site <strong>{data.site.name}</strong>.
-          </p>
-          <p>
-            This action <strong>cannot</strong> be undone. Are you sure?
-          </p>
-        </>
-      ),
-      title: "Remove Site",
-    });
-    removeSite({ id: data.site.id });
-  }
 
   return (
     <>
@@ -155,9 +126,6 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
             Mark As Default
           </Button>
         )}
-        <Button className="hidden md:block" onClick={onRemove} variant={"destructive"}>
-          Remove
-        </Button>
       </PageHeader>
       <div className="space-y-3">
         {!!writeCheck?.errorMessage && (

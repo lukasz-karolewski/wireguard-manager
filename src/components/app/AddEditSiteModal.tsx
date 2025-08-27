@@ -1,8 +1,10 @@
 "use client";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
+import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
+import ConfirmModal from "~/components/app/ConfirmModal";
 import { Site } from "~/generated/prisma/client";
 import { api } from "~/trpc/react";
 import { RouterInputs } from "~/trpc/shared";
@@ -41,6 +43,7 @@ export function mapSiteForEdit(site: Site): RouterInputs["site"]["update"] {
 export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
   const modal = useModal();
   const isAdd = !site;
+  const router = useRouter();
 
   const { handleSubmit, register } = useForm<FormValues>({
     defaultValues: isAdd
@@ -65,6 +68,11 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
   };
   const { mutate: create } = api.site.create.useMutation(options);
   const { mutate: update } = api.site.update.useMutation(options);
+  const { mutateAsync: remove } = api.site.remove.useMutation({
+    onSuccess: () => {
+      toast.success("Deleted");
+    },
+  });
 
   const onSubmit: SubmitHandler<FormValues> = (data, _event) => {
     if (isAdd) {
@@ -191,11 +199,43 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-4 bg-slate-100 p-4 ">
-          <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
-          <Button onClick={modal.remove} type="button" variant="secondary">
-            Cancel
-          </Button>
+        <div className="flex items-center justify-between bg-slate-100 p-4 ">
+          {!isAdd && (
+            <Button
+              className="text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={async (e) => {
+                e.preventDefault();
+                await NiceModal.show(ConfirmModal, {
+                  actionName: "Remove",
+                  message: (
+                    <>
+                      <p>
+                        You are about to remove the site <strong>{site.name}</strong>.
+                      </p>
+                      <p>
+                        This action <strong>cannot</strong> be undone. Are you sure?
+                      </p>
+                    </>
+                  ),
+                  title: "Remove Site",
+                });
+                await remove({ id: site.id });
+                modal.resolve();
+                modal.remove();
+                router.push("/sites");
+              }}
+              type="button"
+              variant="ghost"
+            >
+              Remove
+            </Button>
+          )}
+          <div className="flex gap-4">
+            <Button type="submit">{isAdd ? "Add" : "Save"}</Button>
+            <Button onClick={modal.remove} type="button" variant="secondary">
+              Cancel
+            </Button>
+          </div>
         </div>
       </form>
     </Modal>
