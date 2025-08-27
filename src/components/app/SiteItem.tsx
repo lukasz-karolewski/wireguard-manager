@@ -1,6 +1,6 @@
 import { ArrowPathIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 import { api } from "~/trpc/react";
 import { RouterOutputs } from "~/trpc/shared";
@@ -19,7 +19,6 @@ interface SiteConfigProps {
     remoteRefreshError?: string;
   };
 }
-
 export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
   const [localNeedsUpdate, setLocalNeedsUpdate] = useState(site.needsUpdate);
   const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(
@@ -35,13 +34,17 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
     },
     onSuccess: (data) => {
       setLocalNeedsUpdate(data.needsUpdate);
-      setLocalCheckedAt(data.remoteConfigCheckedAt ?? null);
+      setLocalCheckedAt(data.remoteConfigCheckedAt ?? new Date());
       setLocalRefreshError(data.errorMessage);
     },
   });
 
-  const canCheck = Boolean(site.hostname);
-  const lastChecked = localCheckedAt ? new Date(localCheckedAt).toLocaleString() : null;
+  // Auto-trigger a status check after mount without blocking UI
+  useEffect(() => {
+    // Let backend decide caching; do not force
+    refresh.mutate({ id: site.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [site.id]);
   const needsUpdate = localNeedsUpdate;
   return (
     <div className="group relative">
@@ -68,7 +71,12 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-3">
-                  <h3 className="font-semibold text-gray-900 truncate">{site.name}</h3>
+                  <h3 className="font-semibold text-gray-900 truncate">
+                    <span className="mr-2 text-xs text-gray-400">
+                      {localCheckedAt ? new Date(localCheckedAt).toLocaleTimeString() : "—"}
+                    </span>
+                    {site.name}
+                  </h3>
                   {site.isDefault && <Badge variant="default">Default</Badge>}
                 </div>
 
@@ -90,59 +98,59 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                     </div>
                   )}
 
-                  {canCheck && (
-                    <div className="text-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <StatusDot
-                            color={
-                              localRefreshError
+                  <div className="text-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <StatusDot
+                          color={
+                            refresh.isPending
+                              ? "gray"
+                              : localRefreshError
                                 ? "red"
                                 : needsUpdate === undefined
                                   ? "gray"
                                   : needsUpdate
                                     ? "red"
                                     : "green"
-                            }
-                          />
-                          <span className="truncate">
-                            {localRefreshError
-                              ? "Remote status error"
+                          }
+                        />
+                        <span className="truncate">
+                          {refresh.isPending
+                            ? "Checking…"
+                            : localRefreshError
+                              ? "Error"
                               : needsUpdate === undefined
-                                ? "Remote status unknown"
+                                ? "Unknown"
                                 : needsUpdate
-                                  ? "Remote config differs"
-                                  : "Remote config up to date"}
-                          </span>
-                          {(localRefreshError ?? site.remoteRefreshError) && (
-                            <ExclamationTriangleIcon
-                              className="h-4 w-4 text-red-500 flex-shrink-0"
-                              title={localRefreshError ?? site.remoteRefreshError}
-                            />
-                          )}
-                        </div>
-                        <Button
-                          aria-label="Refresh remote status"
-                          disabled={refresh.isPending}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            refresh.mutate({ force: true, id: site.id });
-                          }}
-                          size="icon"
-                          variant="outline"
-                        >
-                          <ArrowPathIcon
-                            className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })}
+                                  ? "Out of sync"
+                                  : "Up to date"}
+                        </span>
+                        {(localRefreshError ?? site.remoteRefreshError) && (
+                          <ExclamationTriangleIcon
+                            className="h-4 w-4 text-red-500 flex-shrink-0"
+                            title={localRefreshError ?? site.remoteRefreshError}
                           />
-                        </Button>
+                        )}
                       </div>
-                      {lastChecked && (
-                        <div className="mt-1 text-xs text-gray-400">Checked: {lastChecked}</div>
-                      )}
-                      {/* error message moved to tooltip icon above */}
+                      <Button
+                        aria-label="Refresh remote status"
+                        disabled={refresh.isPending}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          refresh.mutate({ force: true, id: site.id });
+                        }}
+                        size="icon"
+                        variant="outline"
+                      >
+                        <ArrowPathIcon
+                          className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })}
+                        />
+                      </Button>
                     </div>
-                  )}
+                    {/* last checked timestamp hidden to keep status concise */}
+                    {/* error message moved to tooltip icon above */}
+                  </div>
                 </div>
               </div>
             </div>
