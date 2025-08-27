@@ -111,7 +111,7 @@ sudo visudo
 3. Add this line (replace 'username' with actual SSH user):
 
 ```
-username ALL=(ALL) NOPASSWD: /bin/cp /etc/wireguard/*.conf /etc/wireguard/*.conf.bak, /bin/cp /tmp/wg-remote-config.conf /etc/wireguard/*.conf, /bin/chmod 600 /etc/wireguard/*.conf
+username ALL=(root:root) NOPASSWD: /bin/cp /etc/wireguard/*.conf /etc/wireguard/*.conf.bak, /bin/cp /tmp/wg-remote-config.conf /etc/wireguard/*.conf, /bin/chmod 600 /etc/wireguard/*.conf, /bin/cat /etc/wireguard/*.conf, /usr/bin/cat /etc/wireguard/*.conf
 ```
 
 #### Option 2 - Create dedicated limited user
