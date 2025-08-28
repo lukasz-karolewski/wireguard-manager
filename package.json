@@ -8,7 +8,7 @@
     "vsdebug": "next dev",
     "debug": "NODE_OPTIONS='--inspect' next",
     "analyze": "ANALYZE=true npm run-script build",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "prisma migrate deploy && node server.js",
     "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
     "lint.report": "eslint './**/*.{js,jsx,ts,tsx}' --format ./lint-formatter.js",
