@@ -18,7 +18,7 @@ const SiteConfigVersionsPage: FC<SiteDetailPageProps> = (props) => {
   });
 
   const versions = data?.versions ?? [];
-  const latest = versions[0];
+  const first = versions.at(-1);
 
   return (
     <>
@@ -31,31 +31,29 @@ const SiteConfigVersionsPage: FC<SiteDetailPageProps> = (props) => {
         <div className="rounded-md border p-3 text-sm text-gray-600">No versions found.</div>
       )}
 
-      {versions.length > 0 && (
+      {first && (
         <div className="space-y-6">
-          {/* First version in full */}
-          <div className="overflow-hidden rounded-md border">
-            <div className="border-b bg-gray-50 px-3 py-2 text-xs text-gray-500">
-              Full config @ {new Date(latest.createdAt).toLocaleString()} by{" "}
-              {latest.createdBy.name}
-            </div>
-            <pre className="font-mono text-sm px-3 py-2 whitespace-pre-wrap">{latest.data}</pre>
-          </div>
-
-          {/* Diffs between consecutive versions */}
-          {versions.slice(1).map((prev, idx) => {
-            const curr = versions[idx]; // versions[idx] corresponds to the item before prev in the original array
+          {/* Diffs between consecutive versions with list ordered newest -> oldest */}
+          {versions.slice(0, -1).map((curr, idx) => {
+            const prev = versions[idx + 1]; // the next element is the previous (older) version chronologically
             return (
               <ConfigDiff
                 key={`${curr.hash}-${prev.hash}`}
                 leftLabel={`${prev.createdBy.name} @ ${new Date(prev.createdAt).toLocaleString()}`}
-                newValue={curr.data}
-                oldValue={prev.data}
+                newValue={curr.data} // newer
+                oldValue={prev.data} // older
                 rightLabel={`${curr.createdBy.name} @ ${new Date(curr.createdAt).toLocaleString()}`}
                 showUnchanged={false}
               />
             );
           })}
+
+          <div className="overflow-hidden rounded-md border">
+            <div className="border-b bg-gray-50 px-3 py-2 text-xs text-gray-500">
+              {new Date(first.createdAt).toLocaleString()} by {first.createdBy.name}
+            </div>
+            <pre className="font-mono text-sm px-3 py-2 whitespace-pre-wrap">{first.data}</pre>
+          </div>
         </div>
       )}
     </>

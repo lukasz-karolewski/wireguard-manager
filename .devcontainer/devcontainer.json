@@ -14,14 +14,13 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-azuretools.vscode-docker",
         "mhutchie.git-graph",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "esbenp.prettier-vscode",
         "Prisma.prisma",
         "bradlc.vscode-tailwindcss",
-        "dbaeumer.vscode-eslint"
+        "ms-azuretools.vscode-containers",
+        "biomejs.biome"
       ]
     }
   },
