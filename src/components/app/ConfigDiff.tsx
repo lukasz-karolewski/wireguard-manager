@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import { diffLines } from "diff";
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 
 interface ConfigDiffProps {
   leftLabel?: string;
@@ -21,22 +21,48 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
   newValue,
   oldValue,
   rightLabel = "Proposed",
-  showUnchanged = true,
+  showUnchanged = false,
 }) => {
   const parts = useMemo(() => diffLines(oldValue, newValue), [newValue, oldValue]);
   const hasChanges = useMemo(() => parts.some((p) => p.added || p.removed), [parts]);
+  // Local toggle: whether to include unchanged lines (default from prop)
+  const [includeUnchanged, setIncludeUnchanged] = useState<boolean>(showUnchanged);
 
   return (
     <div className="overflow-hidden rounded-md border">
-      <div className="border-b bg-gray-50 px-3 py-2 text-xs text-gray-500">
-        Inline diff: {leftLabel} → {rightLabel}
+      <div className="flex items-center justify-between border-b bg-gray-50 px-3 py-2 text-xs text-gray-500">
+        <div>
+          Inline diff: {leftLabel} → {rightLabel}
+        </div>
+        <div className="inline-flex items-center gap-1">
+          <button
+            type="button"
+            className={clsx(
+              "rounded px-2 py-1",
+              !includeUnchanged ? "bg-blue-600 text-white" : "hover:bg-gray-200 text-gray-700",
+            )}
+            onClick={() => setIncludeUnchanged(false)}
+          >
+            Only changes
+          </button>
+          <button
+            type="button"
+            className={clsx(
+              "rounded px-2 py-1",
+              includeUnchanged ? "bg-blue-600 text-white" : "hover:bg-gray-200 text-gray-700",
+            )}
+            onClick={() => setIncludeUnchanged(true)}
+          >
+            All lines
+          </button>
+        </div>
       </div>
       <div className="font-mono text-sm">
-        {!showUnchanged && !hasChanges ? (
+        {!includeUnchanged && !hasChanges ? (
           <div className="px-3 py-2 text-gray-500">No changes</div>
         ) : (
           parts.map((part, pIdx) => {
-            if (!showUnchanged && !(part.added || part.removed)) {
+            if (!includeUnchanged && !(part.added || part.removed)) {
               return null;
             }
 
@@ -46,16 +72,14 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
               "bg-red-50 text-red-700": part.removed,
             });
 
-            // Split into individual lines to render nicely
             const lines = part.value.split("\n");
-            // Remove trailing empty line to avoid extra blank row at the end
             if (lines.length > 0 && lines.at(-1) === "") {
               lines.pop();
             }
 
             return lines.map((line, lIdx) => (
               <div className={cls} key={`diff-${pIdx}-${lIdx}`}>
-                <span className="mr-2 opacity-60">{symbol}</span>
+                <span className="mr-2 opacity-60 select-none">{symbol}</span>
                 <span>{line}</span>
               </div>
             ));
