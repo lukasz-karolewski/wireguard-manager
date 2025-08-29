@@ -1,15 +1,14 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useRouter } from "next/navigation";
-import React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
 import ConfirmModal from "~/components/app/ConfirmModal";
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";
-import { Client } from "~/generated/prisma/client";
+import type { Client } from "~/generated/prisma/client";
 import { api } from "~/trpc/react";
-import { RouterInputs } from "~/trpc/shared";
+import type { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
 
 import FormField from "../ui/form-field";
@@ -55,7 +54,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
       if (errorMessage) toast.error(errorMessage);
       else toast.error("Failed to save");
     },
-    onSuccess: (_data: any) => {
+    onSuccess: () => {
       toast.success("Saved");
       modal.resolve();
       modal.remove();
@@ -90,10 +89,7 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="p-4">
-          <FormField
-            help="Recommending <username>-<device type> i.e. john-iphone, but can be anything"
-            label="Name"
-          >
+          <FormField help="Recommending <username>-<device type> i.e. john-iphone, but can be anything" label="Name">
             <Input type="text" {...register("name", { required: true })} />
           </FormField>
           <FormField help="Select the user who will own this client" label="Owner">
@@ -107,13 +103,11 @@ export const AddEditClientModal = NiceModal.create<Props>(({ client }) => {
             </Select>
           </FormField>
           <FormField label="Private key">
-            <>
-              <Input
-                placeholder="optional, leave empty to autogenerate"
-                {...register("private_key", { required: false })}
-              />
-              {errors.private_key && <span>{errors.private_key.message}</span>}
-            </>
+            <Input
+              placeholder="optional, leave empty to autogenerate"
+              {...register("private_key", { required: false })}
+            />
+            {errors.private_key && <span>{errors.private_key.message}</span>}
           </FormField>
         </div>
         <div className="flex items-center justify-between bg-slate-100 p-4 ">

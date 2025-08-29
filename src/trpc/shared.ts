@@ -1,6 +1,6 @@
-import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
-import { type AppRouter } from "~/server/api/root";
+import type { AppRouter } from "~/server/api/root";
 
 /**
  * Inference helper for inputs.
@@ -17,7 +17,7 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 export function getUrl() {
-  return getBaseUrl() + "/api/trpc";
+  return `${getBaseUrl()}/api/trpc`;
 }
 
 function getBaseUrl() {

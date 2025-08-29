@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 interface InfoCardProps {
   className?: string;
@@ -15,12 +15,11 @@ export const InfoCard: FC<InfoCardProps> = ({ className = "", items }) => {
     <div className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm ${className}`}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: won't mutate
           <div className="flex items-center gap-3" key={index}>
             <div>
               <p className="text-sm font-medium text-gray-900">{item.label}</p>
-              <p className="text-sm text-gray-600">
-                {typeof item.value === "string" ? item.value : item.value}
-              </p>
+              <p className="text-sm text-gray-600">{typeof item.value === "string" ? item.value : item.value}</p>
             </div>
           </div>
         ))}

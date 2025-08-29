@@ -1,22 +1,4 @@
 {
-  "name": "wireguard-manager",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "vsdebug": "next dev",
-    "debug": "NODE_OPTIONS='--inspect' next",
-    "analyze": "ANALYZE=true npm run-script build",
-    "build": "next build",
-    "start": "prisma migrate deploy && node server.js",
-    "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
-    "lint.report": "eslint './**/*.{js,jsx,ts,tsx}' --format ./lint-formatter.js",
-    "lint.fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
-    "lint.config": "eslint --print-config ./pages/index.jsx",
-    "lint2": "next lint",
-    "test": "jest --watch"
-  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
     "@ebay/nice-modal-react": "^1.2.13",
@@ -53,11 +35,8 @@
     "zod": "^4.1.3"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.0",
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.16.0",
+    "@biomejs/biome": "2.2.2",
     "@next/bundle-analyzer": "^15.0.2",
-    "@next/eslint-plugin-next": "^15.0.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -68,24 +47,28 @@
     "@types/node": "^24.3.0",
     "@types/qrcode.react": "^1.0.5",
     "@types/react": "^19.0.1",
-    "@typescript-eslint/eslint-plugin": "^8.12.2",
-    "@typescript-eslint/parser": "^8.12.2",
     "dotenv": "^17.2.1",
-    "eslint": "^9.14.0",
-    "eslint-config-next": "^15.0.2",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import-x": "^4.5.0",
-    "eslint-plugin-n": "^17.15.0",
-    "eslint-plugin-perfectionist": "^4.3.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-unicorn": "^60.0.0",
     "globals": "^16.0.0",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "prettier": "^3.3.3",
-    "tsx": "^4.19.4",
-    "typescript-eslint": "^8.18.0"
-  }
+    "tsx": "^4.19.4"
+  },
+  "name": "wireguard-manager",
+  "private": true,
+  "scripts": {
+    "analyze": "ANALYZE=true npm run-script build",
+    "build": "next build",
+    "debug": "NODE_OPTIONS='--inspect' next",
+    "dev": "next dev --turbopack",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "lint:summary": "biome check --summary",
+    "lint.config": "eslint --print-config ./pages/index.jsx",
+    "start": "prisma migrate deploy && node server.js",
+    "test": "jest --watch",
+    "vsdebug": "next dev"
+  },
+  "type": "module",
+  "version": "0.1.0"
 }

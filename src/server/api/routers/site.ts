@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 
-import { Prisma } from "~/generated/prisma/client";
-import { createTRPCRouter, protectedProcedure, TrpcContext } from "~/server/api/trpc";
+import type { Prisma } from "~/generated/prisma/client";
+import { createTRPCRouter, protectedProcedure, type TrpcContext } from "~/server/api/trpc";
 import { compute_hash, generateCIDR, generateWgServerConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
 import { ActionType } from "~/server/utils/types";
@@ -128,11 +128,11 @@ export const siteRouter = createTRPCRouter({
       where: { name: "wg_network" },
     });
 
-  const sitesWithDefault = await Promise.all(
+    const sitesWithDefault = await Promise.all(
       sites.map(async (site) => {
         let remoteHash = site.remoteConfigHash ?? undefined;
         let remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
-    let remoteRefreshError: string | undefined;
+        let remoteRefreshError: string | undefined;
 
         // Refresh remote cache if TTL expired (1h) or missing
         if (site.hostname) {
@@ -141,7 +141,10 @@ export const siteRouter = createTRPCRouter({
           const needsRefresh = !remoteCheckedAt || now - new Date(remoteCheckedAt).getTime() > ttlMs;
           if (needsRefresh) {
             try {
-              const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
+              const { currentConfig, hash } = await getCurrentConfig({
+                configPath: site.configPath,
+                hostname: site.hostname,
+              });
               const updated = await ctx.db.site.update({
                 data: {
                   remoteConfig: currentConfig,
@@ -206,18 +209,16 @@ export const siteRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-  const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
-  const { currentConfig, errorMessage, hash: currentHash } = await tryGetCurrentConfig(site);
+      const { config, hash: newHash, site } = await getSiteConfig(ctx, input);
+      const { currentConfig, errorMessage, hash: currentHash } = await tryGetCurrentConfig(site);
 
-  return { config, currentConfig, errorMessage, needsWrite: newHash !== currentHash };
+      return { config, currentConfig, errorMessage, needsWrite: newHash !== currentHash };
     }),
 
   // Refresh remote config cache for a site (TTL 1h unless force)
   refreshRemoteConfig: protectedProcedure
-    .input(
-      z.object({ force: z.boolean().optional(), id: z.number() })
-    )
-  .mutation(async ({ ctx, input }) => {
+    .input(z.object({ force: z.boolean().optional(), id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
       const site = await ctx.db.site.findFirstOrThrow({ where: { id: input.id } });
       if (!site.hostname) {
         return { reason: "No hostname configured", skipped: true };
@@ -225,7 +226,11 @@ export const siteRouter = createTRPCRouter({
 
       const now = new Date();
       const oneHourMs = 60 * 60 * 1000;
-      if (!input.force && site.remoteConfigCheckedAt && now.getTime() - site.remoteConfigCheckedAt.getTime() < oneHourMs) {
+      if (
+        !input.force &&
+        site.remoteConfigCheckedAt &&
+        now.getTime() - site.remoteConfigCheckedAt.getTime() < oneHourMs
+      ) {
         return {
           reason: "TTL not expired",
           remoteConfigCheckedAt: site.remoteConfigCheckedAt,
@@ -235,7 +240,10 @@ export const siteRouter = createTRPCRouter({
       }
 
       try {
-  const { currentConfig, hash } = await getCurrentConfig({ configPath: site.configPath, hostname: site.hostname });
+        const { currentConfig, hash } = await getCurrentConfig({
+          configPath: site.configPath,
+          hostname: site.hostname,
+        });
 
         const updated = await ctx.db.site.update({
           data: {
@@ -462,7 +470,6 @@ async function getDefaultSiteId(ctx: TrpcContext) {
 
   return user?.defaultSiteId;
 }
-
 
 /**
  * Retrieves the configuration for a specific site, including settings, other sites, and clients.

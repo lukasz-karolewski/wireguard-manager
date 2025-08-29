@@ -12,13 +12,7 @@ const FormRadioButton = ({ label, name, register, value }: FormRadioButtonProps)
 
   return (
     <label className="ml-6 inline-flex items-center">
-      <input
-        className="form-radio"
-        id={id}
-        type="radio"
-        value={value}
-        {...register(name, { required: true })}
-      />
+      <input className="form-radio" id={id} type="radio" value={value} {...register(name, { required: true })} />
       <span className="ml-2">{label}</span>
     </label>
   );

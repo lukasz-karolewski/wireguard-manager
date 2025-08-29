@@ -1,4 +1,4 @@
-import { FC } from "react";
+import type { FC } from "react";
 
 import { AddClientButton } from "~/components/app/AddClientButton";
 import { ClientFilter } from "~/components/app/ClientFilter";

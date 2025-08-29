@@ -1,4 +1,4 @@
-import { FC } from "react";
+import type { FC } from "react";
 
 import type { RouterOutputs } from "~/trpc/shared";
 
@@ -25,12 +25,7 @@ export const SiteGrid: FC<SiteGridProps> = ({ sites }) => {
       </div>
       {sites.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-          <svg
-            className="w-16 h-16 mb-4 text-gray-300"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3V6a3 3 0 013-3h13.5a3 3 0 013 3v5.25a3 3 0 01-3 3m-13.5 0V21a3 3 0 003 3h7.5a3 3 0 003-3v-6.75"
               strokeLinecap="round"

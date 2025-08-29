@@ -49,10 +49,10 @@ describe("siteRouter", () => {
         localAddresses: input.localAddresses,
         name: input.name,
         PiholeDNS: input.dns_pihole,
-        postDown: undefined,
-        postUp: undefined,
         PrivateKey: input.private_key,
         PublicKey: input.public_key,
+        postDown: undefined,
+        postUp: undefined,
       },
     });
     expect(ctx.db.user.update).toHaveBeenCalledWith({

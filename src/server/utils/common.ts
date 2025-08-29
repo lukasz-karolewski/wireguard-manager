@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import { Client, Settings, Site } from "~/generated/prisma/client";
+import type { Client, Settings, Site } from "~/generated/prisma/client";
 
 import { ClientConfigType } from "./types";
 
@@ -8,12 +8,7 @@ export function compute_hash(str: string) {
   return crypto.createHash("sha256").update(str).digest("hex");
 }
 
-export function generateCIDR(
-  network: string,
-  site_id: number,
-  device_id: number,
-  mask_override?: "24" | "32",
-): string {
+export function generateCIDR(network: string, site_id: number, device_id: number, mask_override?: "24" | "32"): string {
   const [address, mask] = network.split("/");
   const ipParts = address.split(".", 4) as [string, string, string, string];
   ipParts[2] = site_id.toString(); // Convert id to string before assigning
@@ -22,21 +17,13 @@ export function generateCIDR(
   return `${ipParts.join(".")}/${mask_override ?? mask}`;
 }
 
-export function generateClientConfig(
-  settings: Settings[],
-  site: Site,
-  client: Client,
-  type: ClientConfigType,
-) {
+export function generateClientConfig(settings: Settings[], site: Site, client: Client, type: ClientConfigType) {
   const wg_network = settings.find((s) => s.name === "wg_network")!.value;
 
   let DNS = "";
   if (type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) {
     DNS = site.DNS ?? "";
-  } else if (
-    type === ClientConfigType.localOnlyPiholeDNS ||
-    type === ClientConfigType.allTrafficPiholeDNS
-  ) {
+  } else if (type === ClientConfigType.localOnlyPiholeDNS || type === ClientConfigType.allTrafficPiholeDNS) {
     DNS = site.piholeDNS ?? "";
   }
 
@@ -50,9 +37,9 @@ export function generateClientConfig(
     Endpoint = ${site.endpointAddress}
     PublicKey = ${site.publicKey}
     AllowedIPs = ${
-      type == ClientConfigType.localOnly ||
-      type == ClientConfigType.localOnlyDNS ||
-      type == ClientConfigType.localOnlyPiholeDNS
+      type === ClientConfigType.localOnly ||
+      type === ClientConfigType.localOnlyDNS ||
+      type === ClientConfigType.localOnlyPiholeDNS
         ? [generateCIDR(wg_network, 0, 0), site.localAddresses].filter(Boolean).join(", ")
         : "0.0.0.0/0, ::/0"
     }
@@ -113,9 +100,7 @@ export function generateWgServerConfig(
                   PublicKey = ${s.publicKey}
                   Endpoint = ${s.endpointAddress}
                   PersistentKeepalive = 3600
-                  AllowedIPs = ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses]
-                    .filter(Boolean)
-                    .join(", ")}
+                  AllowedIPs = ${[generateCIDR(wg_network, s.id, 0, "24"), s.localAddresses].filter(Boolean).join(", ")}
                   `;
         })
         .join("\n")}

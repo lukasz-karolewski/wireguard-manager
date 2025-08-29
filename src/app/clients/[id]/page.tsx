@@ -2,7 +2,7 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
-import { FC, use, useState } from "react";
+import { type FC, use, useState } from "react";
 
 import { AddEditClientModal, mapClientForEdit } from "~/components/app/AddEditClientModal";
 import { ConfigGrid } from "~/components/app/ConfigGrid";
@@ -78,7 +78,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
             }}
             variant={"ghost"}
           >
-            {show == "qr" ? "Show configs" : "Show QR codes"}
+            {show === "qr" ? "Show configs" : "Show QR codes"}
           </Button>
         )}
         <Button onClick={onEdit} variant="ghost">
@@ -154,11 +154,7 @@ const ClientDetailPage: FC<ClientDetailPageProps> = (props) => {
                   key={site.id}
                   site={site}
                 >
-                  <ConfigGrid
-                    clientName={clientData.client.name}
-                    configs={siteConfigs.configs}
-                    show={show}
-                  />
+                  <ConfigGrid clientName={clientData.client.name} configs={siteConfigs.configs} show={show} />
                 </SiteCard>
               ) : (
                 <SiteCard

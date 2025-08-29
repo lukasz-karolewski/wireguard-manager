@@ -1,18 +1,13 @@
 import { clsx } from "clsx";
-import { FC, PropsWithChildren } from "react";
+import type { FC, PropsWithChildren, ReactNode } from "react";
 
 interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  children?: any;
+  children?: ReactNode | ReactNode[];
   className?: string;
   is_full_width?: boolean;
 }
 
-const Container: FC<PropsWithChildren<ContainerProps>> = ({
-  children,
-  className,
-  is_full_width,
-  ...props
-}) => {
+const Container: FC<PropsWithChildren<ContainerProps>> = ({ children, className, is_full_width, ...props }) => {
   return (
     <div
       className={clsx(className, {

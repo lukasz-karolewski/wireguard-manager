@@ -2,15 +2,13 @@
 
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
-import { FC } from "react";
-
-import type { RouterOutputs } from "~/trpc/shared";
-
+import type { FC } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
 import { StatusIndicator } from "~/components/ui/status-indicator";
 import { api } from "~/trpc/react";
+import type { RouterOutputs } from "~/trpc/shared";
 import { downloadAllConfigsForSite } from "~/utils";
 
 interface ClientConfigProps {
@@ -33,20 +31,12 @@ export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ cli
 
   return (
     <div className="group relative w-full min-w-0">
-      <Link
-        className="block w-full cursor-pointer"
-        href={`/clients/${client.id}#${client.name}`}
-        key={client.name}
-      >
+      <Link className="block w-full cursor-pointer" href={`/clients/${client.id}#${client.name}`} key={client.name}>
         <div
-          className={clsx(
-            "relative w-full overflow-hidden rounded-xl border transition-all duration-200 ease-out",
-            {
-              "border-gray-100 bg-gray-50/50 opacity-75": !client.enabled,
-              "border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300":
-                client.enabled,
-            },
-          )}
+          className={clsx("relative w-full overflow-hidden rounded-xl border transition-all duration-200 ease-out", {
+            "border-gray-100 bg-gray-50/50 opacity-75": !client.enabled,
+            "border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300": client.enabled,
+          })}
         >
           {/* Status indicator */}
           <StatusIndicator type={client.enabled ? "active" : "inactive"} />

@@ -2,7 +2,7 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import { useRouter } from "next/navigation";
-import { FC } from "react";
+import type { FC } from "react";
 
 import { Button } from "~/components/ui/button";
 

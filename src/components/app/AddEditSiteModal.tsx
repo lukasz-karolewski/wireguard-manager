@@ -1,13 +1,13 @@
 "use client";
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 import { useRouter } from "next/navigation";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
 import ConfirmModal from "~/components/app/ConfirmModal";
-import { Site } from "~/generated/prisma/client";
+import type { Site } from "~/generated/prisma/client";
 import { api } from "~/trpc/react";
-import { RouterInputs } from "~/trpc/shared";
+import type { RouterInputs } from "~/trpc/shared";
 import { zodErrorsToString } from "~/utils";
 
 import { Button } from "../ui/button";
@@ -117,21 +117,11 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
                 help="SSH hostname for remote config writing. Leave empty for local file system."
                 label="Hostname (SSH)"
               >
-                <Input
-                  placeholder="e.g., server.example.com"
-                  {...register("hostname", { required: false })}
-                />
+                <Input placeholder="e.g., server.example.com" {...register("hostname", { required: false })} />
               </FormField>
 
-              <FormField
-                help="Clients will display config for this site by default"
-                label="Mark as Default Site"
-              >
-                <Input
-                  className="w-4"
-                  type="checkbox"
-                  {...register("markAsDefault", { required: false })}
-                />
+              <FormField help="Clients will display config for this site by default" label="Mark as Default Site">
+                <Input className="w-4" type="checkbox" {...register("markAsDefault", { required: false })} />
               </FormField>
             </div>
           </div>
@@ -151,17 +141,11 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
               </FormField>
 
               <FormField label="Private Key">
-                <Input
-                  placeholder="leave empty to generate key"
-                  {...register("private_key", { required: false })}
-                />
+                <Input placeholder="leave empty to generate key" {...register("private_key", { required: false })} />
               </FormField>
 
               <FormField label="Public Key">
-                <Input
-                  placeholder="leave empty to generate key"
-                  {...register("public_key", { required: false })}
-                />
+                <Input placeholder="leave empty to generate key" {...register("public_key", { required: false })} />
               </FormField>
 
               <FormField help="Each line will be separate PostUp command" label="Post Up script">
@@ -176,10 +160,7 @@ export const AddEditSiteModal = NiceModal.create<Props>(({ site }) => {
           <div className="border border-gray-300">
             <h3 className="bg-accent p-4 text-white">Peer options</h3>
             <div className="p-4">
-              <FormField
-                help="External IP or DNS with port where clients should connect"
-                label="Endpoint"
-              >
+              <FormField help="External IP or DNS with port where clients should connect" label="Endpoint">
                 <Input {...register("endpointAddress", { required: true })} />
               </FormField>
               <FormField

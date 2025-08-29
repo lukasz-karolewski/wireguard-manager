@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import { diffLines } from "diff";
-import { FC, useMemo, useState } from "react";
+import { type FC, useMemo, useState } from "react";
 
 interface ConfigDiffProps {
   leftLabel?: string;
@@ -36,22 +36,22 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
         </div>
         <div className="inline-flex items-center gap-1">
           <button
-            type="button"
             className={clsx(
               "rounded px-2 py-1",
               !includeUnchanged ? "bg-blue-600 text-white" : "hover:bg-gray-200 text-gray-700",
             )}
             onClick={() => setIncludeUnchanged(false)}
+            type="button"
           >
             Only changes
           </button>
           <button
-            type="button"
             className={clsx(
               "rounded px-2 py-1",
               includeUnchanged ? "bg-blue-600 text-white" : "hover:bg-gray-200 text-gray-700",
             )}
             onClick={() => setIncludeUnchanged(true)}
+            type="button"
           >
             All lines
           </button>
@@ -78,7 +78,13 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
             }
 
             return lines.map((line, lIdx) => (
-              <div className={cls} key={`diff-${pIdx}-${lIdx}`}>
+              <div
+                className={cls}
+                key={`diff-${pIdx}-${
+                  // biome-ignore lint/suspicious/noArrayIndexKey: won't mutate list
+                  lIdx
+                }`}
+              >
                 <span className="mr-2 opacity-60 select-none">{symbol}</span>
                 <span>{line}</span>
               </div>

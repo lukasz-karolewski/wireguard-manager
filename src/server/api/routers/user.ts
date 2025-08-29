@@ -15,9 +15,7 @@ export const userRouter = createTRPCRouter({
     return users.map((user) => {
       return {
         clientCount: user.Client.length, // Clients created by user
-        defaultSite: user.defaultSite
-          ? { id: user.defaultSite.id, name: user.defaultSite.name }
-          : null,
+        defaultSite: user.defaultSite ? { id: user.defaultSite.id, name: user.defaultSite.name } : null,
         deviceCount: user.ownedClients.length, // Devices (clients) owned by user
         email: user.email,
         id: user.id,

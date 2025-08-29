@@ -2,7 +2,7 @@ import { Dialog, DialogPanel, DialogTitle, Transition } from "@headlessui/react"
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { clsx } from "clsx";
 import noop from "lodash/noop";
-import { FC, Fragment, PropsWithChildren } from "react";
+import { type FC, Fragment, type PropsWithChildren } from "react";
 
 interface MyModalProps {
   className?: string;

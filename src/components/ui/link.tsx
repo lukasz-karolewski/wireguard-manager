@@ -1,9 +1,9 @@
 "use client";
 
 import { clsx } from "clsx";
-import Link, { LinkProps } from "next/link";
+import Link, { type LinkProps } from "next/link";
 import { usePathname } from "next/navigation";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 type ActiveLinkProps = LinkProps & {
   activeClassName?: string;

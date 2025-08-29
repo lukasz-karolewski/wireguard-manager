@@ -16,8 +16,8 @@ const ipWithCidrSchema = z.string().refine(
     return isIpValid && isCidrValid;
   },
   {
-      error: "Invalid IP address with CIDR notation"
-},
+    error: "Invalid IP address with CIDR notation",
+  },
 );
 
 export const settingsRouter = createTRPCRouter({

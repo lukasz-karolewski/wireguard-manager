@@ -1,7 +1,7 @@
 import { z } from "zod";
 import "server-only";
 
-import { Prisma } from "~/generated/prisma/client";
+import type { Prisma } from "~/generated/prisma/client";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { generateClientConfig } from "~/server/utils/common";
 import { execShellCommand } from "~/server/utils/execShellCommand";
@@ -162,10 +162,8 @@ export const clientRouter = createTRPCRouter({
           const [_description, type] = entry;
           // Generate site configs only if PiholeDNS is not empty
           if (
-            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) &&
-              !site.DNS) ||
-            ((type === ClientConfigType.localOnlyPiholeDNS ||
-              type === ClientConfigType.allTrafficPiholeDNS) &&
+            ((type === ClientConfigType.localOnlyDNS || type === ClientConfigType.allTrafficDNS) && !site.DNS) ||
+            ((type === ClientConfigType.localOnlyPiholeDNS || type === ClientConfigType.allTrafficPiholeDNS) &&
               !site.piholeDNS)
           ) {
             continue;

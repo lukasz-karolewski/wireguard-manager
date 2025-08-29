@@ -1,6 +1,6 @@
-import { cva, VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import { ButtonHTMLAttributes, FC } from "react";
+import type { ButtonHTMLAttributes, FC } from "react";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -22,17 +22,14 @@ const buttonVariants = cva(
         destructive: "bg-red-500 text-white hover:bg-red-600",
         ghost: "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
         link: "text-blue-600 underline-offset-4 hover:underline",
-        outline:
-          "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400",
+        outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400",
         secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
       },
     },
   },
 );
 
-export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   children?: React.ReactNode;
 }
 

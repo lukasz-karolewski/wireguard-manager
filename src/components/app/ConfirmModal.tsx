@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import React from "react";
+import type React from "react";
 
 import { Button } from "~/components/ui/button";
 import Modal from "~/components/ui/modal";

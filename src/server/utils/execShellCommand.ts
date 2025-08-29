@@ -25,10 +25,11 @@ export class ShellCommandError extends Error {
 export function execShellCommand(cmd: string) {
   console.log("execShellCommand", cmd);
   return new Promise<string>((resolve, reject) => {
+    // biome-ignore lint/suspicious/noExplicitAny: it's ok
     cp.exec(cmd, { maxBuffer: 10 * 1024 * 1024 }, (error: any, stdout: string, stderr: string) => {
       if (error) {
         // Compose a concise, informative error message including exit code and stderr
-  const exitCode = error.code === undefined ? null : (error.code as null | number);
+        const exitCode = error.code === undefined ? null : (error.code as null | number);
         const tail = (input: string) => (input || "").trim().split("\n").slice(-10).join("\n");
         const stderrTail = tail(stderr);
         const stdoutTail = tail(stdout);

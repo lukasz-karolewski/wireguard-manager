@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FC } from "react";
+import type { FC } from "react";
 
 import type { RouterOutputs } from "~/trpc/shared";
 
@@ -34,12 +34,7 @@ export const UserItem: FC<UserItemProps> = ({ user }) => {
                 />
               ) : (
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center ring-2 ring-gray-100">
-                  <svg
-                    className="w-6 h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                       strokeLinecap="round"
@@ -54,9 +49,7 @@ export const UserItem: FC<UserItemProps> = ({ user }) => {
             {/* User Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {user.name ?? "Unnamed User"}
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 truncate">{user.name ?? "Unnamed User"}</h3>
                 {!hasDefaultSite && <Badge variant="error">No Default Site</Badge>}
               </div>
 

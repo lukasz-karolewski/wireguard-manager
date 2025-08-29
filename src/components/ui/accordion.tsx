@@ -1,6 +1,7 @@
 "use client";
 
-import React, { ComponentPropsWithoutRef, useState } from "react";
+import type React from "react";
+import { type ComponentPropsWithoutRef, useState } from "react";
 
 interface AccordionProps extends ComponentPropsWithoutRef<"div"> {
   actions?: React.ReactNode;
@@ -11,13 +12,7 @@ interface AccordionProps extends ComponentPropsWithoutRef<"div"> {
 
 import { Transition } from "@headlessui/react";
 
-const Accordion: React.FC<AccordionProps> = ({
-  actions,
-  children,
-  className,
-  header,
-  isInitiallyOpen = false,
-}) => {
+const Accordion: React.FC<AccordionProps> = ({ actions, children, className, header, isInitiallyOpen = false }) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
 
   const toggleAccordion = () => {
@@ -31,11 +26,7 @@ const Accordion: React.FC<AccordionProps> = ({
           className="flex-1 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
           onClick={toggleAccordion}
         >
-          {typeof header === "string" ? (
-            <h2 className="font-semibold text-gray-900">{header}</h2>
-          ) : (
-            header
-          )}
+          {typeof header === "string" ? <h2 className="font-semibold text-gray-900">{header}</h2> : header}
         </button>
         {actions && <div className="ml-4">{actions}</div>}
       </div>

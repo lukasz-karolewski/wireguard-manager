@@ -1,4 +1,5 @@
-import React, { TextareaHTMLAttributes, useId } from "react";
+import type React from "react";
+import { type TextareaHTMLAttributes, useId } from "react";
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   ref: React.RefCallback<HTMLTextAreaElement> | React.RefObject<HTMLTextAreaElement>;

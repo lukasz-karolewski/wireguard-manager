@@ -15,8 +15,7 @@ export const api = createTRPCClient<typeof appRouter>({
   links: [
     loggerLink({
       enabled: (op) =>
-        process.env.NODE_ENV === "development" ||
-        (op.direction === "down" && op.result instanceof Error),
+        process.env.NODE_ENV === "development" || (op.direction === "down" && op.result instanceof Error),
     }),
     /**
      * Custom RSC link that lets us invoke procedures without using http requests. Since Server
@@ -31,6 +30,6 @@ export const api = createTRPCClient<typeof appRouter>({
       },
       router: appRouter,
       transformer,
-    })
+    }),
   ],
 });

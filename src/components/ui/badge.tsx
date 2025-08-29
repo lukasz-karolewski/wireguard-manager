@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { FC, ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 interface BadgeProps {
   children: ReactNode;
@@ -8,12 +8,7 @@ interface BadgeProps {
   variant?: "default" | "disabled" | "error" | "success" | "warning";
 }
 
-export const Badge: FC<BadgeProps> = ({
-  children,
-  className = "",
-  size = "sm",
-  variant = "default",
-}) => {
+export const Badge: FC<BadgeProps> = ({ children, className = "", size = "sm", variant = "default" }) => {
   return (
     <span
       className={clsx(

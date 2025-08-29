@@ -1,4 +1,4 @@
-import { ReadonlyURLSearchParams } from "next/navigation";
+import type { ReadonlyURLSearchParams } from "next/navigation";
 import { z } from "zod";
 
 export const createUrl = (pathname: string, params: ReadonlyURLSearchParams | URLSearchParams) => {
@@ -47,7 +47,7 @@ export async function downloadAllConfigsForSite(clientId: number, siteId: number
   // Use File System Access API to save the file
   if ("showSaveFilePicker" in globalThis) {
     try {
-      // TODO pending fix https://github.com/microsoft/vscode/issues/141908
+      // biome-ignore lint/suspicious/noExplicitAny: pending fix https://github.com/microsoft/vscode/issues/141908
       const handle = await (globalThis as any).showSaveFilePicker({
         suggestedName,
         types: [
@@ -83,10 +83,7 @@ export function emptyToNull<T extends z.ZodType>(schema: T) {
 
 // Formats a date with day, short month, year and 2-digit hour/minute.
 // Keep parity with existing usage (toLocaleDateString with time options).
-export function formatDateWithTime(
-  date: Date | number | string,
-  locale = "en-US",
-): string {
+export function formatDateWithTime(date: Date | number | string, locale = "en-US"): string {
   const d = new Date(date);
   return d.toLocaleDateString(locale, {
     day: "numeric",

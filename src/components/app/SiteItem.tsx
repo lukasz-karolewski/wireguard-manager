@@ -1,9 +1,9 @@
 import { ArrowPathIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
-import { FC, useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 
 import { api } from "~/trpc/react";
-import { RouterOutputs } from "~/trpc/shared";
+import type { RouterOutputs } from "~/trpc/shared";
 
 import { Button } from "../ui/button";
 import Link from "../ui/link";
@@ -20,12 +20,8 @@ interface SiteConfigProps {
 }
 export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
   const [localNeedsUpdate, setLocalNeedsUpdate] = useState(site.needsUpdate);
-  const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(
-    site.remoteConfigCheckedAt ?? null,
-  );
-  const [localRefreshError, setLocalRefreshError] = useState<string | undefined>(
-    site.remoteRefreshError,
-  );
+  const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(site.remoteConfigCheckedAt ?? null);
+  const [localRefreshError, setLocalRefreshError] = useState<string | undefined>(site.remoteRefreshError);
 
   const refresh = api.site.refreshRemoteConfig.useMutation({
     onError: (err) => {
@@ -43,15 +39,11 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
     // Let backend decide caching; do not force
     refresh.mutate({ id: site.id });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.id]);
+  }, [site.id, refresh]);
   const needsUpdate = localNeedsUpdate;
   return (
     <div className="group relative">
-      <Link
-        className="block cursor-pointer"
-        href={`/sites/${site.id}#${site.name}`}
-        key={site.name}
-      >
+      <Link className="block cursor-pointer" href={`/sites/${site.id}#${site.name}`} key={site.name}>
         <div className="relative overflow-hidden rounded-xl border transition-all duration-200 ease-out border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300">
           <StatusIndicator type={site.isDefault ? "default" : "active"} />
 
@@ -118,9 +110,7 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                         size="icon"
                         variant="outline"
                       >
-                        <ArrowPathIcon
-                          className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })}
-                        />
+                        <ArrowPathIcon className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })} />
                       </Button>
                     </div>
                   </div>

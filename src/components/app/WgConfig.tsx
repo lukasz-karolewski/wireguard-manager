@@ -1,9 +1,9 @@
 import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import { QRCodeSVG } from "qrcode.react";
-import { FC } from "react";
+import type { FC } from "react";
 
 import { Button } from "~/components/ui/button";
-import { clientConfigToString, type ClientConfigType } from "~/server/utils/types";
+import { type ClientConfigType, clientConfigToString } from "~/server/utils/types";
 
 interface WgConfigProps {
   clientName: string;
@@ -13,7 +13,7 @@ interface WgConfigProps {
 
 function download(filename: string, text: string) {
   const element = document.createElement("a");
-  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
+  element.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
   element.setAttribute("download", filename);
   element.style.display = "none";
   document.body.append(element);

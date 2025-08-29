@@ -3,10 +3,7 @@ import archiver from "archiver";
 import { clientConfigToString } from "~/server/utils/types";
 import { api } from "~/trpc/server";
 
-export async function POST(
-  req: Request,
-  props: { params: Promise<{ clientId: string; siteId: string }> },
-) {
+export async function POST(_req: Request, props: { params: Promise<{ clientId: string; siteId: string }> }) {
   const params = await props.params;
   const clientId = Number(params.clientId);
   const siteId = Number(params.siteId);

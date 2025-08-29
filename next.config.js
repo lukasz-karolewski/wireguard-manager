@@ -6,16 +6,16 @@ await import("./src/env.js");
 
 /** @type {import('next').NextConfig} */
 const config = {
-    images: {
-        remotePatterns: [
-            {
-                hostname: "lh3.googleusercontent.com",
-                protocol: "https",
-            },
-        ],
-    },
-    output: "standalone",
-    poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        hostname: "lh3.googleusercontent.com",
+        protocol: "https",
+      },
+    ],
+  },
+  output: "standalone",
+  poweredByHeader: false,
 };
 
 export default config;

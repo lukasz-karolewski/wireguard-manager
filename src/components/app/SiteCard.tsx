@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { FC, ReactNode } from "react";
+import type { FC, ReactNode } from "react";
 
 import Accordion from "~/components/ui/accordion";
 import { StatusIndicator } from "~/components/ui/status-indicator";
@@ -17,18 +17,11 @@ interface SiteCardProps {
   };
 }
 
-export const SiteCard: FC<SiteCardProps> = ({
-  actions,
-  children,
-  isActive,
-  isInitiallyOpen = false,
-  site,
-}) => {
+export const SiteCard: FC<SiteCardProps> = ({ actions, children, isActive, isInitiallyOpen = false, site }) => {
   return (
     <div
       className={clsx("rounded-xl border transition-all duration-200 ease-out overflow-hidden", {
-        "border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-sm":
-          isActive && site.isDefault,
+        "border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-sm": isActive && site.isDefault,
         "border-gray-200 bg-gray-50/50 shadow-sm opacity-75": !isActive,
         "border-gray-200 bg-white shadow-sm": isActive && !site.isDefault,
       })}

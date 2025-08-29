@@ -22,7 +22,7 @@ const GlobalSettingsPage: React.FC = () => {
     },
   });
 
-  if (!settings) return <>loading</>;
+  if (!settings) return "loading";
 
   return (
     <>
@@ -40,16 +40,8 @@ const GlobalSettingsPage: React.FC = () => {
             }}
             className="space-y-4"
           >
-            <FormField
-              help="/16 network for all sites, each site will get a /24"
-              label="Wireguard network"
-            >
-              <Input
-                defaultValue={settings.wg_network}
-                id="wg_network"
-                name="wg_network"
-                type="text"
-              />
+            <FormField help="/16 network for all sites, each site will get a /24" label="Wireguard network">
+              <Input defaultValue={settings.wg_network} id="wg_network" name="wg_network" type="text" />
             </FormField>
             <Button disabled={isPosting} type="submit">
               Save

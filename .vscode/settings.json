@@ -1,38 +1,29 @@
 {
-  "files.autoSave": "off",
-  "eslint.format.enable": true,
-  "eslint.probe": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "html",
-    "markdown"
-  ],
-  "search.exclude": {
-    "**/.next": true
-  },
-  "css.lint.unknownAtRules": "ignore",
-  "css.validate": true,
-  "editor.linkedEditing": true,
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
-    "source.organizeImports": "always",
-    "source.removeUnusedImports": "always"
-  },
-  "editor.gotoLocation.multipleDefinitions": "goto",
-  "editor.gotoLocation.multipleTypeDefinitions": "goto",
-  "editor.quickSuggestions": {
-    "strings": true
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
-  "typescript.tsdk": "node_modules/typescript/lib",
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
   },
-  "chat.agent.enabled": true
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "chat.agent.enabled": true,
+  "css.lint.unknownAtRules": "ignore",
+  "css.validate": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "always",
+    "source.organizeImports.biome": "always",
+    "source.removeUnusedImports": "always"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.gotoLocation.multipleDefinitions": "goto",
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
+  "editor.linkedEditing": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "files.autoSave": "off",
+  "search.exclude": {
+    "**/.next": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

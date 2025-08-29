@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
-import { FC, ReactElement } from "react";
+import type { FC, ReactNode } from "react";
 
 interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: ReactElement<{ id: string }>;
+  children: ReactNode | ReactNode[];
   help?: string;
   label: string;
 }

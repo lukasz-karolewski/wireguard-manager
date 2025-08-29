@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, use } from "react";
+import { type FC, use } from "react";
 
 import { ConfigDiff } from "~/components/app/ConfigDiff";
 import PageHeader from "~/components/ui/page-header";
@@ -22,14 +22,8 @@ const SiteConfigVersionsPage: FC<SiteDetailPageProps> = (props) => {
 
   return (
     <>
-      <PageHeader
-        parent={["Sites", data?.site.name ?? ""]}
-        parentHref={`/sites/${data?.site.id}`}
-        title="Versions"
-      />
-      {versions.length === 0 && (
-        <div className="rounded-md border p-3 text-sm text-gray-600">No versions found.</div>
-      )}
+      <PageHeader parent={["Sites", data?.site.name ?? ""]} parentHref={`/sites/${data?.site.id}`} title="Versions" />
+      {versions.length === 0 && <div className="rounded-md border p-3 text-sm text-gray-600">No versions found.</div>}
 
       {first && (
         <div className="space-y-6">

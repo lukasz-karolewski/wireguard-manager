@@ -2,7 +2,7 @@
 
 import NiceModal from "@ebay/nice-modal-react";
 import Link from "next/link";
-import { FC, use } from "react";
+import { type FC, use } from "react";
 import { toast } from "react-hot-toast";
 
 import { AddEditSiteModal, mapSiteForEdit } from "~/components/app/AddEditSiteModal";
@@ -25,25 +25,23 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
 
   const { data: writeCheck } = api.site.needsWrite.useQuery({ id: +params.id });
 
-  const { isPending: isPosting, mutate: writeConfig } = api.site.writeSiteConfigToDisk.useMutation(
-    {
-      onError: (err) => {
-        toast.error(err.message);
-      },
-      onSuccess: (ret) => {
-        switch (ret) {
-          case "no_changes": {
-            toast.success("Config is identical, no changes were made");
-            break;
-          }
-          case "written": {
-            toast.success("Config written");
-            break;
-          }
-        }
-      },
+  const { isPending: isPosting, mutate: writeConfig } = api.site.writeSiteConfigToDisk.useMutation({
+    onError: (err) => {
+      toast.error(err.message);
     },
-  );
+    onSuccess: (ret) => {
+      switch (ret) {
+        case "no_changes": {
+          toast.success("Config is identical, no changes were made");
+          break;
+        }
+        case "written": {
+          toast.success("Config written");
+          break;
+        }
+      }
+    },
+  });
 
   const { mutate: setAsDefault } = api.site.setAsDefault.useMutation({
     onSuccess: () => {
@@ -51,19 +49,18 @@ const SiteDetailPage: FC<SiteDetailPageProps> = (props) => {
     },
   });
 
-  const { isPending: isTesting, mutate: testSshConnection } =
-    api.site.testSshConnection.useMutation({
-      onError: (error) => {
-        toast.error(error.message);
-      },
-      onSuccess: (result) => {
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.message);
-        }
-      },
-    });
+  const { isPending: isTesting, mutate: testSshConnection } = api.site.testSshConnection.useMutation({
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    },
+  });
 
   return (
     <>

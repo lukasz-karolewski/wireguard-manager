@@ -5,7 +5,7 @@ import { httpBatchStreamLink, loggerLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
 
-import { type AppRouter } from "~/server/api/root";
+import type { AppRouter } from "~/server/api/root";
 
 import { getUrl, transformer } from "./shared";
 
@@ -19,8 +19,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode; cookies: s
       links: [
         loggerLink({
           enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
+            process.env.NODE_ENV === "development" || (op.direction === "down" && op.result instanceof Error),
         }),
         httpBatchStreamLink({
           headers() {

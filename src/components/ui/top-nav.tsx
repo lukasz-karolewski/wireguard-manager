@@ -44,11 +44,7 @@ const TopNav: React.FC = () => {
       <Container>
         <div className="flex h-16 w-full content-center items-center justify-between bg-accent shadow-md">
           <div className="flex items-center">
-            <Link
-              activeClassName=""
-              className="text-2xl font-bold text-white no-underline hover:no-underline"
-              href="/"
-            >
+            <Link activeClassName="" className="text-2xl font-bold text-white no-underline hover:no-underline" href="/">
               Wireguard Manager
             </Link>
           </div>
