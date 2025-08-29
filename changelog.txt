@@ -1,4 +1,14 @@
 
+## 2025-08-29
+
+Changes:
+* bump
+* move to correct location
+* lint
+* turbopack has issue with trpc
+* making auth compatibile with edge, basically removing the error, fixing logic for versions and using native unstable_localLink
+* improving diff
+
 ## 2025-08-26
 
 Changes:
