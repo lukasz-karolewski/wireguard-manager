@@ -11,8 +11,6 @@ import { api } from "~/trpc/react";
 export default function SiteListPage() {
   const { data: sites, isPending, refetch } = api.site.getAll.useQuery();
 
-  if (isPending) return <div>Loading...</div>;
-
   async function showAddSiteModal() {
     await NiceModal.show(AddEditSiteModal);
     refetch();
@@ -24,7 +22,7 @@ export default function SiteListPage() {
         <Button onClick={showAddSiteModal}>Add</Button>
       </PageHeader>
 
-      <SiteGrid sites={sites ?? []} />
+      <SiteGrid isLoading={isPending} sites={sites ?? []} />
     </>
   );
 }

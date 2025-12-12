@@ -130,43 +130,16 @@ export const siteRouter = createTRPCRouter({
 
     const sitesWithDefault = await Promise.all(
       sites.map(async (site) => {
-        let remoteHash = site.remoteConfigHash ?? undefined;
-        let remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
-        let remoteRefreshError: string | undefined;
-
-        // Refresh remote cache if TTL expired (1h) or missing
-        if (site.hostname) {
-          const now = Date.now();
-          const ttlMs = 60 * 60 * 1000;
-          const needsRefresh = !remoteCheckedAt || now - new Date(remoteCheckedAt).getTime() > ttlMs;
-          if (needsRefresh) {
-            try {
-              const { currentConfig, hash } = await getCurrentConfig({
-                configPath: site.configPath,
-                hostname: site.hostname,
-              });
-              const updated = await ctx.db.site.update({
-                data: {
-                  remoteConfig: currentConfig,
-                  remoteConfigCheckedAt: new Date(),
-                  remoteConfigHash: hash,
-                },
-                where: { id: site.id },
-              });
-              remoteHash = updated.remoteConfigHash ?? undefined;
-              remoteCheckedAt = updated.remoteConfigCheckedAt ?? undefined;
-            } catch (error) {
-              // capture error for UI and continue
-              remoteRefreshError = error instanceof Error ? error.message : "Unknown error";
-            }
-          }
-        }
+        const remoteHash = site.remoteConfigHash ?? undefined;
+        const remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
 
         let needsUpdate: boolean | undefined;
-        if (site.hostname) {
+        if (site.hostname && remoteHash) {
+          // Use cached remote hash; remote status refresh happens asynchronously client-side
           const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
-          needsUpdate = remoteHash ? generatedHash !== remoteHash : undefined;
+          needsUpdate = generatedHash !== remoteHash;
         }
+
         return {
           ...site,
           assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
@@ -174,7 +147,7 @@ export const siteRouter = createTRPCRouter({
           needsUpdate,
           remoteConfigCheckedAt: remoteCheckedAt,
           remoteConfigHash: remoteHash,
-          remoteRefreshError,
+          remoteRefreshError: undefined,
         };
       }),
     );

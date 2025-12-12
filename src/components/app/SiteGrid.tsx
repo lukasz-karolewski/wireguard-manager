@@ -11,9 +11,20 @@ interface SiteGridProps {
     remoteConfigHash?: null | string;
     remoteRefreshError?: string;
   })[];
+  isLoading?: boolean;
 }
 
-export const SiteGrid: FC<SiteGridProps> = ({ sites }) => {
+export const SiteGrid: FC<SiteGridProps> = ({ sites, isLoading }) => {
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {[1, 2, 3].map((i) => (
+          <div className="h-48 rounded-xl border border-gray-200 bg-white shadow-sm animate-pulse" key={i} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
