@@ -1,5 +1,5 @@
 # ---- Base Node ----
-FROM node:23-slim AS base
+FROM node:24-slim AS base
 
 RUN apt-get update -y && apt-get install -y openssl wireguard-tools openssh-client
 RUN npm install -g prisma 
@@ -10,6 +10,17 @@ RUN mkdir -p /home/node/.ssh && \
     chmod 700 /home/node/.ssh
 
 WORKDIR /app
+
+ARG VERSION=development
+
+ENV DATABASE_URL=file:./db/prod.db
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME="0.0.0.0"
+ENV VERSION=$VERSION
+ENV PORT=3000
+
+EXPOSE 3000
 
 # ---- Dependencies, Copy Files/Build ----
 FROM base AS build
@@ -24,21 +35,11 @@ RUN npx prisma generate && npm run build
 # ---- Release ----
 FROM base AS release  
 
-ARG VERSION=development
-
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV HOSTNAME="0.0.0.0"
-ENV VERSION=$VERSION
-ENV PORT=3000
-EXPOSE 3000
-
 # Switch to node user
 USER node
 
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/prisma ./prisma
-# COPY --from=build /app/public ./public
 
 CMD [ "npm", "run", "start"]

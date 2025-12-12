@@ -1,10 +1,10 @@
 /**
- * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
- * for Docker builds.
+ * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
+ * This is especially useful for Docker builds.
  */
-await import("./src/env.js");
 
-/** @type {import('next').NextConfig} */
+import type { NextConfig } from "next";
+
 const config = {
   images: {
     remotePatterns: [
@@ -16,6 +16,6 @@ const config = {
   },
   output: "standalone",
   poweredByHeader: false,
-};
+} satisfies NextConfig;
 
 export default config;
