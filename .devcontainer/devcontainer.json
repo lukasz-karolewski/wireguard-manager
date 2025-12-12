@@ -14,7 +14,9 @@
         "Prisma.prisma",
         "bradlc.vscode-tailwindcss",
         "ms-azuretools.vscode-containers",
-        "biomejs.biome"
+        "biomejs.biome",
+        "github.vscode-github-actions",
+        "esbenp.prettier-vscode"
       ]
     }
   },
