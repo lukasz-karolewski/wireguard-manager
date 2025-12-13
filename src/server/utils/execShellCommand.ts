@@ -35,7 +35,7 @@ export function execShellCommand(cmd: string) {
         const stdoutTail = tail(stdout);
         const messageParts = [
           `Command failed${exitCode === null ? "" : ` (code ${exitCode})`}: ${cmd}`,
-          stderrTail || stdoutTail ? "\n--- output ---\n" + (stderrTail || stdoutTail) : "",
+          stderrTail || stdoutTail ? `\n--- output ---\n${stderrTail || stdoutTail}` : "",
         ];
         const err = new ShellCommandError(messageParts.join(""), {
           cmd,

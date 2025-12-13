@@ -1,4 +1,4 @@
 - make sure project builds using `npm run build`. Never start dev server.
-- to resolve linting issues, use `npm run lint.fix` - it also resolves ordering and import issues.
+- to resolve linting issues, use `npm run lint:fix` - it also resolves ordering and import issues.
 - there's src/app/components/ui for generic components and src/app/components/app for application specific shared components
 - db schema: `prisma/schema.prisma`, never reset the database.

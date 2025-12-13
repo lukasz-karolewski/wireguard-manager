@@ -18,8 +18,8 @@ const flattenErrorMessages = (errors: Record<string, string[]>): string[] => {
   return Object.values(errors).filter(Boolean).flat();
 };
 
-export function zodErrorsToString(error: ZodErrorData): string {
-  const zodError = error.data?.zodError;
+export function zodErrorsToString(error: unknown): string {
+  const zodError = (error as ZodErrorData | null | undefined)?.data?.zodError;
 
   if (!zodError) {
     return "";

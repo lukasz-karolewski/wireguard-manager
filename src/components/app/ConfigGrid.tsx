@@ -1,10 +1,10 @@
 import type { FC } from "react";
-
+import type { ClientConfigType } from "~/server/utils/types";
 import WgConfig from "./WgConfig";
 
 interface ConfigGridProps {
   clientName: string;
-  configs: { type: any; value: string }[];
+  configs: { type: ClientConfigType; value: string }[];
   show: "config" | "qr";
 }
 

@@ -1,9 +1,10 @@
 import { useId } from "react";
+import type { FieldValues, UseFormRegister } from "react-hook-form";
 
 interface FormRadioButtonProps extends React.HTMLProps<HTMLInputElement> {
   label: string;
   name: string;
-  register: any;
+  register: UseFormRegister<FieldValues>;
   value: string;
 }
 
