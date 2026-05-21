@@ -16,10 +16,13 @@ const ClientListPage: FC<ClientListPageProps> = async ({ searchParams }) => {
   const searchValue = typeof search === "string" ? search : "";
   const showOnlyMineValue = showOnlyMine !== "false"; // default to true
 
-  const clients = await api.client.getAll.query({
-    search: searchValue,
-    showOnlyMine: showOnlyMineValue,
-  });
+  const [clients, defaultSite] = await Promise.all([
+    api.client.getAll.query({
+      search: searchValue,
+      showOnlyMine: showOnlyMineValue,
+    }),
+    api.site.getDefault.query(),
+  ]);
 
   return (
     <>
@@ -33,7 +36,7 @@ const ClientListPage: FC<ClientListPageProps> = async ({ searchParams }) => {
         </div>
       </PageHeader>
 
-      <ClientGrid clients={clients} />
+      <ClientGrid clients={clients} defaultSite={defaultSite} />
     </>
   );
 };

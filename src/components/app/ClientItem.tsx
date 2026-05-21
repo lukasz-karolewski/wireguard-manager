@@ -7,19 +7,15 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import Link from "~/components/ui/link";
 import { StatusIndicator } from "~/components/ui/status-indicator";
-import { api } from "~/trpc/react";
 import type { RouterOutputs } from "~/trpc/shared";
 import { downloadAllConfigsForSite } from "~/utils";
 
 interface ClientConfigProps {
   client: RouterOutputs["client"]["getAll"][0];
+  defaultSite: RouterOutputs["site"]["getDefault"];
 }
 
-export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client }) => {
-  const { data: sites } = api.site.getAll.useQuery();
-
-  const defaultSite = sites?.find((site) => site.isDefault);
-
+export const ClientItem: FC<React.PropsWithChildren<ClientConfigProps>> = ({ client, defaultSite }) => {
   const handleDownload = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent link navigation
     e.stopPropagation();

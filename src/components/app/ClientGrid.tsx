@@ -6,15 +6,16 @@ import { ClientItem } from "./ClientItem";
 
 interface ClientGridProps {
   clients: RouterOutputs["client"]["getAll"];
+  defaultSite: RouterOutputs["site"]["getDefault"];
 }
 
-export const ClientGrid: FC<ClientGridProps> = ({ clients }) => {
+export const ClientGrid: FC<ClientGridProps> = ({ clients, defaultSite }) => {
   return (
     <>
       <div className="grid w-full min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {clients.map((client) => (
           <div className="min-w-0" key={client.id}>
-            <ClientItem client={client} />
+            <ClientItem client={client} defaultSite={defaultSite} />
           </div>
         ))}
       </div>

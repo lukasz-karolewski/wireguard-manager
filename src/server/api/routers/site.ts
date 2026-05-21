@@ -159,6 +159,16 @@ export const siteRouter = createTRPCRouter({
     return sitesWithDefault;
   }),
 
+  getDefault: protectedProcedure.query(async ({ ctx }) => {
+    const defaultSiteId = await getDefaultSiteId(ctx);
+    if (!defaultSiteId) return null;
+
+    return ctx.db.site.findFirst({
+      select: { id: true, name: true },
+      where: { id: defaultSiteId },
+    });
+  }),
+
   getVersions: protectedProcedure
     .input(
       z.object({
