@@ -1,4 +1,10 @@
 
+## 2026-05-21
+
+Changes:
+* skills
+* Migrate auth to Better Auth
+
 ## 2025-08-29
 
 Changes:
