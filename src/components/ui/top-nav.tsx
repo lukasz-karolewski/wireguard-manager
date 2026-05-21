@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { headers } from "next/headers";
 import Image from "next/image";
 
 import { auth } from "~/auth";
@@ -15,7 +16,9 @@ const links = [
 ];
 
 const UserButtons: React.FC = async () => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   return (
     <>
       {session?.user ? (

@@ -1,11 +1,30 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
+import { prismaAdapter } from "@better-auth/prisma-adapter";
+import { betterAuth } from "better-auth";
 
-import authConfig from "./auth-config";
+import { env } from "./env";
 import { db } from "./server/db";
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(db),
-  session: { strategy: "jwt" },
-  ...authConfig,
+const getAuthBaseUrl = () => {
+  const url = new URL(env.AUTH_URL);
+
+  if (url.pathname === "/api/auth" || url.pathname === "/api/auth/") {
+    url.pathname = "";
+  }
+
+  return url.toString().replace(/\/$/, "");
+};
+
+export const auth = betterAuth({
+  appName: "Wireguard Manager",
+  baseURL: getAuthBaseUrl(),
+  database: prismaAdapter(db, {
+    provider: "sqlite",
+  }),
+  secret: env.AUTH_SECRET,
+  socialProviders: {
+    google: {
+      clientId: env.GOOGLE_ID,
+      clientSecret: env.GOOGLE_SECRET,
+    },
+  },
 });

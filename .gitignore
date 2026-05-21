@@ -18,6 +18,8 @@ npm-debug.log*
 .env*
 
 # prisma
+/*.db
+/*.db-journal
 prisma/*.db
 prisma/*.db-journal
 

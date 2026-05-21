@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { signIn, signOut } from "~/auth";
-
 import { Button } from "./button";
 
 export function SignIn({ provider, ...props }: React.ComponentPropsWithRef<typeof Button> & { provider?: string }) {
@@ -9,8 +7,7 @@ export function SignIn({ provider, ...props }: React.ComponentPropsWithRef<typeo
     <form
       action={async () => {
         "use server";
-        const url: string = await signIn(provider, { redirect: false });
-        redirect(url);
+        redirect(`/sign-in${provider ? `?provider=${provider}` : ""}`);
       }}
     >
       <Button className="whitespace-nowrap" {...props}>
@@ -25,7 +22,7 @@ export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
     <form
       action={async () => {
         "use server";
-        await signOut();
+        redirect("/sign-out");
       }}
     >
       <Button className="whitespace-nowrap" {...props}>
