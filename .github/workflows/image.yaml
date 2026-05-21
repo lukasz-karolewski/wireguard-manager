@@ -2,7 +2,8 @@ name: build and publish
 
 on:
   push:
-    branches: master
+    tags:
+      - 'v*'
 
 jobs:
   prepare:
@@ -12,7 +13,7 @@ jobs:
     steps:
       - name: Create Version
         id: version
-        run: echo "version=$(date +'%y.%m.%d.')${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        run: echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/lk/sources/mymoney3/.github/workflows/**)",
+      "Bash(git -C /home/lk/sources/wireguard-manager log --oneline -10)",
+      "Bash(git -C /home/lk/sources/wireguard-manager tag)",
+      "Bash(git -C /home/lk/sources/wireguard-manager branch -a)",
+      "Bash(git -C /home/lk/sources/wireguard-manager log --oneline --graph --all)",
+      "Bash(git -C /home/lk/sources/wireguard-manager log origin/dev..origin/master --oneline)",
+      "Bash(git -C /home/lk/sources/wireguard-manager log origin/master..origin/dev --oneline)",
+      "Bash(git -C /home/lk/sources/wireguard-manager checkout dev)",
+      "Bash(git -C /home/lk/sources/wireguard-manager merge --ff-only master)",
+      "Bash(git *)",
+      "Bash(chmod +x *)",
+      "Bash(npx skills *)",
+      "Bash(jq '{version: .version, skills: { *)",
+      "Bash(mv /tmp/skills-lock-trimmed.json /home/lk/sources/wireguard-manager/skills-lock.json)"
+    ]
+  }
+}
