@@ -22,7 +22,7 @@ jobs:
 
       - name: Checkout
         if: steps.check.outputs.pending == '0'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create version tag
         if: steps.check.outputs.pending == '0'
