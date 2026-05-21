@@ -25,6 +25,39 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
 }) => {
   const parts = useMemo(() => diffLines(oldValue, newValue), [newValue, oldValue]);
   const hasChanges = useMemo(() => parts.some((p) => p.added || p.removed), [parts]);
+  const keyedParts = useMemo(() => {
+    const partOccurrences = new Map<string, number>();
+
+    return parts.map((part) => {
+      const symbol = part.added ? "+" : part.removed ? "-" : " ";
+      const partIdentity = `${symbol}:${part.value}`;
+      const partOccurrence = partOccurrences.get(partIdentity) ?? 0;
+      partOccurrences.set(partIdentity, partOccurrence + 1);
+
+      const lines = part.value.split("\n");
+      if (lines.length > 0 && lines.at(-1) === "") {
+        lines.pop();
+      }
+
+      const lineOccurrences = new Map<string, number>();
+      const keyedLines = lines.map((line) => {
+        const lineOccurrence = lineOccurrences.get(line) ?? 0;
+        lineOccurrences.set(line, lineOccurrence + 1);
+
+        return {
+          key: `${partIdentity}:${partOccurrence}:${line}:${lineOccurrence}`,
+          line,
+        };
+      });
+
+      return {
+        key: `${partIdentity}:${partOccurrence}`,
+        lines: keyedLines,
+        part,
+        symbol,
+      };
+    });
+  }, [parts]);
   // Local toggle: whether to include unchanged lines (default from prop)
   const [includeUnchanged, setIncludeUnchanged] = useState<boolean>(showUnchanged);
 
@@ -61,30 +94,18 @@ export const ConfigDiff: FC<ConfigDiffProps> = ({
         {!includeUnchanged && !hasChanges ? (
           <div className="px-3 py-2 text-gray-500">No changes</div>
         ) : (
-          parts.map((part, pIdx) => {
+          keyedParts.map(({ key, lines, part, symbol }) => {
             if (!includeUnchanged && !(part.added || part.removed)) {
               return null;
             }
 
-            const symbol = part.added ? "+" : part.removed ? "-" : " ";
             const cls = clsx("whitespace-pre-wrap px-3 py-0.5", {
               "bg-green-50 text-green-700": part.added,
               "bg-red-50 text-red-700": part.removed,
             });
 
-            const lines = part.value.split("\n");
-            if (lines.length > 0 && lines.at(-1) === "") {
-              lines.pop();
-            }
-
-            return lines.map((line, lIdx) => (
-              <div
-                className={cls}
-                key={`diff-${pIdx}-${
-                  // biome-ignore lint/suspicious/noArrayIndexKey: won't mutate list
-                  lIdx
-                }`}
-              >
+            return lines.map(({ key: lineKey, line }) => (
+              <div className={cls} key={`${key}:${lineKey}`}>
                 <span className="mr-2 opacity-60 select-none">{symbol}</span>
                 <span>{line}</span>
               </div>

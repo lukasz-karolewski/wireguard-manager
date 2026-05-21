@@ -1,4 +1,4 @@
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 
 import { clientConfigToString } from "~/server/utils/types";
 import { api } from "~/trpc/server";
@@ -23,7 +23,7 @@ export async function POST(_req: Request, props: { params: Promise<{ clientId: s
     });
   }
 
-  const archive = archiver("zip");
+  const archive = new ZipArchive();
 
   for (const config of configsForRequestedSite.configs) {
     archive.append(Buffer.from(config.value, "utf-8"), {
