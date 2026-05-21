@@ -28,7 +28,7 @@ export const SiteGrid: FC<SiteGridProps> = ({ sites, isLoading }) => {
   return (
     <>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {sites
+        {[...sites]
           .sort((a, _b) => (a.isDefault ? -1 : 1))
           .map((site) => (
             <SiteItem key={site.id} site={site} />

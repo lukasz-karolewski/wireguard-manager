@@ -121,36 +121,40 @@ export const siteRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    const defaultSiteId = await getDefaultSiteId(ctx);
-    const sites = await ctx.db.site.findMany({ orderBy: { name: "asc" } });
-
-    const wg_network = await ctx.db.settings.findFirst({
-      where: { name: "wg_network" },
-    });
-
-    const sitesWithDefault = await Promise.all(
-      sites.map(async (site) => {
-        const remoteHash = site.remoteConfigHash ?? undefined;
-        const remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
-
-        let needsUpdate: boolean | undefined;
-        if (site.hostname && remoteHash) {
-          // Use cached remote hash; remote status refresh happens asynchronously client-side
-          const { hash: generatedHash } = await getSiteConfig(ctx, { id: site.id });
-          needsUpdate = generatedHash !== remoteHash;
-        }
-
-        return {
-          ...site,
-          assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
-          isDefault: site.id === defaultSiteId,
-          needsUpdate,
-          remoteConfigCheckedAt: remoteCheckedAt,
-          remoteConfigHash: remoteHash,
-          remoteRefreshError: undefined,
-        };
+    const [defaultSiteId, sites, wg_network] = await Promise.all([
+      getDefaultSiteId(ctx),
+      ctx.db.site.findMany({ include: { clients: true }, orderBy: { name: "asc" } }),
+      ctx.db.settings.findFirst({
+        where: { name: "wg_network" },
       }),
-    );
+    ]);
+
+    const settings = wg_network ? [wg_network] : [];
+
+    const sitesWithDefault = sites.map((site) => {
+      const { clients, ...siteData } = site;
+      const remoteHash = site.remoteConfigHash ?? undefined;
+      const remoteCheckedAt = site.remoteConfigCheckedAt ?? undefined;
+
+      let needsUpdate: boolean | undefined;
+      if (site.hostname && remoteHash) {
+        // Use cached remote hash; remote status refresh happens asynchronously client-side
+        const otherSites = sites.filter((otherSite) => otherSite.id !== site.id);
+        const generatedConfig = generateWgServerConfig(settings, site, otherSites, clients);
+        const generatedHash = compute_hash(generatedConfig);
+        needsUpdate = generatedHash !== remoteHash;
+      }
+
+      return {
+        ...siteData,
+        assignedNetwork: generateCIDR(wg_network?.value ?? "", site.id, 0, "24"),
+        isDefault: site.id === defaultSiteId,
+        needsUpdate,
+        remoteConfigCheckedAt: remoteCheckedAt,
+        remoteConfigHash: remoteHash,
+        remoteRefreshError: undefined,
+      };
+    });
 
     return sitesWithDefault;
   }),

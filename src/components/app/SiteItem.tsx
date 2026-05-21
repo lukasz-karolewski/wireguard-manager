@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowPathIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { clsx } from "clsx";
 import { type FC, useEffect, useState } from "react";
@@ -23,23 +25,28 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
   const [localCheckedAt, setLocalCheckedAt] = useState<Date | null | string>(site.remoteConfigCheckedAt ?? null);
   const [localRefreshError, setLocalRefreshError] = useState<string | undefined>(site.remoteRefreshError);
 
-  const refresh = api.site.refreshRemoteConfig.useMutation({
+  const { isPending: isRefreshing, mutate: refreshRemoteConfig } = api.site.refreshRemoteConfig.useMutation({
     onError: (err) => {
       setLocalRefreshError(err.message);
     },
     onSuccess: (data) => {
-      setLocalNeedsUpdate(data.needsUpdate);
-      setLocalCheckedAt(data.remoteConfigCheckedAt ?? new Date());
+      if (data.needsUpdate !== undefined) {
+        setLocalNeedsUpdate(data.needsUpdate);
+      }
+      if (data.remoteConfigCheckedAt) {
+        setLocalCheckedAt(data.remoteConfigCheckedAt);
+      }
       setLocalRefreshError(data.errorMessage);
     },
   });
 
   // Auto-trigger a status check after mount without blocking UI
   useEffect(() => {
+    if (!site.hostname) return;
+
     // Let backend decide caching; do not force
-    refresh.mutate({ id: site.id });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.id, refresh]);
+    refreshRemoteConfig({ id: site.id });
+  }, [site.hostname, site.id, refreshRemoteConfig]);
   const needsUpdate = localNeedsUpdate;
   return (
     <div className="group relative">
@@ -67,7 +74,7 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                       <div className="flex items-center gap-2 text-gray-600">
                         <StatusDot
                           color={
-                            refresh.isPending
+                            isRefreshing
                               ? "gray"
                               : localRefreshError
                                 ? "red"
@@ -79,7 +86,7 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                           }
                         />
                         <span className="truncate">
-                          {refresh.isPending
+                          {isRefreshing
                             ? "Checking…"
                             : localRefreshError
                               ? "Error"
@@ -101,16 +108,16 @@ export const SiteItem: FC<SiteConfigProps> = ({ site }) => {
                       </div>
                       <Button
                         aria-label="Refresh remote status"
-                        disabled={refresh.isPending}
+                        disabled={isRefreshing || !site.hostname}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          refresh.mutate({ force: true, id: site.id });
+                          refreshRemoteConfig({ force: true, id: site.id });
                         }}
                         size="icon"
                         variant="outline"
                       >
-                        <ArrowPathIcon className={clsx("h-4 w-4", { "animate-spin": refresh.isPending })} />
+                        <ArrowPathIcon className={clsx("h-4 w-4", { "animate-spin": isRefreshing })} />
                       </Button>
                     </div>
                   </div>

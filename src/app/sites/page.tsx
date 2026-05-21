@@ -1,28 +1,18 @@
-"use client";
-
-import NiceModal from "@ebay/nice-modal-react";
-
-import { AddEditSiteModal } from "~/components/app/AddEditSiteModal";
+import { AddSiteButton } from "~/components/app/AddSiteButton";
 import { SiteGrid } from "~/components/app/SiteGrid";
-import { Button } from "~/components/ui/button";
 import PageHeader from "~/components/ui/page-header";
-import { api } from "~/trpc/react";
+import { api } from "~/trpc/server";
 
-export default function SiteListPage() {
-  const { data: sites, isPending, refetch } = api.site.getAll.useQuery();
-
-  async function showAddSiteModal() {
-    await NiceModal.show(AddEditSiteModal);
-    refetch();
-  }
+export default async function SiteListPage() {
+  const sites = await api.site.getAll.query();
 
   return (
     <>
       <PageHeader title={`Sites`}>
-        <Button onClick={showAddSiteModal}>Add</Button>
+        <AddSiteButton />
       </PageHeader>
 
-      <SiteGrid isLoading={isPending} sites={sites ?? []} />
+      <SiteGrid sites={sites} />
     </>
   );
 }
