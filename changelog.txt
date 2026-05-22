@@ -1,4 +1,332 @@
 
+## 2026-05-22
+
+Changes:
+* working
+* added a toggle for config and qr code
+* converted to typescript
+* tweaked vscode settings
+* trim output
+* export type
+* upgrade to react18, multiple servers
+* fixed a bug not rendering
+* separating servers and clients
+* clean up server section
+* added devcontainer config
+* added extension
+* reorganizing data model
+* some apis
+* refactoring
+* added git graph
+* defined types
+* initial setup
+* clarifications
+* some changes
+* added setting
+* alpha
+* fixed config formatting
+* fixing link
+* bumping docker, adding docker compose
+* wip
+* added test config
+* added modal
+* styles
+* fixing config issue with client
+* added docker image build
+* build fixes, formatting
+* fixed eslint
+* bump to latest
+* updates based on documentation
+* migrate tailwind config to ts
+* moving everything around
+* gettings this working
+* added prisma orm and apis
+* added trpc, auth, move things around
+* dev.db should not be tracked
+* added auth, trpc
+* pages don't break
+* setting correct class when active
+* settings page works
+* added h1 styles and ordered imports
+* need to rename files to get build working
+* proper props for input
+* trying to get forms working
+* compliles correctly
+* can add client and site
+* basic configs should work
+* Refactor client detail page and API router to organize page by site
+* not needed
+* Add .env* to .gitignore
+* Refactor UI components and add search functionality
+* Refactor components and update global settings
+* Add Accordion component to ClientDetailPage
+* Add PageHeader component and update SiteDetailPage
+* Update Dockerfile and package.json
+* Update environment variables in env.js
+* added bunch of stuff
+* added api to download all configs in zip
+* fixing build issues
+* Added write config functionality
+* Update docker-compose.yaml and src/env.js
+* Add site name comment site interface config
+* Fix config copy functionality and update toast messages
+* generate default environment variables in .env.local file
+* Update wireguard service in docker-compose.yaml
+* Remove OPENAI_API_KEY from env.js
+* Fix DNS field name in schema and routers
+* python settings are not needed here
+* swapped zip package due to build error on arm
+* Fix type errpr download route and remove console.log statements
+* Add Prisma generation to Dockerfile
+* Update start script to include Prisma migration
+* skip .env validation during build
+* Add trustHost option to NextAuth configuration for deployment
+* AUTH_URL is not needed
+* Fix AUTH_URL comment
+* set NODE_ENV to production in Dockerfile
+* Add initial database schema
+* Update .gitignore to ignore all prisma database files
+* Update Dockerfile to expose port 3000
+* Update docker-compose.yaml to store db and read environment variables from .env
+* maybe this works for Error: Cannot find module 'autoprefixer'
+* clean up ignore file
+* Add wireguard-tools to Dockerfile
+* Add restart option to docker-compose.yaml
+* Add fields for postUp, postDown, and markAsDefault in AddSiteModal and update site creation logic in site router
+* use builds
+* Add launch.json configuration for Next.js debugging
+* default dev runs turbo
+* by default session doesn't have id...
+* adde ability to set site as default
+* improved styling for forms and fixed issue with modal width
+* mkdir requires path to not include filename
+* remove unnecessary files from docker image
+* unnecessary config
+* unnecesary file
+* trying out multistage build
+* updating to latest version of Buildx
+* redoing based on sample
+* adding missing type definitions
+* migrating to latest actions
+* Add publish.sh script for merging dev branch into master branch and pushing changes
+* bump action versions
+* pass a version to build
+* generate version in a separate step
+* also push dev to origin
+* missing slash
+* Update UI styles and add functionality to top navigation and site detail page
+* bump
+* format config type
+* Update VSCode settings for ESLint and TypeScript
+* full width topnav
+* edit client works
+* bump
+* update for site
+* allow editing private_key
+* Update listenPort input validation
+* Add auto-generated timestamp to Wireguard Manager interface section
+* Refactor AddEditSiteModal component layout
+* Add support for localOnlyPiholeDNS in clientConfigToNativeWireguard function
+* show zodErrors in forms
+* normalize empty strings as nulls
+* Refactor siteRouter input validation group fileds as the form
+* allow update of the public key
+* validate length of wireguard keys
+* Add user page and user router
+* bump
+* allow to add a site with public key only
+* https://github.com/nextauthjs/next-auth/issues/9092
+* avoids module problems
+* bump adjusting jest config
+* make app work on mobile
+* site form updates
+* covering corner case
+* ui cleanup, fixing bugs in config generataion, saving site config in DB
+* added ability to view versions
+* added crated by to versions and linked to the page
+* run migrations on start
+* improved publish script
+* Update .gitignore file to ignore local testing files
+* Update Dockerfile to include prisma migrate at runtime
+* also need prisma dir
+* render postup and postdown scripts
+* added support for multiple postup/down
+* new tailwind classes
+* mobile cleanup
+* bump
+* bump
+* fixing jest setup
+* generate edgerouter style config
+* bump
+* Fix user ID in session callback and add comment for future improvement
+* added audit log for action modifying config
+* Refactor assignSiteClientCIDR and assignClientCIDR functions to handle autoincrement starting at 1
+* migrate to trpc v11
+* cleanup the form
+* ensure constant height when no buttons are present
+* added visual separator
+* added extensions to dev setup
+* Add prettier plugin and update eslint configuration
+* bump
+* bump
+* add configure format
+* fix lock file
+* each allowed_p needs to be in a separate line
+* bump
+* fixing config format bugs
+* version is obsolete
+* lint fixes after latest tailwind
+* bump
+* adding persistent keep alive for all sites with static value for now
+* bump and removing error
+* upgraded to react19 and nextjs15
+* linter
+* extracted WgConfig into own component
+* remove edgerouter references
+* wip, need the edit for m and migration to work
+* empty line
+* react 19 final, resolved all npm install issues
+* prisma 6 migration plus client to site relationship
+* 15.1 upgrade
+* replacing require with import
+* eslint
+* flat file format
+* tmp
+* updated image and made docker install architecute agnostic
+* new eslint config, plus initial fixes
+* remove forwardRef
+* adding tailwind
+* better error message
+* bump
+* eslint checkes
+*  many to many between clients and sites
+* generate changelog moving forward
+* Add changelog summarization and user confirmation for updates
+* Add environment variable check and update model parameters in changelog summarizer
+* Add check for changelog.txt existence before appending to temporary file
+* Reorder branch switch and changelog generation in publish script
+* Update changelog
+* Update changelog
+* Update Dockerfile and summarize_changelog.py for environment setup and langchain integration
+* Update changelog
+* Add Dockerfile formatter to VSCode settings
+* Enhance changelog summarization by grouping similar changes and improving user-focused descriptions
+* bump packages
+* migrated to tailwind  4
+* debug script
+* feat: Implement Django API and Auth.js adapter with serializers and views
+* config updates
+* removed accidentl checkin
+* fix a bug with trpc
+* added comment
+* created Card component
+* updated users page and using Image component
+* fixed issue with not awaiting cookies
+* bump
+* enable chat agent in VSCode settings
+* next 15 compatibile
+* Update changelog
+* bump dependencies
+* Update base Node version to 23-slim and fix environment variable syntax
+* moving forward prisma won't generage code to node_modules. updating.
+* Refactor Dockerfile: streamline build process and ensure wireguard-tools installation
+* Update changelog
+* adding missing dependency ...
+* Update changelog
+* fixed package issue in docker
+* filter clients by owner and add a clear search button
+* add key prop to Accordion component for site mapping
+* add owner field
+* write to remote host
+* Update changelog
+* migrate changelog to typescript
+* lint
+* Update changelog
+* prompt udpate for clarity
+* Add SSH connection testing functionality to SiteDetailPage and site router
+* Update changelog
+* Fix parameter name for OpenAI API call in summarize-changelog script
+* update docker and docker compose to use ssh
+* Update changelog
+* node user already exists
+* Update changelog
+* updated workflow
+* Update changelog
+* update SSH commands to use sudo
+* Update changelog
+* hash should not be unique,
+* Update changelog
+* added a button to dwonload confgs on the client item
+* Update changelog
+* createversion after file operations instead of running in a transaction
+* matrix build
+* Update changelog
+* native builds
+* Update changelog
+* another attempt at speeding up build
+* Update changelog
+* redesigned site items and client items
+* ui refactor redesign
+* refactor: update button styles and replace HTML buttons with Button component
+* optimize remote deployment perf
+* Update changelog
+* fix: update Dockerfile formatter to use vscode-containers
+* refactor: update README to streamline SSH configuration instructions and move roadmap section
+* redesign user page
+* refactoring remote code
+* Update changelog
+* remove unused page
+* bumped to latest versions and migrade code
+* added remote config detection
+* Update changelog
+* Update ConfigDiff section layout and labels
+* updated error reporting
+* Update changelog
+* updated required permissions on ssh host
+* updated how status is loaded
+* ui updates
+* Update changelog
+* moved buttons into the modals
+* Update changelog
+* bump
+* move to correct location
+* lint
+* turbopack has issue with trpc
+* making auth compatibile with edge, basically removing the error, fixing logic for versions and using native unstable_localLink
+* improving diff
+* Update changelog
+* migrated to biome and removed eslint
+* Update changelog
+* bump prisma to 7
+* closing up issue from prisma 7 migration
+* Add GitHub Actions and Prettier extensions to devcontainer configuration
+* Refactor to remove redundant loading check in SiteListPage
+* Add next-devtools server configuration to mcp.json
+* bumping to next16
+* adding dependabot auto merge
+* agentic setup
+* Render sites list on server
+* Server render client pages
+* Server render global settings
+* Server render site detail
+* Server render site versions
+* Fix config card keys
+* deps(deps): bump the js-minor-and-patch group with 32 updates (#3)
+* deps(deps): bump minimatch (#9)
+* deps(deps): bump brace-expansion from 2.0.2 to 2.1.0 (#12)
+* deps(deps): bump effect from 3.20.0 to 3.21.0 (#13)
+* deps(deps): bump next-auth from 5.0.0-beta.30 to 5.0.0-beta.31 (#7)
+* auto deploy , update libs script
+* bump libs
+* deps-dev(deps-dev): bump @types/qrcode.react from 1.0.5 to 3.0.0
+* ci(deps): bump the github-actions group across 1 directory with 5 updates
+* Merge pull request #2 from lukasz-karolewski/dependabot/github_actions/github-actions-e2f5a9774e
+* Merge pull request #5 from lukasz-karolewski/dependabot/npm_and_yarn/types/qrcode.react-3.0.0
+* skills
+* Migrate auth to Better Auth
+* Update changelog
+* Publish releases from dev tags
+
 ## 2026-05-21
 
 Changes:
