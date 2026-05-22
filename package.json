@@ -64,13 +64,14 @@
   "scripts": {
     "analyze": "ANALYZE=true npm run-script build",
     "build": "next build",
+    "db:deploy": "prisma migrate deploy",
     "debug": "NODE_OPTIONS='--inspect' next",
     "dev": "next dev",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "lint:summary": "biome check --summary",
     "lint.config": "eslint --print-config ./pages/index.jsx",
-    "start": "prisma migrate deploy && node server.js",
+    "start": "node server.js",
     "test": "jest --watch",
     "vsdebug": "next dev"
   },

@@ -2,7 +2,6 @@
 FROM node:24-slim AS base
 
 RUN apt-get update -y && apt-get install -y openssl wireguard-tools openssh-client
-RUN npm install -g prisma 
 
 # Create .ssh directory with proper permissions
 RUN mkdir -p /home/node/.ssh && \
@@ -32,6 +31,11 @@ COPY . .
 ENV SKIP_ENV_VALIDATION=true
 RUN npx prisma generate && npm run build
 
+# ---- Migrator ----
+FROM build AS migrator
+
+CMD ["npm", "run", "db:deploy"]
+
 # ---- Release ----
 FROM base AS release  
 
@@ -42,4 +46,4 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/prisma ./prisma
 
-CMD [ "npm", "run", "start"]
+CMD ["node", "server.js"]

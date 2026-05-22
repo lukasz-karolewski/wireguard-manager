@@ -1,10 +1,21 @@
 services:
+  wireguard-migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    restart: "no"
+    volumes:
+      - ./db:/app/prisma/db
+    environment:
+      - DATABASE_URL=${DATABASE_URL-file:./db/prod.db}
+
   wireguard:
     image: lkarolewski/wg-manager:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     restart: unless-stopped
+    depends_on:
+      wireguard-migrations:
+        condition: service_completed_successfully
     volumes:
       - /etc/wireguard:/etc/wireguard
       - ./db:/app/prisma/db
