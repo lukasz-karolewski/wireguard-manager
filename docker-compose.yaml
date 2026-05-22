@@ -6,7 +6,7 @@ services:
       target: migrator
     restart: "no"
     volumes:
-      - ./db:/app/prisma/db
+      - ./db:/app/db
     environment:
       - DATABASE_URL=${DATABASE_URL-file:./db/prod.db}
 
