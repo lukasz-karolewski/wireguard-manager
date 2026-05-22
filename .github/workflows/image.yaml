@@ -6,7 +6,21 @@ on:
       - 'v*'
 
 jobs:
+  validate-tag:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Ensure tag is on dev
+        run: |
+          git fetch origin dev
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/dev
+
   prepare:
+    needs: validate-tag
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}

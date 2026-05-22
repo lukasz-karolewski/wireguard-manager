@@ -23,12 +23,17 @@ jobs:
       - name: Checkout
         if: steps.check.outputs.pending == '0'
         uses: actions/checkout@v6
+        with:
+          ref: dev
 
       - name: Create version tag
         if: steps.check.outputs.pending == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="v$(date +'%y.%m.%d').${GITHUB_SHA::7}"
+          git fetch origin dev
+          git checkout dev
+          git reset --hard origin/dev
+          VERSION="v$(date +'%y.%m.%d').$(git rev-parse --short HEAD)"
           git tag "$VERSION"
           git push origin "$VERSION"

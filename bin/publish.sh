@@ -1,86 +1,66 @@
 #!/bin/bash
-set -e  # Stop script execution on any error
+set -euo pipefail
 
-# Check if there are uncommitted changes
-if git diff-index --quiet HEAD --; then
-    echo "No changes to stash"
-else
-    echo "Stashing changes"
-    git stash
-    should_pop_stash=true
+release_branch="dev"
+current_branch=$(git branch --show-current)
+
+if [ "$current_branch" != "$release_branch" ]; then
+    echo "Publish must be run from the $release_branch branch. Current branch: $current_branch"
+    exit 1
 fi
 
-# Generate changelog entries
-echo "Generating changelog entries"
-changelog_entries=$(git log master..dev --pretty=format:"* %s" --reverse)
+if ! git diff-index --quiet HEAD -- || [ -n "$(git status --porcelain)" ]; then
+    echo "Working tree must be clean before publishing"
+    exit 1
+fi
 
-if [ ! -z "$changelog_entries" ]; then
+echo "Fetching origin"
+git fetch origin --tags
+
+echo "Rebasing $release_branch on origin/$release_branch"
+git rebase "origin/$release_branch"
+
+latest_tag=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || true)
+if [ -n "$latest_tag" ]; then
+    changelog_range="$latest_tag..HEAD"
+else
+    changelog_range="$(git rev-list --max-parents=0 HEAD)..HEAD"
+fi
+
+echo "Generating changelog entries from ${latest_tag:-initial commit}"
+changelog_entries=$(git log "$changelog_range" --pretty=format:"* %s" --reverse)
+
+if [ -n "$changelog_entries" ]; then
     echo "Updating changelog.txt"
-    # Create new changelog content
     tmp_file=$(mktemp)
-    echo -e "\n## $(date +%Y-%m-%d)\n" > "$tmp_file"
-    
-    # Try to generate summary
-    echo "Generating summary..."
-    if summary=$(echo "$changelog_entries" | npm run summarize-changelog --silent); then
-        # Create a temporary file for review
-        summary_file=$(mktemp)
-        echo "Summary to be added:" > "$summary_file"
-        echo "$summary" >> "$summary_file"
-        echo -e "\nChangelog entries to be added:" >> "$summary_file"
-        echo "$changelog_entries" >> "$summary_file"
-        
-        # Open in VS Code and wait for user to review
-        code --wait "$summary_file"
-        
-        # Ask for confirmation
-        read -p "Proceed with these changes? (y/n) " -n 1 -r
+    {
         echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Aborting changelog update"
-            rm "$summary_file"
-            exit 1
+        echo "## $(date +%Y-%m-%d)"
+        echo
+        echo "Changes:"
+        echo "$changelog_entries"
+        if [ -f changelog.txt ]; then
+            cat changelog.txt
         fi
-        
-        # Clean up
-        rm "$summary_file"
-        
-        # Continue with changelog update
-        echo "Summary:" >> "$tmp_file"
-        echo "$summary" >> "$tmp_file"
-        echo -e "\n" >> "$tmp_file"
-    fi
-    echo "Changes:" >> "$tmp_file"
-    
-    echo "$changelog_entries" >> "$tmp_file"
-    if [ -f changelog.txt ]; then
-        cat changelog.txt >> "$tmp_file"
-    fi
+    } > "$tmp_file"
     mv "$tmp_file" changelog.txt
-    
-    # Commit the changes
+
     git add changelog.txt
     git commit -m "Update changelog"
 fi
 
-# Switch to master branch
-echo "Switching to master branch"
-git checkout master
-
-# Merge dev into master
-echo "Merging dev into master"
-git merge dev
-
-# Push master and dev branches to origin
-echo "Pushing to origin"
-git push origin dev master
-
-# Switch back to dev branch
-echo "Switching back to dev branch"
-git checkout dev
-
-# Pop the stash if there were changes stashed
-if [ "$should_pop_stash" = true ]; then
-    echo "Popping stash"
-    git stash pop
+version=${1:-}
+if [ -z "$version" ]; then
+    version="v$(date +'%y.%m.%d').$(git rev-parse --short HEAD)"
 fi
+
+if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+    echo "Tag $version already exists"
+    exit 1
+fi
+
+echo "Creating release tag $version"
+git tag -a "$version" -m "Release $version"
+
+echo "Pushing $release_branch and $version"
+git push origin "$release_branch" "$version"
