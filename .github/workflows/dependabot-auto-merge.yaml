@@ -4,6 +4,7 @@ on: pull_request
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 jobs:
@@ -25,8 +26,17 @@ jobs:
         run: gh pr review --approve "$PR_URL"
 
       - name: Enable auto-merge for patch and minor updates
+        id: auto_merge
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        continue-on-error: true
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr merge --auto --squash "$PR_URL"
+
+      - name: Assign PR for manual review
+        if: steps.metadata.outputs.update-type != 'version-update:semver-patch' && steps.metadata.outputs.update-type != 'version-update:semver-minor' || steps.auto_merge.outcome == 'failure'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr edit "$PR_URL" --add-assignee "lukasz-karolewski"
