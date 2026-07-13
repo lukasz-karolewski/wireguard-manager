@@ -23,7 +23,7 @@
     "dotenv": "^17.4.2",
     "lodash": "^4.18.1",
     "next": "16.2.10",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.18",
     "prisma": "^7.8.0",
     "qrcode.react": "^4.2.0",
     "react": "19.2.7",
@@ -37,7 +37,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
+    "@biomejs/biome": "^2.5.3",
     "@next/bundle-analyzer": "16.2.10",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.2",
@@ -47,14 +47,14 @@
     "@types/dotenv": "^8.2.3",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "@types/qrcode.react": "^3.0.0",
     "@types/react": "19.2.17",
     "globals": "^17.7.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
-    "prettier": "^3.9.4",
-    "tsx": "^4.23.0"
+    "prettier": "^3.9.5",
+    "tsx": "^4.23.1"
   },
   "name": "wireguard-manager",
   "overrides": {
