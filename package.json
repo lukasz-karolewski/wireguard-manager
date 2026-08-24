@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@better-auth/prisma-adapter": "^1.6.28",
+    "@better-auth/prisma-adapter": "^1.7.1",
     "@ebay/nice-modal-react": "^1.2.13",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
@@ -16,7 +16,7 @@
     "@trpc/server": "^11.5.0",
     "archiver": "^8.0.0",
     "await-exec": "^0.1.2",
-    "better-auth": "^1.6.28",
+    "better-auth": "^1.7.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "diff": "^9.0.0",
@@ -37,11 +37,11 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.8",
+    "@biomejs/biome": "^2.5.9",
     "@next/bundle-analyzer": "16.3.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.4",
+    "@testing-library/user-event": "^14.6.5",
     "@types/archiver": "^8.0.0",
     "@types/better-sqlite3": "^9.6.0",
     "@types/dotenv": "^8.2.3",
