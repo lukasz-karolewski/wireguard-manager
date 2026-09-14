@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@better-auth/prisma-adapter": "^1.7.2",
+    "@better-auth/prisma-adapter": "^1.7.4",
     "@ebay/nice-modal-react": "^1.2.13",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
@@ -16,7 +16,7 @@
     "@trpc/server": "^11.5.0",
     "archiver": "^8.0.0",
     "await-exec": "^0.1.2",
-    "better-auth": "^1.7.2",
+    "better-auth": "^1.7.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "diff": "^9.0.0",
@@ -26,18 +26,18 @@
     "postcss": "^8.5.28",
     "prisma": "^7.10.0",
     "qrcode.react": "^4.2.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "react-hook-form": "^7.87.0",
     "react-hot-toast": "^2.6.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.2",
     "tailwindcss": "^4.1.12",
     "typescript": "^6.0.3",
-    "zod": "^4.5.4"
+    "zod": "^4.6.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
+    "@biomejs/biome": "^2.5.13",
     "@next/bundle-analyzer": "16.3.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.3",
@@ -47,9 +47,9 @@
     "@types/dotenv": "^8.2.3",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.25",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.5.1",
     "@types/qrcode.react": "^3.0.0",
-    "@types/react": "19.2.18",
+    "@types/react": "19.3.0",
     "globals": "^17.12.0",
     "jest": "^30.5.1",
     "jest-environment-jsdom": "^30.5.1",
@@ -58,7 +58,7 @@
   },
   "name": "wireguard-manager",
   "overrides": {
-    "@types/react": "19.2.18"
+    "@types/react": "19.3.0"
   },
   "private": true,
   "scripts": {
