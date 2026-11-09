@@ -13,7 +13,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/*.d.ts", "!**/*.css", "!.agents", "!.devcontainer", "!skills-lock.json"]
+    "includes": ["**", "!**/*.d.ts", "!**/*.css", "!.agents", "!.devcontainer", "!skills-lock.json", "!.claude/skills"]
   },
   "formatter": {
     "enabled": true,
