@@ -28,3 +28,6 @@ wg*
 .aider*
 src/generated/*
 db/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
