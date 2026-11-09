@@ -58,7 +58,7 @@ Here are the steps to create the systemd service:
 
 2.  Create a new file named /etc/systemd/system/wireguard-reload.path with the following contents:
 
-         [Unit]
+        [Unit]
          Description=Watch /etc/wireguard/wg0.conf for changes
 
          [Path]
@@ -82,7 +82,6 @@ Here are the steps to create the systemd service:
 5.  Enable the path unit to start automatically at boot:
 
         sudo systemctl enable wireguard-reload.path
-
 This will enable the path unit to start automatically at boot time.
 
 That's it! Now whenever the wg0.conf file changes, the WireGuard service will be reloaded automatically.
