@@ -57,7 +57,10 @@
   },
   "name": "wireguard-manager",
   "overrides": {
-    "@types/react": "19.3.0"
+    "@types/react": "19.3.0",
+    "readdir-glob": {
+      "minimatch": "^11.0.5"
+    }
   },
   "private": true,
   "scripts": {
